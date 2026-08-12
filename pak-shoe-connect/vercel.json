@@ -3,6 +3,12 @@
   "framework": null,
   "buildCommand": "npx prisma generate && npm run build",
   "installCommand": "npm ci",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
