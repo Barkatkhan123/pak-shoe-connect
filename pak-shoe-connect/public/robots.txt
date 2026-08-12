@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard/admin
+Disallow: /api/
+
+Sitemap: https://anamonofficial.com/sitemap.xml

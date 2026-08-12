@@ -1,0 +1,445 @@
+// Prisma Schema for SherSha B2B Footwear Marketplace
+// Enterprise Architecture v2.0
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ──────────────────────────────────────────
+// 1. IDENTITY & RBAC
+// ──────────────────────────────────────────
+enum UserRole {
+  BUYER
+  SUPPLIER
+  OPERATOR
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_AUDIT
+  VERIFIED
+  REJECTED
+  SUSPENDED
+}
+
+model User {
+  id              String           @id @default(uuid()) @db.Uuid
+  email           String?          @unique
+  phone           String           @unique // E.164: +923001234567
+  passwordHash    String?
+  role            UserRole         @default(BUYER)
+  fullName        String
+  city            String
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  supplierProfile SupplierProfile?
+  buyerProfile    BuyerProfile?
+  rfqs            Rfq[]
+  orders          Order[]
+  reviews         ProductReview[]
+  auditLogs       AuditLog[]
+
+  @@index([phone])
+  @@map("users")
+}
+
+// ──────────────────────────────────────────
+// 2. SUPPLIER SUBSCRIPTIONS & MONETIZATION
+// ──────────────────────────────────────────
+enum SubscriptionTier {
+  FREE_STARTER
+  SILVER_MANUFACTURER
+  GOLD_FACTORY
+}
+
+model SupplierProfile {
+  id                 String             @id @default(uuid()) @db.Uuid
+  userId             String             @unique @db.Uuid
+  user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  factoryName        String
+  ntnTaxNumber       String?            @unique
+  city               String
+  address            String
+  verificationStatus VerificationStatus @default(PENDING)
+  
+  subscriptionTier   SubscriptionTier   @default(FREE_STARTER)
+  subscriptionEnd    DateTime?
+  rfqQuotaRemaining  Int                @default(50)
+  maxProductLimit    Int                @default(20)
+
+  responseRate       Int                @default(98)
+  avgReplyTime       String             @default("< 2 Hours")
+  monthlyCapacity    Int                @default(25000)
+  qualityStandards   String[]
+  factoryImages      String[]
+  factoryVideoUrl    String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  products           Product[]
+  orders             Order[]
+  rfqs               Rfq[]
+
+  @@map("supplier_profiles")
+}
+
+model BuyerProfile {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userId             String   @unique @db.Uuid
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessName       String?
+  businessType       String?
+  shippingAddress    String?
+  destinationCity    String   @default("Lahore")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@map("buyer_profiles")
+}
+
+// ──────────────────────────────────────────
+// 3. CATALOG & 3-STATE INVENTORY RESERVATION
+// ──────────────────────────────────────────
+model Category {
+  id          String    @id @default(uuid()) @db.Uuid
+  slug        String    @unique
+  name        String
+  nameUrdu    String?
+  gender      String    // men, women, kids, unisex
+  image       String
+  createdAt   DateTime  @default(now())
+  
+  products    Product[]
+
+  @@map("categories")
+}
+
+model Product {
+  id                 String            @id @default(uuid()) @db.Uuid
+  slug               String            @unique
+  sku                String            @unique
+  title              String
+  nameUrdu           String?
+  description        String
+  categoryId         String            @db.Uuid
+  category           Category          @relation(fields: [categoryId], references: [id])
+  supplierId         String            @db.Uuid
+  supplier           SupplierProfile   @relation(fields: [supplierId], references: [id])
+  
+  moq                Int               @default(24)
+  cartonQty          Int               @default(24)
+  leadTimeDays       String            @default("7-12 Days")
+  
+  specifications     Json
+  images             String[]
+  videoUrls          Json?
+  
+  isActive           Boolean           @default(true)
+  isFeatured         Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  variants           ProductVariant[]
+  bulkPriceTiers     BulkPriceTier[]
+  reviews            ProductReview[]
+  orderItems         OrderItem[]
+  rfqItems           RfqItem[]
+
+  @@index([slug])
+  @@index([categoryId])
+  @@index([supplierId])
+  @@map("products")
+}
+
+model ProductVariant {
+  id              String   @id @default(uuid()) @db.Uuid
+  productId       String   @db.Uuid
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  colorName       String
+  colorHex        String
+  sizeEU          String   // "39", "40", "41", "42", "43", "44", "45"
+  sizeUK          String
+  sizeUS          String
+  
+  availableStock  Int      @default(0)
+  reservedStock   Int      @default(0)
+  soldStock       Int      @default(0)
+  
+  variantSku      String   @unique
+  
+  @@unique([productId, colorName, sizeEU])
+  @@index([productId])
+  @@map("product_variants")
+}
+
+model BulkPriceTier {
+  id          String   @id @default(uuid()) @db.Uuid
+  productId   String   @db.Uuid
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  minQty      Int
+  maxQty      Int?
+  unitPrice   Decimal  @db.Decimal(12, 2)
+  tierLabel   String
+
+  @@unique([productId, minQty])
+  @@index([productId])
+  @@map("bulk_price_tiers")
+}
+
+// ──────────────────────────────────────────
+// 4. RFQ NEGOTIATION
+// ──────────────────────────────────────────
+enum RfqStatus {
+  SUBMITTED
+  SUPPLIER_QUOTED
+  BUYER_ACCEPTED
+  EXPIRED
+  CONVERTED_TO_ORDER
+  REJECTED
+}
+
+model Rfq {
+  id              String           @id @default(uuid()) @db.Uuid
+  rfqNumber       String           @unique
+  buyerId         String           @db.Uuid
+  buyer           User             @relation(fields: [buyerId], references: [id])
+  supplierId      String?          @db.Uuid
+  supplier        SupplierProfile? @relation(fields: [supplierId], references: [id])
+  status          RfqStatus        @default(SUBMITTED)
+  targetQuantity  Int
+  customBranding  Boolean          @default(false)
+  notes           String?
+  quotedUnitPrice Decimal?         @db.Decimal(12, 2)
+  quotedLeadTime  String?
+  expiresAt       DateTime
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  items           RfqItem[]
+  order           Order?
+
+  @@index([buyerId])
+  @@index([supplierId])
+  @@index([status])
+  @@map("rfqs")
+}
+
+model RfqItem {
+  id            String   @id @default(uuid()) @db.Uuid
+  rfqId         String   @db.Uuid
+  rfq           Rfq      @relation(fields: [rfqId], references: [id], onDelete: Cascade)
+  productId     String   @db.Uuid
+  product       Product  @relation(fields: [productId], references: [id])
+  color         String
+  sizeBreakdown Json
+  quantity      Int
+
+  @@map("rfq_items")
+}
+
+// ──────────────────────────────────────────
+// 5. ORDERS, PAYMENT GATEWAY & ESCROW LEDGER
+// ──────────────────────────────────────────
+enum OrderStatus {
+  PENDING_PAYMENT
+  ESCROW_FUNDED
+  IN_PRODUCTION
+  DISPATCHED
+  DELIVERED
+  COMPLETED
+  DISPUTED
+  CANCELLED
+}
+
+enum EscrowState {
+  UNPAID
+  HELD_IN_ESCROW
+  PARTIAL_RELEASE
+  RELEASED_TO_SUPPLIER
+  REFUNDED_TO_BUYER
+}
+
+model Order {
+  id               String           @id @default(uuid()) @db.Uuid
+  orderNumber      String           @unique
+  buyerId          String           @db.Uuid
+  buyer            User             @relation(fields: [buyerId], references: [id])
+  supplierId       String?          @db.Uuid
+  supplier         SupplierProfile? @relation(fields: [supplierId], references: [id])
+  rfqId            String?          @unique @db.Uuid
+  rfq              Rfq?             @relation(fields: [rfqId], references: [id])
+  
+  status           OrderStatus      @default(PENDING_PAYMENT)
+  escrowStatus     EscrowState      @default(UNPAID)
+  
+  totalPairs       Int
+  totalCartons     Int
+  subtotalAmount   Decimal          @db.Decimal(14, 2)
+  freightAmount    Decimal          @db.Decimal(10, 2) @default(0.00)
+  totalAmount      Decimal          @db.Decimal(14, 2)
+  
+  shippingCity     String
+  shippingAddress  String
+  trackingBiltiNo  String?
+  logisticsCarrier String?
+  
+  reservationExpiresAt DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  items            OrderItem[]
+  payments         PaymentTransaction[]
+  escrowLedger     EscrowLedger[]
+
+  @@index([buyerId])
+  @@index([supplierId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id              String   @id @default(uuid()) @db.Uuid
+  orderId         String   @db.Uuid
+  order           Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId       String   @db.Uuid
+  product         Product  @relation(fields: [productId], references: [id])
+  color           String
+  sizeRun         String
+  variantSku      String?
+  quantityPairs   Int
+  cartonsCount    Int
+  unitPrice       Decimal  @db.Decimal(12, 2)
+  totalPrice      Decimal  @db.Decimal(14, 2)
+
+  @@map("order_items")
+}
+
+enum PaymentProvider {
+  JAZZCASH
+  EASYPAISA
+  ONE_LINK_PAYFAST
+  DIRECT_BANK_TRANSFER
+  STRIPE_INTERNATIONAL
+}
+
+enum PaymentStatus {
+  INITIATED
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+model PaymentTransaction {
+  id              String          @id @default(uuid()) @db.Uuid
+  orderId         String          @db.Uuid
+  order           Order           @relation(fields: [orderId], references: [id])
+  provider        PaymentProvider
+  providerTxId    String?         @unique
+  amount          Decimal         @db.Decimal(14, 2)
+  currency        String          @default("PKR")
+  status          PaymentStatus   @default(INITIATED)
+  receiptSlipUrl  String?
+  verifiedByAdmin Boolean         @default(false)
+  rawResponse     Json?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([orderId])
+  @@index([providerTxId])
+  @@map("payment_transactions")
+}
+
+model EscrowLedger {
+  id          String   @id @default(uuid()) @db.Uuid
+  orderId     String   @db.Uuid
+  order       Order    @relation(fields: [orderId], references: [id])
+  amount      Decimal  @db.Decimal(14, 2)
+  type        String
+  reference   String
+  createdAt   DateTime @default(now())
+
+  @@map("escrow_ledger")
+}
+
+// ──────────────────────────────────────────
+// 6. IMMUTABLE AUDIT LOGGING
+// ──────────────────────────────────────────
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String?  @db.Uuid
+  user        User?    @relation(fields: [userId], references: [id])
+  action      String
+  entityType  String
+  entityId    String
+  oldValues   Json?
+  newValues   Json?
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@map("audit_logs")
+}
+
+// ──────────────────────────────────────────
+// 7. REVIEWS & RATINGS
+// ──────────────────────────────────────────
+model ProductReview {
+  id        String   @id @default(uuid()) @db.Uuid
+  productId String   @db.Uuid
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  rating    Int      @default(5)
+  comment   String
+  city      String
+  helpful   Int      @default(0)
+  isVerified Boolean @default(true)
+  createdAt DateTime @default(now())
+
+  @@map("product_reviews")
+}
+
+// ──────────────────────────────────────────
+// 8. IDEMPOTENCY KEYS (DB-backed fallback for serverless)
+// ──────────────────────────────────────────
+model IdempotencyKey {
+  key         String   @id
+  requestHash String
+  response    Json?
+  status      String   @default("PROCESSING") // PROCESSING | COMPLETED | FAILED
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("idempotency_keys")
+}
+
+// ──────────────────────────────────────────
+// 9. SUPPLIER WALLET (DB-backed fallback for serverless)
+// ──────────────────────────────────────────
+model SupplierWallet {
+  id               String   @id @default(uuid()) @db.Uuid
+  supplierId       String   @unique @db.Uuid
+  availableBalance Decimal  @default(0) @db.Decimal(14, 2)
+  pendingEscrow    Decimal  @default(0) @db.Decimal(14, 2)
+  releasedBalance  Decimal  @default(0) @db.Decimal(14, 2)
+  totalWithdrawn   Decimal  @default(0) @db.Decimal(14, 2)
+  bankAccounts     Json     @default("[]")
+  payoutRequests   Json     @default("[]")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("supplier_wallets")
+}
