@@ -2,14 +2,14 @@ import * as esbuild from "esbuild";
 import path from "path";
 
 async function build() {
-  console.log("🔨 Building client SPA bundle for static hosting...");
+  console.log("🔨 Building client SPA bundle for static hosting (app-v2.js)...");
   await esbuild.build({
     entryPoints: ["src/entry-client.tsx"],
     bundle: true,
     minify: true,
     format: "esm",
     target: ["es2022"],
-    outfile: "dist/client/assets/app.js",
+    outfile: "dist/client/assets/app-v2.js",
     define: {
       "process.env.NODE_ENV": '"production"',
       "import.meta.env": JSON.stringify({
@@ -41,7 +41,7 @@ async function build() {
       "@": path.resolve("./src"),
     },
   });
-  console.log("✅ Successfully built dist/client/assets/app.js !");
+  console.log("✅ Successfully built dist/client/assets/app-v2.js !");
 }
 
 build().catch((err) => {
