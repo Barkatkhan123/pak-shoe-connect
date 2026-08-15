@@ -1,0 +1,19 @@
+option batch on
+option confirm off
+open ftpes://u988207622:sher%40123%25%26B@145.79.26.180:21/ -certificate=*
+
+# 1. Clean and setup anamonofficial.com
+cd /domains/anamonofficial.com/public_html
+rm default.php
+mkdir assets
+cd assets
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\assets\* ./
+
+# 2. Clean and setup preview domain
+cd /domains/anamonofficial-com-549724.hostingersite.com/public_html
+rm default.php
+mkdir assets
+cd assets
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\assets\* ./
+
+exit

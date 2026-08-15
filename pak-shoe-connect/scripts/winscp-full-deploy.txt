@@ -1,0 +1,15 @@
+option batch on
+option confirm off
+open ftpes://u988207622:sher%40123%25%26B@145.79.26.180:21/ -certificate=*
+
+# 1. Upload to primary domain: anamonofficial.com
+cd /domains/anamonofficial.com/public_html
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\* ./
+ls /domains/anamonofficial.com/public_html
+
+# 2. Upload to preview domain: anamonofficial-com-549724.hostingersite.com
+cd /domains/anamonofficial-com-549724.hostingersite.com/public_html
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\* ./
+ls /domains/anamonofficial-com-549724.hostingersite.com/public_html
+
+exit

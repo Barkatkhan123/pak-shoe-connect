@@ -1,0 +1,23 @@
+option batch on
+option confirm off
+open ftpes://u988207622:sher%40123%25%26B@145.79.26.180:21/ -certificate=*
+
+# Upload root client files (.htaccess, index.html, favicon, robots, sitemap)
+cd /domains/anamonofficial.com/public_html
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\.htaccess ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\index.html ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\favicon.jpg ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\favicon.ico ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\robots.txt ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\sitemap.xml ./
+
+cd /domains/anamonofficial-com-549724.hostingersite.com/public_html
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\.htaccess ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\index.html ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\favicon.jpg ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\favicon.ico ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\robots.txt ./
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\sitemap.xml ./
+
+ls /domains/anamonofficial.com/public_html
+exit

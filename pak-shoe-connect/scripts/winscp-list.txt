@@ -1,0 +1,7 @@
+option batch on
+option confirm off
+open ftpes://u988207622:sher%40123%25%26B@145.79.26.180:21/ -certificate=*
+pwd
+ls
+ls domains
+exit
