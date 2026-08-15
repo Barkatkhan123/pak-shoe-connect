@@ -1,0 +1,17 @@
+option batch on
+option confirm off
+open ftpes://u988207622:sher%40123%25%26B@145.79.26.180:21/ -certificate=*
+
+# 1. Update anamonofficial.com
+cd /domains/anamonofficial.com/public_html
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\index.html ./
+cd assets
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\assets\app-v3.js ./
+
+# 2. Update preview domain
+cd /domains/anamonofficial-com-549724.hostingersite.com/public_html
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\index.html ./
+cd assets
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\assets\app-v3.js ./
+
+exit
