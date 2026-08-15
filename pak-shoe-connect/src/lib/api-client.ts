@@ -5,7 +5,14 @@
 
 import { adminSecurityEngine, MASTER_ADMIN_EMAIL } from "./admin-auth";
 
-const API_BASE_URL = typeof window !== "undefined" ? "" : "http://localhost:3000";
+const getApiBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    return (import.meta.env.VITE_API_URL as string) || "";
+  }
+  return (typeof process !== "undefined" && (process.env.VITE_API_URL || process.env.SITE_URL)) || "";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 export interface ApiResponse<T = any> {
   success: boolean;

@@ -515,4 +515,36 @@ Complete and sign off all items prior to launching live traffic:
 
 ---
 
-*Operational Runbook Authorized by SherSha Engineering Board — Version 1.0.0*
+# 28. Hostinger Business Web Hosting — Hybrid Deployment Architecture
+
+```text
+                    anamonofficial.com
+                           │
+                     Cloudflare/CDN
+                           │
+              ┌────────────┴────────────┐
+              │                         │
+        Hostinger Business        External Backend
+        Static Frontend           Node.js / API
+              │                         │
+              │              ┌──────────┼──────────┐
+              │              │          │          │
+              └──────────────┤      PostgreSQL   Redis
+                             │       Supabase    Upstash
+                             │
+                         Search
+                       PostgreSQL
+                       fallback
+```
+
+### Component Distribution
+
+1. **Frontend Assets (`public_html`)**: Built client SPA output (`dist/client/*`) deployed directly to Hostinger Business shared web hosting via hPanel / Git. `.htaccess` handles forced HTTPS redirection and client route fallback.
+2. **Backend Gateway (`https://api.anamonofficial.com`)**: Node.js runtime (`dist/server/server.js`) deployed to external hosting (Render / Railway / Vercel), maintaining full Prisma, BullMQ, Payment Webhooks, and API Gateway capabilities.
+3. **Database**: External Supabase / Neon PostgreSQL instance connected securely via `DATABASE_URL` (pooled) and `DIRECT_URL` (migration).
+4. **Search**: Safe PostgreSQL full-text fallback active via `SearchService` (`source: "POSTGRESQL_FALLBACK"`).
+5. **Redis**: Upstash Redis managed instance connected via `REDIS_URL`.
+
+---
+
+*Operational Runbook Authorized by SherSha Engineering Board — Version 1.1.0*

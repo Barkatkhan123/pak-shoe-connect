@@ -1,8 +1,18 @@
+const getSiteUrl = () => {
+  if (typeof import.meta !== "undefined" && import.meta.env && import.meta.env.VITE_SITE_URL) {
+    return import.meta.env.VITE_SITE_URL as string;
+  }
+  if (typeof process !== "undefined" && (process.env.VITE_SITE_URL || process.env.SITE_URL)) {
+    return process.env.VITE_SITE_URL || process.env.SITE_URL!;
+  }
+  return "https://anamonofficial.com";
+};
+
 export const SITE = {
   brand: "SherSha",
   brandUrdu: "شیر شاہ",
   domain: "anamonofficial.com",
-  url: "https://anamonofficial.com",
+  url: getSiteUrl(),
   tagline: "Pakistan's Premier B2B Wholesale Shoe Marketplace",
   taglineUrdu: "پاکستان کا پریمیئر تھوک جوتا مارکیٹ پلیس",
   phone: "0343-2178305",

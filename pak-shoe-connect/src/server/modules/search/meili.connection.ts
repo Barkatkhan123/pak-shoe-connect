@@ -50,11 +50,12 @@ export async function initializeMeilisearch() {
     });
     console.log("✅ Meilisearch Products Index Configured Successfully");
   } catch (err) {
-    if (process.env.NODE_ENV === "development") {
-      // Graceful fallback for local dev when Meilisearch daemon is offline
+    if (!process.env.MEILISEARCH_HOST) {
+      console.log("ℹ️ [Search Layer] MEILISEARCH_HOST unconfigured; PostgreSQL search fallback active.");
+    } else if (process.env.NODE_ENV === "development") {
       console.log("ℹ️ [Search Layer] Meilisearch offline in local dev; PostgreSQL full-text fallback active.");
     } else {
-      console.error("🔴 Meilisearch Index Initialization Error:", err);
+      console.log("ℹ️ [Search Layer] Meilisearch server offline/unreachable; PostgreSQL fallback active.");
     }
   }
 }
