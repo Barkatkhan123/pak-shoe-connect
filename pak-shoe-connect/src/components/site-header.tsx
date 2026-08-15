@@ -78,13 +78,16 @@ export function SiteHeader() {
           
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-ink text-white premium-shadow transition-transform duration-300 group-hover:scale-105 group-hover:bg-primary">
-              <span className="font-display text-xl font-bold">{SITE.brand.charAt(0)}</span>
+            <div
+              className="grid h-10 w-10 place-items-center rounded premium-shadow transition-all duration-300 group-hover:scale-105"
+              style={{ background: "#1B4332" }}
+            >
+              <span className="font-display text-xl font-bold" style={{ color: "#C9A84C" }}>{SITE.brand.charAt(0)}</span>
             </div>
             <div className="leading-none mt-0.5">
-              <div className="font-display text-2xl font-bold tracking-tight text-ink">{SITE.brand}</div>
-              <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-muted-foreground mt-1">
-                B2B Marketplace
+              <div className="font-display text-2xl font-bold tracking-tight" style={{ color: "#0F1A13" }}>{SITE.brand}</div>
+              <div className="text-[9px] font-bold uppercase tracking-[0.2em] mt-1" style={{ color: "#8B5E3C" }}>
+                B2B Wholesale
               </div>
             </div>
           </Link>
@@ -94,7 +97,7 @@ export function SiteHeader() {
             <Link
               to="/"
               className="rounded-lg px-4 py-2 text-sm font-semibold text-foreground/70 hover:bg-black/5 hover:text-foreground transition-all"
-              activeProps={{ className: "text-primary bg-primary/5" }}
+              activeProps={{ className: "text-[#1B4332] bg-[#1B4332]/8" }}
               activeOptions={{ exact: true }}
             >
               Home

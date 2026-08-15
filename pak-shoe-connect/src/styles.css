@@ -5,8 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * SherSha — Pakistan B2B Wholesale Shoe Marketplace
- * Premium UI/UX Redesign
+ * Anamon — Pakistan B2B Wholesale Footwear Marketplace
+ * Premium UI/UX Redesign — v2.0
  * Warm leather + deep emerald + Pakistan flag green accent + dark ink.
  */
 
@@ -54,41 +54,49 @@
 :root {
   --radius: 0.75rem;
 
-  /* Sophisticated off-white */
-  --background: oklch(0.985 0.005 85);
-  --foreground: oklch(0.15 0.02 60);
-  --cream: oklch(0.97 0.015 80);
-  --ink: oklch(0.12 0.015 250); /* deep almost black with blue undertone */
+  /* ── Warm cream backgrounds ──────────────────────────── */
+  --background: #FAF7F2;       /* warm parchment — premium, clean */
+  --foreground: #0F1A13;       /* near-black, dark forest */
+  --cream: #F5EFE4;            /* warm cream for sections */
+  --ink: #0F1A13;              /* deep forest charcoal */
 
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 60);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 60);
+  --card: #FFFFFF;
+  --card-foreground: #1A2E1F;
+  --popover: #FFFFFF;
+  --popover-foreground: #1A2E1F;
 
-  /* Vibrant Orange / Rich Green */
-  --primary: #FF5E00; /* slightly more vibrant orange */
-  --primary-foreground: oklch(0.99 0.01 85);
-  --emerald: oklch(0.42 0.12 152);
-  --emerald-deep: oklch(0.20 0.08 158);
+  /* ── PRIMARY: Deep Forest Green — Trust, Authority, Pakistan ── */
+  --primary: #1B4332;          /* deep forest green */
+  --primary-foreground: #FAF7F2;
 
-  /* Warm leather browns */
-  --leather: oklch(0.55 0.11 55);
-  --leather-deep: oklch(0.35 0.07 45);
+  /* ── SECONDARY: Leather Brown — Craftsmanship, Industry ──── */
+  --leather: #8B5E3C;          /* warm leather brown */
+  --leather-deep: #5C3D1E;     /* deep saddle brown */
+  --leather-light: #C4956A;    /* tan, lighter leather */
 
-  --secondary: oklch(0.95 0.01 75);
-  --secondary-foreground: oklch(0.2 0.02 60);
-  --muted: oklch(0.95 0.01 80);
-  --muted-foreground: oklch(0.55 0.02 60);
-  --accent: oklch(0.92 0.02 80);
-  --accent-foreground: oklch(0.2 0.02 60);
+  /* ── ACCENT: Burnished Gold — Premium Quality, Value ─────── */
+  --gold: #C9A84C;             /* burnished gold */
+  --gold-deep: #A07830;        /* deep antique gold */
 
-  --gold: oklch(0.75 0.14 75);
+  /* ── Greens — Pakistan identity, growth ─────────────────── */
+  --emerald: #2D6A4F;          /* medium forest green */
+  --emerald-deep: #1B4332;     /* same as primary */
+  --emerald-light: #52B788;    /* fresh leaf green (subtle) */
+
+  /* ── Neutral scale ─────────────────────────────────────── */
+  --secondary: #F0EAE0;        /* warm off-white */
+  --secondary-foreground: #2D3A2A;
+  --muted: #EDE7DA;            /* muted warm tone */
+  --muted-foreground: #5C6B5A; /* muted green-gray text */
+  --accent: #EDE7DA;
+  --accent-foreground: #1A2E1F;
+
+  /* ── Utility ────────────────────────────────────────────── */
   --whatsapp: #25D366;
-
-  --destructive: oklch(0.55 0.22 27);
-  --destructive-foreground: oklch(0.98 0.01 85);
-  --border: oklch(0.92 0.01 75);
-  --input: oklch(0.92 0.01 75);
+  --destructive: #B91C1C;
+  --destructive-foreground: #FAF7F2;
+  --border: #E0D9CE;           /* warm parchment border */
+  --input: #E0D9CE;
   --ring: var(--primary);
 }
 
@@ -151,6 +159,20 @@
 
 @utility gradient-text {
   background: linear-gradient(135deg, var(--color-primary), var(--color-gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility gradient-text-gold {
+  background: linear-gradient(135deg, var(--color-gold-deep, #A07830), var(--color-gold, #C9A84C));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility gradient-text-leather {
+  background: linear-gradient(135deg, var(--color-leather-deep, #5C3D1E), var(--color-leather-light, #C4956A));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -239,10 +261,11 @@
 /* Cinematic Hero Overlay */
 .hero-overlay-premium {
   background: linear-gradient(
-    to bottom,
-    rgba(0,0,0,0.1) 0%,
-    rgba(0,0,0,0.4) 50%,
-    rgba(0,0,0,0.85) 100%
+    105deg,
+    rgba(15,26,19,0.92) 0%,
+    rgba(15,26,19,0.75) 45%,
+    rgba(15,26,19,0.35) 80%,
+    rgba(15,26,19,0.10) 100%
   );
 }
 
@@ -391,5 +414,104 @@
 }
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/* ==================== LANDING PAGE V2 ENHANCEMENTS ==================== */
+
+/* Shine sweep on hover */
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.shine-hover {
+  position: relative;
+  overflow: hidden;
+}
+.shine-hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform: skewX(-15deg);
+  transition: none;
+}
+.shine-hover:hover::after {
+  animation: shine 0.6s ease forwards;
+}
+
+/* Marquee scroll for trust strip */
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@utility animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+/* Glowing primary shadow */
+@utility shadow-primary-glow {
+  box-shadow: 0 0 0 1px rgba(255,94,0,0.15), 0 4px 20px rgba(255,94,0,0.25), 0 8px 32px rgba(255,94,0,0.15);
+}
+
+/* Hero text stroke */
+@utility text-stroke {
+  -webkit-text-stroke: 1px currentColor;
+  color: transparent;
+}
+
+/* Frosted card */
+@utility card-frosted {
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255,255,255,0.6);
+  box-shadow: 0 4px 32px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+
+/* Pill label */
+@utility pill-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border);
+  padding: 0.25rem 0.875rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* Bento card hover */
+.bento-card {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 1.5rem;
+}
+.bento-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 16px 40px -8px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+}
+
+/* Text reveal animation */
+@keyframes revealText {
+  0%   { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0% 0 0); }
+}
+@utility animate-reveal {
+  animation: revealText 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Number counter pop */
+@keyframes counterPop {
+  0%   { transform: scale(0.7); opacity: 0; }
+  60%  { transform: scale(1.08); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@utility animate-counter-pop {
+  animation: counterPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
