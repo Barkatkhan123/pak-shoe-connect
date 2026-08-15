@@ -79,7 +79,7 @@ export function SiteHeader() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 shrink-0 group">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-ink text-white premium-shadow transition-transform duration-300 group-hover:scale-105 group-hover:bg-primary">
-              <span className="font-display text-xl font-bold">S</span>
+              <span className="font-display text-xl font-bold">{SITE.brand.charAt(0)}</span>
             </div>
             <div className="leading-none mt-0.5">
               <div className="font-display text-2xl font-bold tracking-tight text-ink">{SITE.brand}</div>

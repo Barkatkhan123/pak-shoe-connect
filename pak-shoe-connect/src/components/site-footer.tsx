@@ -33,7 +33,7 @@ export function SiteFooter() {
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2">
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-to-br from-emerald-deep to-emerald text-white">
-                <span className="font-display text-xl font-bold">S</span>
+                <span className="font-display text-xl font-bold">{SITE.brand.charAt(0)}</span>
               </div>
               <span className="font-display text-2xl font-bold tracking-tight text-white">{SITE.brand}</span>
             </Link>
