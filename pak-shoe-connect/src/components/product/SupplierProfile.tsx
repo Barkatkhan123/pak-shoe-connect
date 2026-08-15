@@ -98,7 +98,7 @@ export function SupplierProfile({ supplier, onOpenTourVideo }: SupplierProfilePr
           <span>Major Delivery Hubs: Lahore, Karachi, Rawalpindi, Peshawar, UAE</span>
         </div>
         <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-          <ShieldCheck className="h-4 w-4" /> SherSha Verified Escrow Protected
+          <ShieldCheck className="h-4 w-4" /> Anamon Verified Escrow Protected
         </div>
       </div>
     </div>

@@ -81,7 +81,7 @@ export const Route = createFileRoute("/products/$slug")({
   component: ProductDetail,
   head: ({ loaderData }) => ({
     meta: [
-      { title: `${loaderData?.product.name ?? "Product"} Wholesale | SherSha` },
+      { title: `${loaderData?.product.name ?? "Product"} Wholesale | Anamon` },
       { name: "description", content: loaderData?.product.description ?? "" },
     ],
   }),
@@ -114,7 +114,7 @@ function ProductDetail() {
   const handleShare = useCallback(async () => {
     const shareData = {
       title: product.name,
-      text: `Check out ${product.name} — wholesale from SherSha`,
+      text: `Check out ${product.name} — wholesale from Anamon`,
       url: window.location.href,
     };
     try {
@@ -156,7 +156,7 @@ function ProductDetail() {
       .map(([size, qty]) => `  ${size}: ${qty} pairs`)
       .join("\n");
 
-    const msg = `Hi SherSha, I am interested in wholesale inquiry for:\n\n*${product.name}* (SKU: ${product.sku})\nColor: ${selectedColor}\n${sizeDetails ? `Sizes:\n${sizeDetails}` : ""}\nTotal: ${matrixTotals.totalPairs} pairs\n\nPlease send pricing details.`;
+    const msg = `Hi Anamon, I am interested in wholesale inquiry for:\n\n*${product.name}* (SKU: ${product.sku})\nColor: ${selectedColor}\n${sizeDetails ? `Sizes:\n${sizeDetails}` : ""}\nTotal: ${matrixTotals.totalPairs} pairs\n\nPlease send pricing details.`;
     window.open(waLink(msg), "_blank");
   };
 
@@ -168,7 +168,7 @@ function ProductDetail() {
     image: product.images,
     description: product.description,
     sku: product.sku,
-    brand: { "@type": "Brand", name: "SherSha" },
+    brand: { "@type": "Brand", name: "Anamon" },
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "PKR",
@@ -534,7 +534,7 @@ function ProductDetail() {
                   <div className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden mb-8">
                     <img src="https://images.unsplash.com/photo-1604066867775-43f48e3957d8?w=1200&q=80" alt="Factory Floor" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 hero-overlay-premium flex flex-col justify-end p-6">
-                      <h3 className="font-display text-2xl font-bold text-white mb-1">SherSha Footwear Pvt. Ltd.</h3>
+                      <h3 className="font-display text-2xl font-bold text-white mb-1">Anamon Footwear Pvt. Ltd.</h3>
                       <p className="text-white/80 text-sm">Premium Leather Manufacturing · Established 1998</p>
                     </div>
                   </div>

@@ -15,7 +15,7 @@ export function InquiryDrawer({ isOpen, onClose }: Props) {
   const handleWhatsApp = () => {
     if (items.length === 0) return;
     
-    let msg = `Hi SherSha, I would like to request a wholesale quote for the following items:\n\n`;
+    let msg = `Hi Anamon, I would like to request a wholesale quote for the following items:\n\n`;
     items.forEach((item, i) => {
       msg += `${i + 1}. *${item.name}* (SKU: ${item.sku})\n`;
       msg += `   Color: ${item.color}, Size: ${item.size}\n`;

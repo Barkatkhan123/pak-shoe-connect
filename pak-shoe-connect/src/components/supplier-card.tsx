@@ -11,7 +11,7 @@ type SupplierProps = {
 };
 
 export function SupplierCard({
-  name = "SherSha Footwear Pvt. Ltd.",
+  name = "Anamon Footwear Pvt. Ltd.",
   location = "Lahore, PK",
   years = "25+ YRS",
   responseRate = "98.5%",

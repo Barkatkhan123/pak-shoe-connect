@@ -49,7 +49,7 @@ export class TrackingService {
           {
             step: "ESCROW_FUNDED",
             title: "Escrow Deposit Verified",
-            description: "100% Payment locked securely in SherSha Escrow Ledger",
+            description: "100% Payment locked securely in Anamon Escrow Ledger",
             timestamp: "2026-08-04T10:15:00Z",
             completed: true,
           },
@@ -108,7 +108,7 @@ export class TrackingService {
         {
           step: "ESCROW_FUNDED",
           title: "Escrow Deposit Verified",
-          description: "100% Payment locked securely in SherSha Escrow Ledger",
+          description: "100% Payment locked securely in Anamon Escrow Ledger",
           timestamp: order.createdAt.toISOString(),
           completed: isEscrowFunded,
         },

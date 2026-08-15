@@ -1,5 +1,5 @@
 /**
- * SherSha B2B Footwear Marketplace — Enterprise Security & RBAC Engine
+ * Anamon B2B Footwear Marketplace — Enterprise Security & RBAC Engine
  * Includes Dynamic OTP Generation, CSRF Protection, Permission Matrix,
  * Refresh Token Rotation, File Security & Immutable Audit Trail.
  */
@@ -315,7 +315,7 @@ export const adminSecurityEngine = {
       csrfToken,
       authenticatedAt: new Date().toISOString(),
       ipAddress: resolvedIp,
-      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "SherSha Admin Engine",
+      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "Anamon Admin Engine",
       is2faVerified,
       permissions: MASTER_ADMIN_PERMISSIONS,
     };
@@ -428,7 +428,7 @@ export const adminSecurityEngine = {
       id: `LOG-${Math.floor(1000 + Math.random() * 9000)}`,
       requestId: `REQ-${Math.floor(100000 + Math.random() * 900000)}-Z`,
       timestamp: new Date().toISOString(),
-      userAgent: entry.userAgent || (typeof navigator !== "undefined" ? navigator.userAgent : "SherSha Engine"),
+      userAgent: entry.userAgent || (typeof navigator !== "undefined" ? navigator.userAgent : "Anamon Engine"),
       ...entry,
     };
 

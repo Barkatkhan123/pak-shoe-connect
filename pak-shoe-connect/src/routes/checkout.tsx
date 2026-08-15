@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from "framer-motion";
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
   head: () => ({
-    meta: [{ title: "Secure Checkout — SherSha Wholesale" }],
+    meta: [{ title: "Secure Checkout — Anamon Wholesale" }],
   }),
 });
 

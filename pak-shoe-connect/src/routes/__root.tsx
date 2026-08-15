@@ -79,13 +79,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SherSha — Pakistan's Wholesale Footwear Manufacturer" },
+      { title: "Anamon — Pakistan's Wholesale Footwear Manufacturer" },
       {
         name: "description",
         content:
-          "SherSha manufactures wholesale footwear in Pakistan — men, women & kids. Peshawari, formal, sneakers, khussa, heels, school shoes. Private label, bulk orders, nationwide delivery.",
+          "Anamon manufactures wholesale footwear in Pakistan — men, women & kids. Peshawari, formal, sneakers, khussa, heels, school shoes. Private label, bulk orders, nationwide delivery.",
       },
-      { property: "og:title", content: "SherSha — Wholesale Footwear Manufacturer" },
+      { property: "og:title", content: "Anamon — Wholesale Footwear Manufacturer" },
       {
         property: "og:description",
         content:
@@ -93,7 +93,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://anamonofficial.com" },
-      { property: "og:site_name", content: "SherSha Wholesale" },
+      { property: "og:site_name", content: "Anamon Wholesale" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [

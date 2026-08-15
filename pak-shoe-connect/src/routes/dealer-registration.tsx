@@ -7,13 +7,13 @@ export const Route = createFileRoute("/dealer-registration")({
   component: DealerRegistration,
   head: () => ({
     meta: [
-      { title: "Become a Dealer — SherSha Wholesale Footwear" },
+      { title: "Become a Dealer — Anamon Wholesale Footwear" },
       {
         name: "description",
         content:
-          "Register as a SherSha wholesale dealer. Get approved buyer terms, factory rates and priority production slots. Registration takes 2 minutes.",
+          "Register as a Anamon wholesale dealer. Get approved buyer terms, factory rates and priority production slots. Registration takes 2 minutes.",
       },
-      { property: "og:title", content: "Dealer Registration — SherSha" },
+      { property: "og:title", content: "Dealer Registration — Anamon" },
       { property: "og:url", content: "/dealer-registration" },
     ],
     links: [{ rel: "canonical", href: "/dealer-registration" }],
@@ -26,7 +26,7 @@ function DealerRegistration() {
     <SiteLayout>
       <PageHero
         eyebrow="Dealer registration"
-        title="Join 1,200+ SherSha dealers."
+        title="Join 1,200+ Anamon dealers."
         description="Complete the form below. Once approved, you'll unlock wholesale prices, buyer terms and dedicated sales support."
       />
       <section className="mx-auto max-w-3xl px-4 py-14">

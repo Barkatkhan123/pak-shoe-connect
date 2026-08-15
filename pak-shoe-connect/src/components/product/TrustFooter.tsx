@@ -16,7 +16,7 @@ export function TrustFooter({ product, onClose }: TrustFooterProps) {
           <BadgeCheck className="h-4 w-4" /> Verified Manufacturer
         </span>
         <span className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400">
-          <ShieldCheck className="h-4 w-4" /> SherSha Trade Assurance
+          <ShieldCheck className="h-4 w-4" /> Anamon Trade Assurance
         </span>
         <span className="flex items-center gap-1.5 text-foreground hidden sm:flex">
           <Lock className="h-3.5 w-3.5 text-amber-500" /> Secure B2B Escrow

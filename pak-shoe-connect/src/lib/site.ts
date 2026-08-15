@@ -9,8 +9,8 @@ const getSiteUrl = () => {
 };
 
 export const SITE = {
-  brand: "SherSha",
-  brandUrdu: "شیر شاہ",
+  brand: "Anamon",
+  brandUrdu: "اینامون",
   domain: "anamonofficial.com",
   url: getSiteUrl(),
   tagline: "Pakistan's Premier B2B Wholesale Shoe Marketplace",
@@ -19,8 +19,8 @@ export const SITE = {
   phoneHref: "tel:+923432178305",
   whatsapp: "923432178305",
   whatsappHref: "https://wa.me/923432178305",
-  email: "wholesale@shersha.pk",
-  emailHref: "mailto:wholesale@shersha.pk",
+  email: "wholesale@anamonofficial.com",
+  emailHref: "mailto:wholesale@anamonofficial.com",
   address: "Main Market, Gulberg III, Lahore, Pakistan",
   gstn: "42-0001234-5",
   since: 1998,

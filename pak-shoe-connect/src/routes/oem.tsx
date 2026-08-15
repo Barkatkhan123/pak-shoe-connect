@@ -6,13 +6,13 @@ export const Route = createFileRoute("/oem")({
   component: OEM,
   head: () => ({
     meta: [
-      { title: "OEM & Private Label Footwear Manufacturing — SherSha Pakistan" },
+      { title: "OEM & Private Label Footwear Manufacturing — Anamon Pakistan" },
       {
         name: "description",
         content:
-          "Launch your own shoe brand with SherSha. Private label manufacturing from 300 pairs — custom logo, box, packaging, and full design customization.",
+          "Launch your own shoe brand with Anamon. Private label manufacturing from 300 pairs — custom logo, box, packaging, and full design customization.",
       },
-      { property: "og:title", content: "OEM / Private Label — SherSha" },
+      { property: "og:title", content: "OEM / Private Label — Anamon" },
       { property: "og:url", content: "/oem" },
     ],
     links: [{ rel: "canonical", href: "/oem" }],
@@ -25,7 +25,7 @@ function OEM() {
       <PageHero
         eyebrow="OEM / Private Label"
         title="Your brand, on every pair."
-        description="SherSha manufactures footwear under your own label — from sampling to branded packaging."
+        description="Anamon manufactures footwear under your own label — from sampling to branded packaging."
       />
       <section className="mx-auto max-w-7xl px-4 py-14">
         <div className="grid gap-6 md:grid-cols-3">

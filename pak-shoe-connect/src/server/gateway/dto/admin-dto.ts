@@ -119,7 +119,7 @@ export function toAdminProductDto(p: any): AdminProductDto {
     name:              p.title || p.name || "Untitled Product",
     slug:              p.slug,
     sku:               p.sku || `SKU-${p.slug}`,
-    brand:             p.brand || "SherSha Select",
+    brand:             p.brand || "Anamon Select",
     category:          p.category?.name || p.category || "Footwear",
     supplierName:      p.supplier?.factoryName || p.supplierName || "Sialkot Syndicate Factory",
     moq:               p.moq || 12,

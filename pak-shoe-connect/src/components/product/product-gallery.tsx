@@ -298,7 +298,7 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
       <div className="flex items-center gap-3 text-sm flex-wrap mt-1">
         <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
           <ShieldCheck className="w-4 h-4" />
-          <span>SherSha Verified Supplier</span>
+          <span>Anamon Verified Supplier</span>
         </div>
         <span className="text-muted-foreground text-xs">•</span>
         <span className="text-muted-foreground text-xs">Sample available</span>

@@ -27,11 +27,11 @@ export const Route = createFileRoute("/")({
   component: Home,
   head: () => ({
     meta: [
-      { title: "SherSha — Pakistan's Wholesale Footwear Marketplace" },
+      { title: "Anamon — Pakistan's Wholesale Footwear Marketplace" },
       {
         name: "description",
         content:
-          "SherSha is Pakistan's premier B2B wholesale footwear marketplace. Sourcing from factories to retailers nationwide. Men, women & kids. Private label, bulk orders.",
+          "Anamon is Pakistan's premier B2B wholesale footwear marketplace. Sourcing from factories to retailers nationwide. Men, women & kids. Private label, bulk orders.",
       },
     ],
   }),

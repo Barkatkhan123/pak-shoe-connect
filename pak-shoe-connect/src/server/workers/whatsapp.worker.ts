@@ -35,7 +35,7 @@ export function formatWhatsAppMessage(data: WhatsAppJobData): string {
       return `🛡️ *SHERSHA B2B — 100% محفوظ ایسکرو (Escrow) ادائیگی موصول*
 
 محترم *${payload.userName}* صاحب،
-آرڈر \`${payload.orderNumber}\` کی کل رقم *PKR ${payload.amount?.toLocaleString()}* شیر شاہ کے ایسکرو اکاؤنٹ میں جمع ہو چکی ہے۔
+آرڈر \`${payload.orderNumber}\` کی کل رقم *PKR ${payload.amount?.toLocaleString()}* اینامون کے ایسکرو اکاؤنٹ میں جمع ہو چکی ہے۔
 
 ✅ *فنڈز تصدیق شدہ ہیں — آپ تسلی کے ساتھ مال تیار کر کے ڈسپیچ کر سکتے ہیں۔*
 فیکٹری کو رقم مال کی ترسیل کے بعد فوری ریلیز ہو جائے گی۔`;

@@ -8,13 +8,13 @@ export const Route = createFileRoute("/catalog")({
   component: Catalog,
   head: () => ({
     meta: [
-      { title: "Wholesale Catalog PDF — SherSha Footwear" },
+      { title: "Wholesale Catalog PDF — Anamon Footwear" },
       {
         name: "description",
         content:
-          "Browse SherSha's complete wholesale footwear catalog online or download the PDF linesheet for retailers and distributors.",
+          "Browse Anamon's complete wholesale footwear catalog online or download the PDF linesheet for retailers and distributors.",
       },
-      { property: "og:title", content: "Wholesale Catalog — SherSha" },
+      { property: "og:title", content: "Wholesale Catalog — Anamon" },
       { property: "og:url", content: "/catalog" },
     ],
     links: [{ rel: "canonical", href: "/catalog" }],
@@ -27,7 +27,7 @@ function Catalog() {
       <PageHero
         eyebrow="Catalog"
         title="Browse online or download the linesheet."
-        description="Complete SherSha wholesale catalog with 200+ SKUs across men, women & kids."
+        description="Complete Anamon wholesale catalog with 200+ SKUs across men, women & kids."
       />
       <section className="mx-auto max-w-7xl px-4 py-14">
         <div className="grid gap-8 md:grid-cols-[1fr_1fr] md:items-start">
@@ -40,7 +40,7 @@ function Catalog() {
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
-                href={waLink("Hi SherSha, please send me the latest wholesale catalog PDF.")}
+                href={waLink("Hi Anamon, please send me the latest wholesale catalog PDF.")}
                 className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-emerald-deep"
               >
                 <Download className="h-4 w-4" /> Request PDF on WhatsApp

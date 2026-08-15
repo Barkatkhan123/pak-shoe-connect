@@ -1,6 +1,6 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════════════╗
- * ║         SherSha B2B — Zero Trust API Gateway (v1)                      ║
+ * ║         Anamon B2B — Zero Trust API Gateway (v1)                      ║
  * ║                                                                          ║
  * ║  ARCHITECTURE                                                            ║
  * ║    Browser / Mobile App                                                  ║

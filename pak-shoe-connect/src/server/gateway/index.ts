@@ -1,5 +1,5 @@
 /**
- * Zero Trust API Gateway — SherSha B2B Platform
+ * Zero Trust API Gateway — Anamon B2B Platform
  *
  * This is the ONLY public entry point. All internal services, engines,
  * databases, queues, and infrastructure are completely hidden behind this layer.

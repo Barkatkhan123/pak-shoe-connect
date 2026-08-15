@@ -259,7 +259,7 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
                   </div>
                   <div className="flex justify-between border-b border-border pb-2 mb-2">
                     <span className="text-muted-foreground text-xs">Account Title:</span>
-                    <span className="font-bold">SherSha B2B (Pvt) Ltd - Escrow Ledger</span>
+                    <span className="font-bold">Anamon B2B (Pvt) Ltd - Escrow Ledger</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground text-xs">IBAN:</span>

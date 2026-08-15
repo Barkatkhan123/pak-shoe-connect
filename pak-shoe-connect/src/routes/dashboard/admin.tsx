@@ -400,7 +400,7 @@ export function AdminDashboardPage() {
         bestseller: !!updatedFields.bestseller,
         trending: !!updatedFields.trending,
         newArrival: !!updatedFields.newArrival,
-        description: updatedFields.description || "High quality footwear manufactured to SherSha wholesale standards.",
+        description: updatedFields.description || "High quality footwear manufactured to Anamon wholesale standards.",
         specifications: updatedFields.specifications || {
           "Upper Material": updatedFields.material || "Genuine Leather",
           "Sole Material": updatedFields.soleType || "Rubber",
@@ -438,7 +438,7 @@ export function AdminDashboardPage() {
               <Shield className="h-6 w-6 fill-current" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-slate-100">
-              SherSha Admin Portal
+              Anamon Admin Portal
             </h1>
             <p className="text-xs text-slate-400">
               Sign in to access your administration workspace
@@ -613,7 +613,7 @@ export function AdminDashboardPage() {
           )}
 
           <div className="text-center text-[11px] text-slate-600">
-            Protected by SherSha Enterprise Identity
+            Protected by Anamon Enterprise Identity
           </div>
         </div>
       </div>

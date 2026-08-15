@@ -191,11 +191,11 @@ export function ProductGallery({ product }: ProductGalleryProps) {
       {/* Supplier Bar */}
       <div className="mt-2 bg-[#F2F7FD] rounded-lg p-3 flex items-center gap-3 border border-[#E3EEFA]">
         <div className="w-10 h-10 bg-white rounded-md overflow-hidden flex items-center justify-center shrink-0 border border-gray-200">
-           <img src="https://api.dicebear.com/7.x/initials/svg?seed=SherSha&backgroundColor=003366&textColor=ffffff" alt="Supplier Logo" className="w-full h-full object-cover" />
+           <img src="https://api.dicebear.com/7.x/initials/svg?seed=Anamon&backgroundColor=003366&textColor=ffffff" alt="Supplier Logo" className="w-full h-full object-cover" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-gray-900 text-sm truncate hover:text-primary cursor-pointer">SherSha Footwear Pvt. Ltd.</h3>
+            <h3 className="font-bold text-gray-900 text-sm truncate hover:text-primary cursor-pointer">Anamon Footwear Pvt. Ltd.</h3>
             <span className="text-[10px] font-bold text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded flex items-center gap-0.5"><div className="w-2 h-2 rounded-full bg-blue-600"></div> Verified Manufacturer</span>
           </div>
           <div className="flex items-center gap-2 text-xs text-gray-600 mt-0.5">

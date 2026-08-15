@@ -56,7 +56,7 @@ export function PurchaseActions({
   const handleDirectWhatsApp = () => {
     const sizeText = isAssorted ? "Standard Assorted Ratio (12 prs/ctn)" : `Size EU ${selectedSize}`;
     const text = encodeURIComponent(
-      `Assalam-o-Alaikum, I want to place a wholesale order/inquiry on SherSha:\n\n` +
+      `Assalam-o-Alaikum, I want to place a wholesale order/inquiry on Anamon:\n\n` +
       `📦 Product: ${product.title}\n` +
       `🏷️ SKU: ${product.sku}\n` +
       `🎨 Color: ${selectedColor}\n` +

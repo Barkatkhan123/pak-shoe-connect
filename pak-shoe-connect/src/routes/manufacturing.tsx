@@ -7,13 +7,13 @@ export const Route = createFileRoute("/manufacturing")({
   component: Manufacturing,
   head: () => ({
     meta: [
-      { title: "Manufacturing & Factory — SherSha Footwear Pakistan" },
+      { title: "Manufacturing & Factory — Anamon Footwear Pakistan" },
       {
         name: "description",
         content:
-          "Inside SherSha's shoe factories in Lahore. In-house cutting, stitching, sole moulding, 3-stage QC and warehousing.",
+          "Inside Anamon's shoe factories in Lahore. In-house cutting, stitching, sole moulding, 3-stage QC and warehousing.",
       },
-      { property: "og:title", content: "Manufacturing — SherSha" },
+      { property: "og:title", content: "Manufacturing — Anamon" },
       { property: "og:url", content: "/manufacturing" },
     ],
     links: [{ rel: "canonical", href: "/manufacturing" }],
@@ -27,7 +27,7 @@ function Manufacturing() {
       <section className="relative w-full h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
         <img 
           src={factoryImg} 
-          alt="SherSha factory floor" 
+          alt="Anamon factory floor" 
           className="absolute inset-0 w-full h-full object-cover" 
         />
         <div className="absolute inset-0 hero-overlay-premium" />
@@ -41,7 +41,7 @@ function Manufacturing() {
             Every pair, built under one roof.
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed text-balance">
-            From raw leather cutting to final carton packing — experience the full SherSha production process, engineered for B2B scale.
+            From raw leather cutting to final carton packing — experience the full Anamon production process, engineered for B2B scale.
           </p>
         </div>
       </section>

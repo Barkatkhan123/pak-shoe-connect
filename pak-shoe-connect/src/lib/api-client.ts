@@ -1,5 +1,5 @@
 /**
- * SherSha B2B Footwear Marketplace — Unified Frontend API Client
+ * Anamon B2B Footwear Marketplace — Unified Frontend API Client
  * Connects UI components seamlessly to the Backend Gateway & Services
  */
 

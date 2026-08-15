@@ -29,7 +29,7 @@ const DEFAULT_TRACKING_DATA: TrackingData = {
     {
       step: "ESCROW_FUNDED",
       title: "Escrow Deposit Verified",
-      description: "100% Payment locked securely in SherSha Escrow Ledger via 1Link PayFast",
+      description: "100% Payment locked securely in Anamon Escrow Ledger via 1Link PayFast",
       timestamp: "2026-08-04T10:15:00Z",
       completed: true,
     },

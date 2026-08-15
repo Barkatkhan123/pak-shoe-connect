@@ -231,7 +231,7 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
     name: product.name,
     nameUrdu: product.nameUrdu,
     sku: product.sku || `SKU-${product.slug.toUpperCase().slice(0, 10)}`,
-    brand: "SherSha Certified Manufacturing Hub",
+    brand: "Anamon Certified Manufacturing Hub",
     categorySlug: product.categorySlug,
     supplier: {
       name: "Sialkot & Lahore Master Footwear Syndicate",
@@ -304,7 +304,7 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
       "Factory-Direct Tiered Wholesale Pricing (Up to 45% Retail Margin)",
       "Custom OEM Branding, Insole Logo Embossing & Custom Box Packaging Available",
       "Fast Nationwide Freight via Leopard / TCS Cargo (3-5 Business Days)",
-      "SherSha Trade Assurance Guarantee & Zero-Defect Replacement Warranty",
+      "Anamon Trade Assurance Guarantee & Zero-Defect Replacement Warranty",
     ],
     shipping: {
       dispatchDays: product.leadTimeDays || "3-7 Days for In-Stock Lots",

@@ -1,5 +1,5 @@
 /**
- * SherSha B2B Footwear Marketplace — Core API Router & Gateway Delegate
+ * Anamon B2B Footwear Marketplace — Core API Router & Gateway Delegate
  * All incoming requests are dispatched strictly through the Zero-Trust API Gateway.
  */
 

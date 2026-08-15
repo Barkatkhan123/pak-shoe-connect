@@ -16,7 +16,7 @@ export function PurchasePanel({ product, totalPairs, totalAmount, selectedColor 
   const isValidOrder = moqMet && isMultipleOf12;
 
   const handleWhatsApp = () => {
-    const msg = `Hi SherSha, I am interested in wholesale inquiry for:\n\n*${product.name}* (SKU: ${product.sku})\nColor: ${selectedColor} (Single color per carton)\nTotal Pairs: ${totalPairs} (${totalPairs / 12} Cartons)\n\nPlease send pricing details.`;
+    const msg = `Hi Anamon, I am interested in wholesale inquiry for:\n\n*${product.name}* (SKU: ${product.sku})\nColor: ${selectedColor} (Single color per carton)\nTotal Pairs: ${totalPairs} (${totalPairs / 12} Cartons)\n\nPlease send pricing details.`;
     window.open(waLink(msg), "_blank");
   };
 
@@ -95,7 +95,7 @@ export function PurchasePanel({ product, totalPairs, totalAmount, selectedColor 
             <Factory className="w-6 h-6 text-muted-foreground" />
           </div>
           <div className="flex flex-col">
-            <h4 className="font-semibold text-foreground leading-tight text-sm">SherSha Official Store</h4>
+            <h4 className="font-semibold text-foreground leading-tight text-sm">Anamon Official Store</h4>
             <div className="flex items-center gap-1 mt-0.5">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald" />
               <span className="text-xs text-emerald font-medium">Verified Supplier</span>

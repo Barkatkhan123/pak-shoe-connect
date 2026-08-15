@@ -44,7 +44,7 @@ export function ProductHeader({
   const handleWhatsAppShare = () => {
     const url = `${window.location.origin}/products/${product.slug}`;
     const text = encodeURIComponent(
-      `Check out ${product.title} on SherSha B2B Marketplace:\n${url}`
+      `Check out ${product.title} on Anamon B2B Marketplace:\n${url}`
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
     setShowShareMenu(false);

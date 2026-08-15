@@ -7,13 +7,13 @@ export const Route = createFileRoute("/become-distributor")({
   component: BecomeDistributor,
   head: () => ({
     meta: [
-      { title: "Become a Distributor — SherSha Wholesale Footwear Pakistan" },
+      { title: "Become a Distributor — Anamon Wholesale Footwear Pakistan" },
       {
         name: "description",
         content:
-          "Partner with SherSha as a regional distributor. Exclusive territory, factory rates and dedicated support for large-scale buyers.",
+          "Partner with Anamon as a regional distributor. Exclusive territory, factory rates and dedicated support for large-scale buyers.",
       },
-      { property: "og:title", content: "Distributor Program — SherSha" },
+      { property: "og:title", content: "Distributor Program — Anamon" },
       { property: "og:url", content: "/become-distributor" },
     ],
     links: [{ rel: "canonical", href: "/become-distributor" }],
@@ -26,7 +26,7 @@ function BecomeDistributor() {
     <SiteLayout>
       <PageHero
         eyebrow="Distributor program"
-        title="Become a SherSha regional distributor."
+        title="Become a Anamon regional distributor."
         description="For larger partners with existing distribution networks, warehousing and monthly volume commitments."
       />
       <section className="mx-auto max-w-3xl px-4 py-14">

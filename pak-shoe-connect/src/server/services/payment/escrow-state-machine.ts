@@ -21,7 +21,7 @@ export const ESCROW_TRANSITION_RULES: Record<EscrowLifecycleState, EscrowLifecyc
 
 export class EscrowStateMachine {
   /**
-   * Validates if a state transition is legal under SherSha Escrow rules
+   * Validates if a state transition is legal under Anamon Escrow rules
    */
   static isValidTransition(from: EscrowLifecycleState, to: EscrowLifecycleState): boolean {
     const allowed = ESCROW_TRANSITION_RULES[from] || [];

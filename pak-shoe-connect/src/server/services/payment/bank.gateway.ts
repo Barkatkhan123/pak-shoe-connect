@@ -20,7 +20,7 @@ export class BankTransferGateway implements PaymentGateway {
       gatewayTransactionId: reference,
       voucherCode: reference,
       rawResponse: {
-        accountTitle: "SherSha Technologies B2B Escrow (Pvt) Ltd",
+        accountTitle: "Anamon Technologies B2B Escrow (Pvt) Ltd",
         bankName: "Meezan Bank Ltd",
         iban: "PK42MEZN0001092837461928",
         accountNumber: "01092837461928",
