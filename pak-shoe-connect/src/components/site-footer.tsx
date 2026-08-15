@@ -105,6 +105,9 @@ export function SiteFooter() {
       <div className="border-t border-cream/10 bg-black/20">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-6 text-xs text-cream/50 sm:flex-row">
           <p>© {new Date().getFullYear()} {SITE.brand} Footwear Industries. All rights reserved.</p>
+          <p className="font-medium text-cream/75 tracking-wide">
+            Made with 🤍 by Barkat
+          </p>
           <div className="flex gap-4">
             <a href="#" className="hover:text-white transition-colors">Privacy Policy</a>
             <a href="#" className="hover:text-white transition-colors">Terms of Service</a>
