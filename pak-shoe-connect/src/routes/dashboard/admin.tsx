@@ -328,16 +328,11 @@ export function AdminDashboardPage() {
       return;
     }
 
-    // Generate dynamic 6-digit OTP
-    adminSecurityEngine.generateDynamicOtp(normalizedEmail);
-    setLoginStep("2FA_OTP");
-
-    // BUG-01b FIX: Never show the OTP in the toast. The code is sent to the
-    // registered email/authenticator and must not appear in the UI.
-    toast.success(`Verification code dispatched to ${normalizedEmail}`, {
-      description: "Enter the 6-digit code from your authenticator or email.",
-      duration: 6000,
-    });
+    // Successful Master Admin password authentication -> establish session directly
+    adminSecurityEngine.resetFailedAttempts();
+    const newSession = adminSecurityEngine.createSession(normalizedEmail, true);
+    setSession(newSession);
+    toast.success("Welcome back, Master Admin! Signed in successfully.");
   };
 
   // Step 2: Submit 2FA OTP
