@@ -1,8 +1,9 @@
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
+import { useAuth } from "@/hooks/use-auth";
 import { formatPKR, waLink } from "@/lib/site";
 import { Link } from "@tanstack/react-router";
-import { Trash2, MessageCircle, Package, ArrowRight } from "lucide-react";
+import { Trash2, MessageCircle, Package, ArrowRight, ShieldCheck, UserCheck } from "lucide-react";
 
 type Props = {
   isOpen: boolean;
@@ -11,6 +12,7 @@ type Props = {
 
 export function InquiryDrawer({ isOpen, onClose }: Props) {
   const { items, removeItem, updateQty, totalItems, count } = useInquiryBasket();
+  const { isAuthenticated } = useAuth();
 
   const handleWhatsApp = () => {
     if (items.length === 0) return;
@@ -29,18 +31,43 @@ export function InquiryDrawer({ isOpen, onClose }: Props) {
     <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <SheetContent className="flex w-full flex-col p-0 sm:max-w-md bg-background border-l border-border">
         <SheetHeader className="border-b border-border p-6 text-left">
-          <SheetTitle className="font-display text-xl flex items-center gap-2">
-            <Package className="h-5 w-5 text-primary" />
-            Inquiry Basket
-            {count > 0 && (
-              <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
-                {count} {count === 1 ? 'item' : 'items'}
-              </span>
-            )}
+          <SheetTitle className="font-display text-xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              <span>Inquiry Basket</span>
+              {count > 0 && (
+                <span className="ml-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
+                  {count} {count === 1 ? 'item' : 'items'}
+                </span>
+              )}
+            </div>
           </SheetTitle>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto p-6">
+          {!isAuthenticated && items.length > 0 && (
+            <div className="mb-5 rounded-xl bg-[#1B4332]/5 border border-[#1B4332]/15 p-3.5 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[#1B4332] flex items-center gap-1.5">
+                  <ShieldCheck className="h-4 w-4 text-[#1B4332]" />
+                  Guest Inquiry Basket
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    window.dispatchEvent(new CustomEvent("shersha:open-auth-modal"));
+                  }}
+                  className="font-bold text-[#1B4332] hover:underline cursor-pointer text-[11px]"
+                >
+                  Sign In to Sync
+                </button>
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground leading-relaxed">
+                Items are stored locally on your device. Sign in anytime to link your inquiry basket to your verified account.
+              </p>
+            </div>
+          )}
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center space-y-4">
               <div className="rounded-full bg-muted p-4">

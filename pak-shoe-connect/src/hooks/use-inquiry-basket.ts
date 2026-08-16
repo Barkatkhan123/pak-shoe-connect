@@ -266,9 +266,9 @@ export function useInquiryBasket() {
       const size = options?.size ?? product.sizes?.[0] ?? "Assorted";
       const unitPrice = product.priceTiers?.[0]?.pricePerPair ?? 1000;
 
-      // ── AUTHENTICATION CHECK ──────────────────────────────────────────
+      // ── AUTHENTICATION / GUEST BASKET HANDLER ────────────────────────
       if (!isAuthenticated || !user) {
-        // Safeguard 1: Save full versioned pending action with 60m TTL
+        // 1. Save full versioned pending action with 60m TTL
         savePendingAction({
           slug: product.slug,
           name: product.name,
@@ -285,13 +285,52 @@ export function useInquiryBasket() {
           tierName: options?.tierName,
         });
 
-        // Trigger Sign In Prompt
-        toast.info("Please sign in to add this item to your basket.", {
-          description: `Selection saved: ${requestedQty} pairs (${color}, ${size}).`,
+        // 2. Add to local guest basket so product shows up immediately in the cart
+        const current = loadLocalBasket();
+        const existing = current.find((i) => i.slug === product.slug && i.color === color && i.size === size);
+        let updated: InquiryItem[];
+        if (existing) {
+          updated = current.map((i) =>
+            i === existing ? { ...i, requestedQty: i.requestedQty + requestedQty } : i
+          );
+        } else {
+          updated = [
+            ...current,
+            {
+              slug: product.slug,
+              name: product.name,
+              sku: product.sku,
+              image: product.image,
+              moq: product.moq || 12,
+              cartonQty,
+              requestedQty,
+              cartonCount,
+              color,
+              size,
+              priceLabel: product.priceLabel ?? `PKR ${unitPrice}/pair`,
+              price: unitPrice,
+              tierName: options?.tierName,
+            },
+          ];
+        }
+        saveLocalBasket(updated);
+        setLocalItems(updated);
+
+        // 3. User feedback & open drawer
+        toast.success(`Added ${requestedQty} pairs of ${product.name} to Inquiry Basket!`, {
+          description: `Color: ${color} • Size: ${size}`,
+          action: {
+            label: "Sign In",
+            onClick: () => {
+              window.dispatchEvent(new CustomEvent("shersha:open-auth-modal", {
+                detail: { hasPendingItem: true, productSlug: product.slug }
+              }));
+            },
+          },
         });
-        window.dispatchEvent(new CustomEvent("shersha:open-auth-modal", {
-          detail: { hasPendingItem: true, productSlug: product.slug }
-        }));
+
+        // Open the inquiry drawer immediately so the product is visible in the cart
+        window.dispatchEvent(new CustomEvent("shersha:open-inquiry-drawer"));
         return;
       }
 
@@ -314,7 +353,8 @@ export function useInquiryBasket() {
     if (!isAuthenticated || !user || authLoading) return;
 
     const pending = getPendingAction();
-    if (!pending) return;
+    const guestItems = loadLocalBasket();
+    if (!pending && guestItems.length === 0) return;
 
     // Mutex lock to prevent duplicate execution across re-renders
     if (isRestoringLock) return;
@@ -322,55 +362,57 @@ export function useInquiryBasket() {
 
     const resumeAction = async () => {
       try {
-        // Reconstruct or lookup product definition from catalog
-        const catalogProduct = PRODUCTS.find((p) => p.slug === pending.slug);
-        const resolvedProduct: Product = catalogProduct || ({
-          slug: pending.slug,
-          name: pending.name,
-          sku: pending.sku,
-          image: pending.image,
-          images: [pending.image],
-          moq: pending.moq,
-          cartonQty: pending.cartonQty,
-          nameUrdu: "",
-          categorySlug: "",
-          gender: "unisex",
-          material: "Leather",
-          soleType: "PU / Rubber",
-          colorVariants: [],
-          colors: [pending.color],
-          sizes: [pending.size],
-          priceLabel: pending.priceLabel,
-          priceTiers: [{ moq: pending.moq, pricePerPair: pending.price, label: pending.tierName || "Standard Tier" }],
-          description: "",
-          newArrival: false,
-          bestseller: false,
-          featured: false,
-          trending: false,
-          inStock: true,
-          leadTimeDays: "3-5 days",
-          productionCapacity: "10,000 pairs/month",
-          customization: [],
-          specifications: {},
-          reviews: [],
-        } as unknown as Product);
+        if (pending) {
+          // Reconstruct or lookup product definition from catalog
+          const catalogProduct = PRODUCTS.find((p) => p.slug === pending.slug);
+          const resolvedProduct: Product = catalogProduct || ({
+            slug: pending.slug,
+            name: pending.name,
+            sku: pending.sku,
+            image: pending.image,
+            images: [pending.image],
+            moq: pending.moq,
+            cartonQty: pending.cartonQty,
+            nameUrdu: "",
+            categorySlug: "",
+            gender: "unisex",
+            material: "Leather",
+            soleType: "PU / Rubber",
+            colorVariants: [],
+            colors: [pending.color],
+            sizes: [pending.size],
+            priceLabel: pending.priceLabel,
+            priceTiers: [{ moq: pending.moq, pricePerPair: pending.price, label: pending.tierName || "Standard Tier" }],
+            description: "",
+            newArrival: false,
+            bestseller: false,
+            featured: false,
+            trending: false,
+            inStock: true,
+            leadTimeDays: "3-5 days",
+            productionCapacity: "10,000 pairs/month",
+            customization: [],
+            specifications: {},
+            reviews: [],
+          } as unknown as Product);
 
-        // Execute server mutation with idempotency key
-        await addMutation.mutateAsync({
-          product: resolvedProduct,
-          options: {
-            color: pending.color,
-            size: pending.size,
-            qty: pending.requestedQty,
-            cartonCount: pending.cartonCount,
-            tierName: pending.tierName,
-          },
-          idempotencyKey: pending.idempotencyKey,
-        });
+          // Execute server mutation with idempotency key
+          await addMutation.mutateAsync({
+            product: resolvedProduct,
+            options: {
+              color: pending.color,
+              size: pending.size,
+              qty: pending.requestedQty,
+              cartonCount: pending.cartonCount,
+              tierName: pending.tierName,
+            },
+            idempotencyKey: pending.idempotencyKey,
+          });
 
-        toast.success(`Welcome back! Added ${pending.requestedQty} pairs of ${pending.name} to your basket.`, {
-          description: `Color: ${pending.color} • Size: ${pending.size}`,
-        });
+          toast.success(`Welcome back! Added ${pending.requestedQty} pairs of ${pending.name} to your basket.`, {
+            description: `Color: ${pending.color} • Size: ${pending.size}`,
+          });
+        }
       } catch (err: any) {
         console.error("[useInquiryBasket] Auto-resumption error:", err);
         // Do NOT clear pending action on failure; user can retry

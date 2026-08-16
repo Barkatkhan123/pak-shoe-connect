@@ -27,9 +27,11 @@ function save(items: WishlistItem[]) {
 }
 
 export function useWishlist() {
-  const [items, setItems] = useState<WishlistItem[]>(load);
+  const [items, setItems] = useState<WishlistItem[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     setItems(load());
     const handleUpdate = () => setItems(load());
     window.addEventListener("shersha_wishlist_update", handleUpdate);
@@ -99,6 +101,6 @@ export function useWishlist() {
     isWishlisted: isInWishlist,
     clearWishlist,
     clear: clearWishlist,
-    count: items.length,
+    count: isMounted ? items.length : 0,
   };
 }
