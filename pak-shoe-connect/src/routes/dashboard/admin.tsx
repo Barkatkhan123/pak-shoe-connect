@@ -408,7 +408,7 @@ export function AdminDashboardPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.setAttribute("href", url);
-    link.setAttribute("download", `shersha_audit_trail_${Date.now()}.csv`);
+    link.setAttribute("download", `anamon_audit_trail_${Date.now()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -750,7 +750,7 @@ export function AdminDashboardPage() {
       <header className="h-16 border-b border-slate-800 bg-slate-900/90 px-6 flex items-center justify-between sticky top-0 z-40 backdrop-blur">
         <div className="flex items-center gap-3">
           <div className="bg-amber-500 text-slate-950 px-3 py-1.5 rounded-xl font-black text-lg tracking-wider">
-            SHERSHA
+            ANAMON
           </div>
           <div>
             <h1 className="text-sm font-bold text-slate-100 flex items-center gap-2">
