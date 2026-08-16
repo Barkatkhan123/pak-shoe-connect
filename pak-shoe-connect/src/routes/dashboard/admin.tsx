@@ -12,7 +12,7 @@ import {
   LogOut, Shield, Mail, CheckCircle, Smartphone, Terminal, History, Fingerprint,
   Download, Send, LifeBuoy, Wifi, WifiOff, Zap, Globe, Database, Server,
   AlertCircle, ToggleLeft, ToggleRight, Banknote, Scale, MessageSquareWarning,
-  HeartPulse, SlidersHorizontal
+  HeartPulse, SlidersHorizontal, X, Trash2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
