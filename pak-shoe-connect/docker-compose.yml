@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anamon-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DATABASE_URL=postgresql://anamon_user:anamon_secret_pass@postgres:5432/anamon_db?schema=public
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=anamon_jwt_enterprise_secret_key_2026
+      - APP_BASE_URL=http://localhost:3000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - anamon-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: anamon-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=anamon_user
+      - POSTGRES_PASSWORD=anamon_secret_pass
+      - POSTGRES_DB=anamon_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - anamon-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U anamon_user -d anamon_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: anamon-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - anamon-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    image: nginx:alpine
+    container_name: anamon-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./infrastructure/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./dist/client:/usr/share/nginx/html:ro
+    depends_on:
+      - app
+    networks:
+      - anamon-network
+
+networks:
+  anamon-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:

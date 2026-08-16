@@ -17,3 +17,37 @@ export const CalculateCartSchema = z.object({
 });
 
 export type CalculateCartInput = z.infer<typeof CalculateCartSchema>;
+
+export const AddBasketItemSchema = z.object({
+  productId: z.string().optional(),
+  productSlug: z.string({ required_error: "Product slug is required" }),
+  quantityPairs: z.coerce.number().int().positive("Quantity must be at least 1 pair"),
+  cartonCount: z.coerce.number().int().positive().optional(),
+  color: z.string().optional().default("Standard"),
+  size: z.string().optional().default("Assorted"),
+  variantSku: z.string().optional(),
+  idempotencyKey: z.string().optional(),
+});
+
+export type AddBasketItemInput = z.infer<typeof AddBasketItemSchema>;
+
+export interface ServerBasketItem {
+  slug: string;
+  productId?: string;
+  name: string;
+  sku: string;
+  image: string;
+  moq: number;
+  cartonQty: number;
+  requestedQty: number;
+  cartonCount: number;
+  color: string;
+  size: string;
+  priceLabel: string;
+  unitPrice: number;
+  subtotal: number;
+  tierName: string;
+  addedAt: string;
+  idempotencyKey?: string;
+}
+

@@ -1,7 +1,22 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, MessageCircle, ArrowRight, Heart, Package, ChevronDown } from "lucide-react";
+import {
+  Menu,
+  X,
+  MessageCircle,
+  ArrowRight,
+  Heart,
+  Package,
+  ChevronDown,
+  Search,
+  Building,
+  Factory,
+  FileText,
+  PhoneCall,
+  UserCheck,
+  ShieldCheck,
+} from "lucide-react";
 import { NAV, SITE, CATEGORY_NAV } from "@/lib/site";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
@@ -13,259 +28,362 @@ export function SiteHeader() {
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
   const { count: wishlistCount } = useWishlist();
   const { count: inquiryCount } = useInquiryBasket();
 
-  // Detect scroll for dynamic header background
+  // Detect scroll
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
+    const onScroll = () => setScrolled(window.scrollY > 15);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Close mega menu on route change
+  // Close menus on route navigation
   const router = useRouter();
   useEffect(() => {
-    const unsub = router.subscribe('onBeforeNavigate', () => {
+    const unsub = router.subscribe("onBeforeNavigate", () => {
       setMegaMenuOpen(false);
       setOpen(false);
+      setMobileSearchOpen(false);
     });
     return unsub;
   }, [router]);
 
-  // Keyboard: Escape closes all menus
+  // Escape key closes menus
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setMegaMenuOpen(false);
         setOpen(false);
+        setMobileSearchOpen(false);
       }
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  // Open inquiry basket drawer on custom event
+  useEffect(() => {
+    const onOpenInquiry = () => setInquiryOpen(true);
+    window.addEventListener("shersha:open-inquiry-drawer", onOpenInquiry);
+    return () => window.removeEventListener("shersha:open-inquiry-drawer", onOpenInquiry);
   }, []);
 
   return (
     <>
-      {/* ── Top utility bar ── */}
-      <div className="bg-ink text-white/90 text-[11px] font-medium tracking-wide">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-1.5 sm:py-2">
-          <p className="flex items-center gap-2 truncate opacity-90">
-            <span aria-hidden className="text-[13px]">🇵🇰</span> 
-            Premium Footwear Manufacturing · Delivery across Pakistan
-          </p>
-          <div className="flex items-center gap-5 shrink-0">
-            <div className="hidden items-center gap-3 sm:flex">
-              <span className="text-gold font-bold">PKR</span>
-              <span className="w-px h-3 bg-white/20" />
-              <span className="cursor-pointer hover:text-white transition">English</span>
-              <span className="cursor-pointer opacity-60 hover:opacity-100 transition font-urdu">اردو</span>
-            </div>
-            <a href={SITE.whatsappHref} className="hidden sm:flex items-center gap-1.5 hover:text-whatsapp transition">
-              <MessageCircle className="h-3.5 w-3.5" /> 
-              <span>WhatsApp {SITE.phone}</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Main Glass Header ── */}
-      <header className={`sticky top-0 z-40 transition-all duration-300 ${
-        scrolled ? "glass shadow-sm border-b border-white/20 py-2.5" : "bg-white border-b border-border py-4"
-      }`}>
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 lg:px-6">
-          
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3 shrink-0 group">
-            <div
-              className="grid h-10 w-10 place-items-center rounded premium-shadow transition-all duration-300 group-hover:scale-105"
-              style={{ background: "#1B4332" }}
-            >
-              <span className="font-display text-xl font-bold" style={{ color: "#C9A84C" }}>{SITE.brand.charAt(0)}</span>
-            </div>
-            <div className="leading-none mt-0.5">
-              <div className="font-display text-2xl font-bold tracking-tight" style={{ color: "#0F1A13" }}>{SITE.brand}</div>
-              <div className="text-[9px] font-bold uppercase tracking-[0.2em] mt-1" style={{ color: "#8B5E3C" }}>
-                B2B Wholesale
+      <header
+        className={`sticky top-0 z-[100] w-full max-w-full border-b-2 border-gold bg-white transition-shadow duration-200 ${
+          scrolled ? "shadow-md" : "shadow-xs"
+        }`}
+      >
+        {/* ── Slim 28px Announcement Bar ── */}
+        <div className="w-full bg-[#0F1A13] text-[#FAF7F2] text-[11px] font-medium tracking-wide safe-top border-b border-white/10">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 h-7 min-h-[28px]">
+            <p className="flex items-center gap-1.5 truncate text-[11px]">
+              <span aria-hidden className="text-xs shrink-0">🇵🇰</span>
+              <span className="truncate font-semibold">Premium Footwear Manufacturing · Delivery across Pakistan</span>
+            </p>
+            <div className="flex items-center gap-4 shrink-0 text-[11px]">
+              <div className="hidden items-center gap-2 sm:flex">
+                <span className="text-gold font-bold">PKR</span>
+                <span className="w-px h-2.5 bg-white/20" />
+                <span>Nationwide TCS / Leopards Logistics</span>
               </div>
-            </div>
-          </Link>
-
-          {/* Desktop Nav */}
-          <nav className="hidden lg:flex items-center gap-1">
-            <Link
-              to="/"
-              className="rounded-lg px-4 py-2 text-sm font-semibold text-foreground/70 hover:bg-black/5 hover:text-foreground transition-all"
-              activeProps={{ className: "text-[#1B4332] bg-[#1B4332]/8" }}
-              activeOptions={{ exact: true }}
-            >
-              Home
-            </Link>
-            
-            {/* Mega Menu Toggle */}
-            <div 
-              className="relative"
-              onMouseEnter={() => setMegaMenuOpen(true)}
-              onMouseLeave={() => setMegaMenuOpen(false)}
-            >
-              <button
-                onClick={() => setMegaMenuOpen(v => !v)}
-                className={`flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-foreground/70 hover:bg-black/5 hover:text-foreground transition-all ${megaMenuOpen ? 'text-primary bg-primary/5' : ''}`}
+              <a
+                href={SITE.whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-[#25D366] hover:text-white transition-colors font-bold"
+                aria-label="Direct WhatsApp Sales Helpline"
               >
-                Catalog <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${megaMenuOpen ? "rotate-180" : ""}`} />
-              </button>
-              
-              {/* Mega Menu Dropdown */}
-              <AnimatePresence>
-              {megaMenuOpen && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute top-full left-1/2 -translate-x-1/2 w-[680px] pt-4"
-                >
-                  <div className="rounded-2xl border border-white bg-white/95 backdrop-blur-3xl p-6 premium-shadow-lg grid grid-cols-[1fr_1fr_240px] gap-8 origin-top">
-                    {/* Col 1 */}
-                    <div>
-                      <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">Men's Collection</h3>
-                      <ul className="space-y-1">
-                        {CATEGORY_NAV.filter(c => c.slug.startsWith('men')).map(c => (
-                          <li key={c.slug}>
-                            <Link to="/products" search={{ category: c.slug, gender: undefined }} onClick={() => setMegaMenuOpen(false)} className="group flex items-center gap-3 rounded-lg p-2 hover:bg-black/5 transition-colors">
-                              <span className="grid h-8 w-8 place-items-center rounded-md bg-white premium-shadow text-xl group-hover:scale-110 transition-transform">
-                                {c.icon}
-                              </span>
-                              <span className="text-sm font-semibold text-foreground/80 group-hover:text-primary">{c.label}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    {/* Col 2 */}
-                    <div>
-                      <h3 className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">Women & Kids</h3>
-                      <ul className="space-y-1">
-                        {CATEGORY_NAV.filter(c => c.slug.startsWith('women') || c.slug.startsWith('kids')).map(c => (
-                          <li key={c.slug}>
-                            <Link to="/products" search={{ category: c.slug, gender: undefined }} onClick={() => setMegaMenuOpen(false)} className="group flex items-center gap-3 rounded-lg p-2 hover:bg-black/5 transition-colors">
-                              <span className="grid h-8 w-8 place-items-center rounded-md bg-white premium-shadow text-xl group-hover:scale-110 transition-transform">
-                                {c.icon}
-                              </span>
-                              <span className="text-sm font-semibold text-foreground/80 group-hover:text-primary">{c.label}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    {/* Col 3 Banner */}
-                    <div className="relative overflow-hidden rounded-xl bg-ink p-5 text-white flex flex-col justify-end">
-                      <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80')] opacity-30 mix-blend-luminosity object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/80 to-transparent" />
-                      <div className="relative z-10">
-                        <span className="mb-2 inline-block rounded border border-white/20 bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">
-                          OEM Services
-                        </span>
-                        <h4 className="font-display text-lg font-bold leading-tight">Private Label Manufacturing</h4>
-                        <Link to="/bulk-order" onClick={() => setMegaMenuOpen(false)} className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-gold hover:text-white transition-colors">
-                          Get a Quote <ArrowRight className="h-3.5 w-3.5" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-              </AnimatePresence>
+                <MessageCircle className="h-3 w-3" />
+                <span className="hidden sm:inline">WhatsApp</span> {SITE.phone}
+              </a>
             </div>
-
-            {NAV.slice(2).map((l) => (
-              <Link
-                key={l.to}
-                to={l.to}
-                className="rounded-lg px-4 py-2 text-sm font-semibold text-foreground/70 hover:bg-black/5 hover:text-foreground transition-all"
-                activeProps={{ className: "text-primary bg-primary/5" }}
-              >
-                {l.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Actions */}
-          <div className="flex items-center gap-1 sm:gap-3">
-            <SearchCommand />
-            
-            <Link to="/dashboard/buyer" className="hidden sm:flex relative p-2.5 text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full transition-all" title="Wishlist">
-              <Heart className="h-[22px] w-[22px]" />
-              {wishlistCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-sm ring-2 ring-white">
-                  {wishlistCount}
-                </span>
-              )}
-            </Link>
-
-            <button 
-              onClick={() => setInquiryOpen(true)}
-              className="relative flex items-center gap-2 p-2.5 text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full lg:rounded-xl transition-all" 
-              title="Inquiry Basket"
-            >
-              <Package className="h-[22px] w-[22px]" />
-              <span className="hidden lg:inline text-sm font-bold mr-1">Inquiry</span>
-              {inquiryCount > 0 && (
-                <span className="absolute top-1.5 right-1.5 lg:-top-1.5 lg:-right-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-badge-pop">
-                  {inquiryCount}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={() => setOpen((v) => !v)}
-              className="grid h-10 w-10 place-items-center rounded-full text-foreground hover:bg-black/5 lg:hidden transition-colors ml-1"
-              aria-label="Toggle menu"
-            >
-              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
-        <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="absolute top-full left-0 w-full border-t border-border bg-white/95 backdrop-blur-xl lg:hidden premium-shadow-lg overflow-hidden"
-          >
-            <nav className="flex flex-col px-6 py-4 space-y-2">
-              {NAV.map((l) => (
+        {/* ── Main Sticky Navigation Bar ── */}
+        <div className="w-full bg-white relative z-[100]">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 h-16 sm:h-[72px]">
+            
+            {/* Logo (44px touch target) */}
+            <Link to="/" className="flex items-center gap-2.5 shrink-0 min-h-[44px] py-1 group" aria-label="Anamon Home">
+              <div
+                className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded shadow-xs transition-transform group-hover:scale-105"
+                style={{ background: "#1B4332" }}
+              >
+                <span className="font-display text-lg sm:text-xl font-bold text-[#C9A84C]">
+                  {SITE.brand.charAt(0)}
+                </span>
+              </div>
+              <div className="leading-none">
+                <div className="font-display text-xl sm:text-2xl font-bold tracking-tight text-[#0F1A13]">
+                  {SITE.brand}
+                </div>
+                <div className="text-[8px] sm:text-[9px] font-bold uppercase tracking-[0.2em] text-[#8B5E3C] mt-0.5">
+                  B2B Wholesale
+                </div>
+              </div>
+            </Link>
+
+            {/* Desktop Navigation Links */}
+            <nav className="hidden lg:flex items-center gap-1">
+              <Link
+                to="/"
+                className="rounded-lg px-3.5 py-2 text-sm font-semibold text-foreground/80 hover:bg-black/5 hover:text-foreground transition-all"
+                activeProps={{ className: "text-[#1B4332] bg-[#1B4332]/10" }}
+                activeOptions={{ exact: true }}
+              >
+                Home
+              </Link>
+              
+              {/* Desktop Mega Menu Dropdown */}
+              <div
+                className="relative"
+                onMouseEnter={() => setMegaMenuOpen(true)}
+                onMouseLeave={() => setMegaMenuOpen(false)}
+              >
+                <Link
+                  to="/products"
+                  search={{ category: undefined, gender: undefined }}
+                  className={`flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-semibold text-foreground/80 hover:bg-black/5 hover:text-foreground transition-all ${
+                    megaMenuOpen ? "text-[#1B4332] bg-[#1B4332]/10" : ""
+                  }`}
+                >
+                  <span>Wholesale Catalog</span>
+                  <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? "rotate-180" : ""}`} />
+                </Link>
+
+                <AnimatePresence>
+                  {megaMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.98 }}
+                      transition={{ duration: 0.18, ease: "easeOut" }}
+                      className="absolute top-full left-0 w-[640px] pt-2"
+                    >
+                      <div className="rounded-2xl border border-[#E0D9CE] bg-white p-6 shadow-xl grid grid-cols-2 gap-6">
+                        <div>
+                          <h4 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8B5E3C] mb-3">
+                            Men's Categories
+                          </h4>
+                          <ul className="space-y-1">
+                            {CATEGORY_NAV.filter((c) => c.slug.startsWith("men")).map((c) => (
+                              <li key={c.slug}>
+                                <Link
+                                  to="/products"
+                                  search={{ category: c.slug, gender: undefined }}
+                                  onClick={() => setMegaMenuOpen(false)}
+                                  className="flex items-center gap-2.5 rounded-lg p-2 hover:bg-[#FAF7F2] transition-colors"
+                                >
+                                  <span className="text-base">{c.icon}</span>
+                                  <span className="text-xs font-bold text-foreground">{c.label}</span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h4 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8B5E3C] mb-3">
+                            Women, Kids & Specialty
+                          </h4>
+                          <ul className="space-y-1">
+                            {CATEGORY_NAV.filter((c) => !c.slug.startsWith("men")).map((c) => (
+                              <li key={c.slug}>
+                                <Link
+                                  to="/products"
+                                  search={{ category: c.slug, gender: undefined }}
+                                  onClick={() => setMegaMenuOpen(false)}
+                                  className="flex items-center gap-2.5 rounded-lg p-2 hover:bg-[#FAF7F2] transition-colors"
+                                >
+                                  <span className="text-base">{c.icon}</span>
+                                  <span className="text-xs font-bold text-foreground">{c.label}</span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {NAV.slice(2).map((l) => (
                 <Link
                   key={l.to}
                   to={l.to}
-                  onClick={() => setOpen(false)}
-                  className="rounded-xl px-4 py-3.5 text-sm font-bold hover:bg-black/5 transition-colors"
+                  className="rounded-lg px-3.5 py-2 text-sm font-semibold text-foreground/80 hover:bg-black/5 hover:text-foreground transition-all"
+                  activeProps={{ className: "text-[#1B4332] bg-[#1B4332]/10" }}
                 >
                   {l.label}
                 </Link>
               ))}
-              <div className="h-px bg-border my-2" />
+            </nav>
+
+            {/* Action Icons (Accessible 44px Touch Targets) */}
+            <div className="flex items-center gap-1 sm:gap-2">
+              <SearchCommand />
+
+              {/* Wishlist Link */}
               <Link
                 to="/dashboard/buyer"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-4 py-3.5 text-sm font-bold hover:bg-black/5 transition-colors"
+                className="relative flex h-11 w-11 items-center justify-center text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full transition-all"
+                title="Wishlist"
+                aria-label={`Wishlist with ${wishlistCount} items`}
               >
-                <Heart className="h-5 w-5 text-rose-500" /> Wishlist ({wishlistCount})
+                <Heart className="h-5 w-5" />
+                {wishlistCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] font-bold text-white shadow-xs">
+                    {wishlistCount}
+                  </span>
+                )}
               </Link>
-              <Link
-                to="/bulk-order"
-                onClick={() => setOpen(false)}
-                className="mt-4 flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-4 text-sm font-bold text-white premium-shadow"
+
+              {/* Inquiry Basket Trigger */}
+              <button
+                onClick={() => setInquiryOpen(true)}
+                className="relative flex h-11 items-center gap-1.5 px-2.5 text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full transition-all cursor-pointer"
+                title="Inquiry Basket"
+                aria-label={`Inquiry Basket with ${inquiryCount} items`}
               >
-                Request Wholesale Quote <ArrowRight className="h-4 w-4" />
-              </Link>
-            </nav>
-          </motion.div>
-        )}
+                <Package className="h-5 w-5" />
+                <span className="hidden md:inline text-xs font-bold text-[#0F1A13]">Inquiry</span>
+                {inquiryCount > 0 && (
+                  <span className="flex h-4 min-w-[16px] px-1 items-center justify-center rounded-full bg-[#1B4332] text-[9px] font-bold text-white shadow-xs animate-badge-pop">
+                    {inquiryCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Mobile Menu Hamburger (44px target) */}
+              <button
+                onClick={() => setOpen((v) => !v)}
+                className="grid h-11 w-11 place-items-center rounded-full text-foreground hover:bg-black/5 lg:hidden transition-colors cursor-pointer"
+                aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+                aria-expanded={open}
+              >
+                {open ? <X className="h-6 w-6 text-[#0F1A13]" /> : <Menu className="h-6 w-6 text-[#0F1A13]" />}
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        {/* ── Mobile Full-Height Structured Drawer ── */}
+        <AnimatePresence>
+          {open && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="absolute top-full left-0 w-full border-t border-[#E0D9CE] bg-white lg:hidden shadow-2xl max-h-[calc(100dvh-5.5rem)] overflow-y-auto z-[100]"
+            >
+              <div className="flex flex-col p-4 sm:p-6 space-y-6">
+                
+                {/* 1. Quick Wholesale Search Link / Trigger */}
+                <div className="relative">
+                  <Link
+                    to="/products"
+                    search={{ category: undefined, gender: undefined }}
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center gap-3 rounded-xl border border-[#E0D9CE] bg-[#FAF7F2] px-4 py-3 text-xs font-bold text-muted-foreground"
+                  >
+                    <Search className="h-4 w-4 text-[#8B5E3C]" />
+                    <span>Search all 200+ footwear models...</span>
+                  </Link>
+                </div>
+
+                {/* 2. Shop by Category Thumbnails */}
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8B5E3C] mb-3">
+                    Wholesale Categories
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {CATEGORY_NAV.map((c) => (
+                      <Link
+                        key={c.slug}
+                        to="/products"
+                        search={{ category: c.slug, gender: undefined }}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2.5 p-2.5 rounded-lg border border-[#E0D9CE] bg-white hover:bg-[#FAF7F2] transition-colors"
+                      >
+                        <span className="text-base shrink-0">{c.icon}</span>
+                        <span className="text-xs font-bold text-foreground truncate">{c.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Company & Trade Navigation */}
+                <div>
+                  <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8B5E3C] mb-3">
+                    Company & Trade Programs
+                  </div>
+                  <div className="space-y-1">
+                    <Link
+                      to="/about"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2]"
+                    >
+                      <Building className="h-4 w-4 text-[#1B4332]" />
+                      <span>About Anamon Footwear</span>
+                    </Link>
+                    <Link
+                      to="/manufacturing"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2]"
+                    >
+                      <Factory className="h-4 w-4 text-[#1B4332]" />
+                      <span>Manufacturing Facilities</span>
+                    </Link>
+                    <Link
+                      to="/become-distributor"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2]"
+                    >
+                      <UserCheck className="h-4 w-4 text-[#1B4332]" />
+                      <span>Become a Regional Dealer</span>
+                    </Link>
+                    <Link
+                      to="/dashboard/buyer"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2]"
+                    >
+                      <Heart className="h-4 w-4 text-rose-500" />
+                      <span>Buyer Wishlist ({wishlistCount})</span>
+                    </Link>
+                    <Link
+                      to="/contact"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2]"
+                    >
+                      <PhoneCall className="h-4 w-4 text-[#1B4332]" />
+                      <span>Contact Sales & Support</span>
+                    </Link>
+                  </div>
+                </div>
+
+                {/* 4. Pinned Bottom CTA */}
+                <div className="pt-2">
+                  <Link
+                    to="/bulk-order"
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1B4332] px-4 py-3.5 text-sm font-bold text-[#FAF7F2] shadow-md hover:bg-[#C9A84C] hover:text-[#0F1A13] transition-all"
+                  >
+                    <span>Request Wholesale Quote (RFQ)</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
       </header>
 

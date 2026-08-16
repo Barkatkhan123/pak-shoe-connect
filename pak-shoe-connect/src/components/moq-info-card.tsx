@@ -1,5 +1,5 @@
 import React from "react";
-import { Package, ShieldAlert, CheckCircle, Info, Layers, Palette, Hash } from "lucide-react";
+import { Package, ShieldAlert, CheckCircle, Info, Layers, Palette, Hash, Sparkles } from "lucide-react";
 
 interface MOQInfoCardProps {
   variant?: "full" | "short" | "compact" | "badge";
@@ -11,7 +11,7 @@ export function MOQInfoCard({ variant = "short", className = "" }: MOQInfoCardPr
     return (
       <div className={`inline-flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 ${className}`}>
         <Package className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-        <span>MOQ: 12 pairs (1 carton) • Multiples of 12 only • Single color per carton</span>
+        <span>MOQ: 12 pairs (1 carton) • Multiples of 12 only • 1 Sample Pair Available</span>
       </div>
     );
   }
@@ -24,7 +24,7 @@ export function MOQInfoCard({ variant = "short", className = "" }: MOQInfoCardPr
           <span>Minimum Order Policy</span>
         </div>
         <p className="text-[11px] leading-relaxed opacity-90">
-          MOQ is 12 pairs (1 carton). Orders must be in multiples of 12 pairs (12, 24, 36, 48, etc.). Each carton contains 12 pairs of a single color.
+          Bulk MOQ is 12 pairs (1 carton in multiples of 12). <strong>1 sample pair</strong> can also be ordered for quality inspection before bulk orders.
         </p>
       </div>
     );
@@ -44,13 +44,13 @@ export function MOQInfoCard({ variant = "short", className = "" }: MOQInfoCardPr
             </div>
           </div>
           <span className="rounded-full bg-primary/10 text-primary px-2.5 py-0.5 text-xs font-bold font-mono">
-            MOQ: 12 Pairs
+            MOQ: 12 Pairs (1 Ctn)
           </span>
         </div>
 
         <div className="text-xs text-muted-foreground leading-relaxed">
           <p className="font-medium text-foreground">
-            <strong>Minimum Order Quantity (MOQ):</strong> 12 pairs (1 carton). Orders must be placed in multiples of 12 pairs (12, 24, 36, 48, etc.). Each carton contains 12 pairs, and all 12 pairs in a carton must be of the same color.
+            <strong>Minimum Order Quantity (MOQ):</strong> 12 pairs (1 carton). Bulk orders must be placed in multiples of 12 pairs (12, 24, 36, 48, etc.). Each carton contains 12 pairs of a single color.
           </p>
         </div>
 
@@ -80,10 +80,10 @@ export function MOQInfoCard({ variant = "short", className = "" }: MOQInfoCardPr
           </div>
 
           <div className="flex items-start gap-2.5 rounded-xl bg-muted/40 p-3 border border-border/50">
-            <Palette className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+            <Sparkles className="h-4 w-4 text-[#C9A84C] shrink-0 mt-0.5" />
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">Color Assortment</span>
-              <span className="text-xs font-semibold text-foreground">Single color per carton</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">Sample Policy</span>
+              <span className="text-xs font-semibold text-foreground">1 sample pair can also be ordered</span>
             </div>
           </div>
         </div>
@@ -114,11 +114,11 @@ export function MOQInfoCard({ variant = "short", className = "" }: MOQInfoCardPr
         </div>
         <div className="flex items-center gap-2">
           <span className="font-semibold text-muted-foreground">Order Quantity:</span>
-          <span className="font-bold text-foreground">Multiples of 12 pairs only</span>
+          <span className="font-bold text-foreground">Multiples of 12 pairs</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-muted-foreground">Color:</span>
-          <span className="font-bold text-foreground">Single color per carton (all 12 pairs same color)</span>
+          <span className="font-semibold text-muted-foreground">Sample Order:</span>
+          <span className="font-bold text-emerald-600 dark:text-emerald-400">1 sample pair can also be ordered</span>
         </div>
       </div>
     </div>

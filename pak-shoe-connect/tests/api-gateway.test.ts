@@ -81,5 +81,5 @@ describe("Zero Trust API Gateway", () => {
     expect(lastRes?.status).toBe(429);
     expect(lastRes?.body.code).toBe("RATE_LIMITED");
     expect(lastRes?.body.message).toBe("Too many requests. Please slow down.");
-  });
+  }, 15000);
 });

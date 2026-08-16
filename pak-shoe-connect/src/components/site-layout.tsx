@@ -1,5 +1,7 @@
+import { useState, useEffect } from "react";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
+import { AuthModal } from "./auth/auth-modal";
 import { MessageCircle } from "lucide-react";
 import { SITE } from "@/lib/site";
 import { useScroll, useTransform, motion } from "framer-motion";
@@ -7,26 +9,49 @@ import { useScroll, useTransform, motion } from "framer-motion";
 export function SiteLayout({ children }: { children: React.ReactNode }) {
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalDetail, setAuthModalDetail] = useState<{ hasPendingItem?: boolean }>({});
+
+  useEffect(() => {
+    const onOpenAuth = (e: any) => {
+      setAuthModalDetail(e.detail || {});
+      setAuthModalOpen(true);
+    };
+    window.addEventListener("shersha:open-auth-modal", onOpenAuth);
+    return () => window.removeEventListener("shersha:open-auth-modal", onOpenAuth);
+  }, []);
 
   return (
-    <div className="relative flex min-h-screen flex-col">
+    <div className="relative flex min-h-screen flex-col w-full max-w-full bg-[#FAF7F2]">
+      {/* Scroll progress indicator */}
       <motion.div
-        style={{ scaleX, transformOrigin: 'left' }}
-        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary to-gold z-[60]"
+        style={{ scaleX, transformOrigin: "left" }}
+        className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#1B4332] to-[#C9A84C] z-[110] pointer-events-none"
       />
+      
       <SiteHeader />
-      <main className="flex-1 animate-page-enter">{children}</main>
+      
+      {/* Main content with bottom padding clearance for floating WhatsApp button */}
+      <main className="flex-1 w-full max-w-full pb-20 md:pb-8">{children}</main>
+      
       <SiteFooter />
       
-      {/* Global WhatsApp FAB */}
+      {/* Global Auth Modal */}
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        hasPendingItem={authModalDetail.hasPendingItem}
+      />
+
+      {/* Global WhatsApp FAB (Mobile-safe, non-obstructing) */}
       <a 
         href={SITE.whatsappHref} 
         target="_blank" 
         rel="noopener noreferrer" 
         className="whatsapp-fab"
-        aria-label="Chat with Sales on WhatsApp"
+        aria-label="Chat with Sales Team on WhatsApp"
       >
-        <MessageCircle className="h-7 w-7" />
+        <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
       </a>
     </div>
   );
@@ -42,30 +67,18 @@ export function PageHero({
   eyebrow?: string;
 }) {
   return (
-    <div className="relative overflow-hidden bg-ink py-16 md:py-24">
-      {/* Background pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M0 40L40 0H20L0 20M40 40V20L20 40" fill="currentColor" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
-      
-      <div className="relative mx-auto max-w-7xl px-4 text-center">
+    <div className="relative overflow-hidden bg-[#0F1A13] py-8 sm:py-12 md:py-16 border-b border-[#E0D9CE]">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6 text-center">
         {eyebrow && (
-          <p className="mb-4 text-xs font-bold uppercase tracking-widest text-gold animate-slide-up">
+          <p className="mb-2 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#C9A84C]">
             {eyebrow}
           </p>
         )}
-        <h1 className="mx-auto max-w-4xl text-balance font-display text-4xl font-semibold leading-tight text-white sm:text-5xl md:text-6xl animate-slide-up" style={{animationDelay: "0.1s"}}>
+        <h1 className="mx-auto max-w-3xl font-display text-2xl sm:text-3xl md:text-5xl font-bold leading-tight text-[#FAF7F2]">
           {title}
         </h1>
         {description && (
-          <p className="mx-auto mt-6 max-w-2xl text-balance text-base text-cream/80 sm:text-lg animate-slide-up" style={{animationDelay: "0.2s"}}>
+          <p className="mx-auto mt-3 max-w-xl text-xs sm:text-sm md:text-base text-[#FAF7F2]/80 leading-relaxed">
             {description}
           </p>
         )}

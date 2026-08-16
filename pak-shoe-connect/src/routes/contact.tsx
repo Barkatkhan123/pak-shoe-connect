@@ -9,13 +9,13 @@ export const Route = createFileRoute("/contact")({
   component: Contact,
   head: () => ({
     meta: [
-      { title: "Contact Anamom — Wholesale Footwear Sales Pakistan" },
+      { title: "Contact Anamon — Wholesale Footwear Sales Pakistan" },
       {
         name: "description",
         content:
-          "Contact Anamom's wholesale sales team. Karachi factory office, phone, WhatsApp and email. Nationwide B2B footwear supply.",
+          "Contact Anamon's wholesale sales team. Manufacturing facilities & offices in Rawalpindi & Lahore, phone, WhatsApp and email. Nationwide B2B footwear supply.",
       },
-      { property: "og:title", content: "Contact — Anamom" },
+      { property: "og:title", content: "Contact — Anamon" },
       { property: "og:url", content: "/contact" },
     ],
     links: [{ rel: "canonical", href: "/contact" }],
@@ -64,13 +64,20 @@ function Contact() {
               <div className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                 <div>
-                  <div className="font-semibold">Factory & Head Office</div>
-                  <p className="mt-1 text-sm text-muted-foreground">{SITE.address}</p>
+                  <div className="font-semibold text-base">Manufacturing Facilities & Head Office</div>
+                  <div className="mt-2 text-xs space-y-1.5 text-muted-foreground">
+                    <p>
+                      <strong className="text-foreground">Lahore Facility:</strong> Main Market, Gulberg III / Industrial Area, Lahore, Pakistan
+                    </p>
+                    <p>
+                      <strong className="text-foreground">Rawalpindi Facility:</strong> Industrial Estate, Rawalpindi, Pakistan
+                    </p>
+                  </div>
                 </div>
               </div>
               <div className="mt-4 overflow-hidden rounded-lg border border-border">
                 <iframe
-                  title="Anamom factory location"
+                  title="Anamon factory location"
                   src={SITE.mapEmbed}
                   className="h-64 w-full"
                   loading="lazy"

@@ -104,7 +104,7 @@ function ProductDetail() {
     quantities: {} as Record<string, number>,
   });
 
-  const { addItem, isInBasket } = useInquiryBasket();
+  const { addItem, isInBasket, isAdding } = useInquiryBasket();
   const { toggleItem, isWishlisted } = useWishlist();
   const inBasket = isInBasket(product.slug);
   const wishlisted = isWishlisted(product.slug);
@@ -362,7 +362,7 @@ function ProductDetail() {
                     { label: "Gender", value: product.gender.charAt(0).toUpperCase() + product.gender.slice(1) },
                     {
                       label: "Place of origin",
-                      value: <span className="text-emerald">Lahore, PK</span>,
+                      value: <span className="text-emerald">{product.specifications?.["Origin"] || "Rawalpindi & Lahore, Pakistan"}</span>,
                     },
                     { label: "Packaging", value: "12 pairs / carton (Single color)" },
                     { label: "Minimum Order", value: "12 pairs (1 carton)" },
@@ -427,8 +427,8 @@ function ProductDetail() {
                     <strong className="text-foreground">
                       Wholesale Notice:
                     </strong>{" "}
-                    This product is shipped directly from our partner
-                    factories in Lahore. Prices exclude shipping. For custom
+                    This product is shipped directly from our manufacturing
+                    facilities in Rawalpindi & Lahore. Prices exclude shipping. For custom
                     packaging or OEM branding, mention in your inquiry.
                   </p>
                 </div>
@@ -923,15 +923,15 @@ function ProductDetail() {
             Sample
           </button>
           <button
-            onClick={() => addItem(product, { color: selectedColor })}
-            disabled={inBasket}
-            className={`flex-1 font-bold text-sm rounded-full py-3 transition-colors ${
+            onClick={() => addItem(product, { color: selectedColor, qty: product.moq || 12 })}
+            disabled={inBasket || isAdding}
+            className={`flex-1 font-bold text-sm rounded-full py-3 transition-colors cursor-pointer ${
               inBasket
                 ? "bg-muted text-muted-foreground cursor-not-allowed"
-                : "bg-primary text-primary-foreground"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
             }`}
           >
-            {inBasket ? "Added ✓" : "Send Inquiry"}
+            {isAdding ? "Adding..." : inBasket ? "Added ✓" : "Send Inquiry"}
           </button>
         </div>
         {/* Spacer for fixed bottom bar on mobile */}

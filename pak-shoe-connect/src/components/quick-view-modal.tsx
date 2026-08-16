@@ -15,7 +15,7 @@ export function QuickViewModal({
   onClose,
 }: {
   product: Product | null;
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
 }) {
   return (

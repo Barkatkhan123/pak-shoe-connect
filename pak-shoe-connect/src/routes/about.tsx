@@ -11,7 +11,7 @@ export const Route = createFileRoute("/about")({
       {
         name: "description",
         content:
-          "Anamon is a Karachi-based wholesale footwear manufacturer supplying retailers and distributors across Pakistan since 1998. 8,000 pairs/day capacity.",
+          "Anamon is a Pakistan-based wholesale footwear manufacturer with production facilities in Rawalpindi and Lahore, supplying retailers and distributors across Pakistan since 1998. 8,000 pairs/day capacity.",
       },
       { property: "og:title", content: "About Anamon" },
       { property: "og:url", content: "/about" },
@@ -26,7 +26,7 @@ function About() {
       <PageHero
         eyebrow="About us"
         title="Manufacturing Pakistan's everyday footwear for 25+ years."
-        description="From a single stitching unit in Korangi to two full-scale factories today — Anamon has grown into one of Pakistan's most trusted B2B footwear names."
+        description="From our initial workshop to two full-scale manufacturing facilities in Rawalpindi and Lahore today — Anamon has grown into one of Pakistan's most trusted B2B footwear names."
       />
       <section className="mx-auto max-w-7xl px-4 py-16 md:py-24">
         <div className="grid gap-10 md:grid-cols-2">
@@ -36,14 +36,13 @@ function About() {
           <div>
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">Our story</h2>
             <p className="mt-4 text-muted-foreground">
-              Anamon was founded in 1998 by a family of Karachi-based shoemakers with a
-              simple belief: Pakistani retailers deserve consistent quality at honest factory
-              rates. What started as a small peshawari chappal workshop now produces men's,
-              women's and kids' footwear at scale for over 1,200 dealers nationwide.
+              Anamon was founded in 1998 with a simple belief: Pakistani retailers deserve
+              consistent quality at honest factory rates. What started as a dedicated footwear
+              workshop now produces men's, women's and kids' footwear at scale for over 1,200 dealers nationwide.
             </p>
             <p className="mt-3 text-muted-foreground">
-              Today Anamon runs two production units — in Korangi (Karachi) and Sialkot —
-              with 400+ skilled workers, in-house sole moulding, and a dedicated private-label
+              Today Anamon operates two specialized manufacturing facilities — located in Rawalpindi and Lahore, Pakistan —
+              with 400+ skilled workers, in-house sole moulding, precision cutting, and a dedicated private-label
               team serving new-age D2C brands.
             </p>
           </div>
@@ -72,7 +71,7 @@ function About() {
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">Factory & capacity</h2>
             <ul className="mt-6 space-y-4 text-sm">
               {[
-                ["2 factories", "Korangi (Karachi) & Sialkot"],
+                ["2 factories", "Rawalpindi & Lahore, Pakistan"],
                 ["400+ workers", "Cutting, stitching, lasting, QC"],
                 ["8,000 pairs / day", "Combined production capacity"],
                 ["200+ active SKUs", "Men, women & kids ranges"],

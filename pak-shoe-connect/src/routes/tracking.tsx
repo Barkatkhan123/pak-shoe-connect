@@ -20,7 +20,7 @@ const DEFAULT_TRACKING_DATA: TrackingData = {
   status: "DISPATCHED",
   carrierName: "Faisal Movers Cargo B2B Logistics",
   biltiNumber: "FM-BILTI-LHR-88219",
-  originCity: "Sialkot / Lahore Footwear Cluster",
+  originCity: "Rawalpindi / Lahore Footwear Hub",
   destinationCity: "Karachi Port / Shersha Wholesale Hub",
   totalPairs: 500,
   totalCartons: 21,
@@ -36,7 +36,7 @@ const DEFAULT_TRACKING_DATA: TrackingData = {
     {
       step: "IN_PRODUCTION",
       title: "Factory Batch Production",
-      description: "Laser cutting, full-grain upper stitching & vulcanization at Sialkot Master Syndicate",
+      description: "Laser cutting, full-grain upper stitching & vulcanization at Rawalpindi & Lahore Facilities",
       timestamp: "2026-08-04T12:30:00Z",
       completed: true,
     },

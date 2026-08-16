@@ -19,6 +19,7 @@ export interface RequestContext {
   correlationId: string;
   startedAt: number;
   userId?: string;
+  fullUserId?: string;
   role?: string;
   path: string;
   method: string;

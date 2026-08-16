@@ -54,6 +54,7 @@ import { SupplierWalletService } from "../services/payment/supplier-wallet.servi
 import { SupplierService }       from "../modules/supplier/supplier.service";
 import { InvoiceService }        from "../services/payment/invoice.service";
 import { CartService }           from "../modules/cart/cart.service";
+import { AddBasketItemSchema }   from "../modules/cart/cart.schema";
 import { prisma }                from "../db";
 
 // ── Gateway Middleware ────────────────────────────────────────────────────
@@ -137,6 +138,10 @@ const BUYER_ROUTES: RegExp[] = [
   /^GET \/api\/v1\/orders\//,
   /^POST \/api\/v1\/cart\//,
   /^POST \/api\/v1\/pricing\//,
+  /^GET \/api\/v1\/basket/,
+  /^POST \/api\/v1\/basket/,
+  /^PUT \/api\/v1\/basket/,
+  /^DELETE \/api\/v1\/basket/,
 ];
 
 /**
@@ -419,6 +424,74 @@ export async function apiGateway(
       }
       const result = await CartService.calculateCart(validation.data);
       return ok(result, ctx);
+    }
+
+    // ── Authenticated Basket API ──────────────────────────────────────────
+    if (path === "/api/v1/basket" && method === "GET") {
+      const userId = ctx.fullUserId || ctx.userId;
+      if (!userId) {
+        const r = unauthorizedResponse("Authentication required to view basket", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      const basket = await CartService.getBasket(userId);
+      return ok(basket, ctx);
+    }
+
+    if (path === "/api/v1/basket/add" && method === "POST") {
+      const userId = ctx.fullUserId || ctx.userId;
+      if (!userId) {
+        const r = unauthorizedResponse("Authentication required to add items to basket", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      const validation = validateBody(body, AddBasketItemSchema);
+      if (!validation.valid) {
+        const r = validationErrorResponse(validation.errors!, ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      try {
+        const result = await CartService.addItem(userId, validation.data);
+        return ok(result, ctx);
+      } catch (err: any) {
+        const r = validationErrorResponse([err.message || "Failed to add item"], ctx.correlationId);
+        return { status: 400, body: r.body, headers: buildHeaders(ctx) };
+      }
+    }
+
+    if (path === "/api/v1/basket/qty" && method === "PUT") {
+      const userId = ctx.fullUserId || ctx.userId;
+      if (!userId) {
+        const r = unauthorizedResponse("Authentication required", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      const slug = body.slug || body.productSlug;
+      const qty = Number(body.quantity || body.requestedQty);
+      if (!slug || isNaN(qty)) {
+        const r = validationErrorResponse(["Valid slug and quantity required"], ctx.correlationId);
+        return { status: 400, body: r.body, headers: buildHeaders(ctx) };
+      }
+      const items = await CartService.updateQty(userId, slug, qty);
+      return ok({ items }, ctx);
+    }
+
+    if (path.startsWith("/api/v1/basket/") && method === "DELETE") {
+      const userId = ctx.fullUserId || ctx.userId;
+      if (!userId) {
+        const r = unauthorizedResponse("Authentication required", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      const slug = path.replace("/api/v1/basket/", "");
+      const items = await CartService.removeItem(userId, slug, { color: query.color, size: query.size });
+      return ok({ items, success: true }, ctx);
+    }
+
+    if (path === "/api/v1/basket" && method === "DELETE") {
+      const userId = ctx.fullUserId || ctx.userId;
+      if (!userId) {
+        const r = unauthorizedResponse("Authentication required", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      await CartService.clearBasket(userId);
+      return ok({ items: [], success: true }, ctx);
     }
 
     // ── Pricing Engine ────────────────────────────────────────────────────

@@ -306,7 +306,7 @@ export function ProductManageModal({
         "Gender": gender,
         "Minimum Order": `${moq} pairs (1 carton)`,
         "Packaging": `${cartonQty} pairs per carton (Single color)`,
-        "Origin": "Lahore / Sialkot, Pakistan",
+        "Origin": "Rawalpindi / Lahore, Pakistan",
       },
       shippingInfo: `Shipped in standard cartons of ${cartonQty} pairs. Single color per carton.`,
     };

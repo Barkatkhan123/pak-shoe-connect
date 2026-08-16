@@ -1,12 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, ShoppingBag } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHero, SiteLayout } from "@/components/site-layout";
+import { getPendingAction } from "@/hooks/use-inquiry-basket";
 import { toast } from "sonner";
 
+const authSearchSchema = z.object({
+  redirect: z.string().optional(),
+});
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search) => authSearchSchema.parse(search),
   component: AuthPage,
   head: () => ({
     meta: [
@@ -32,15 +38,20 @@ const signUpSchema = signInSchema.extend({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [pendingItem, setPendingItem] = useState(() => getPendingAction());
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
+      if (data.session) {
+        const dest = search.redirect || (getPendingAction() ? "/checkout" : "/dashboard");
+        navigate({ to: dest as any, replace: true });
+      }
     });
-  }, [navigate]);
+  }, [navigate, search.redirect]);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -55,7 +66,8 @@ function AuthPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Welcome back");
-    navigate({ to: "/dashboard", replace: true });
+    const dest = search.redirect || (getPendingAction() ? "/checkout" : "/dashboard");
+    navigate({ to: dest as any, replace: true });
   }
 
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
@@ -79,7 +91,8 @@ function AuthPage() {
     setBusy(false);
     if (error) return toast.error(error.message);
     toast.success("Account created");
-    navigate({ to: "/dashboard", replace: true });
+    const dest = search.redirect || (getPendingAction() ? "/checkout" : "/dashboard");
+    navigate({ to: dest as any, replace: true });
   }
 
   return (
@@ -104,6 +117,18 @@ function AuthPage() {
             Sign up
           </button>
         </div>
+
+        {pendingItem && (
+          <div className="mb-6 flex items-center gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-xs text-primary font-medium shadow-xs">
+            <ShoppingBag className="h-5 w-5 shrink-0" />
+            <div>
+              <p className="font-bold text-foreground">Pending Selection Saved</p>
+              <p className="text-muted-foreground mt-0.5">
+                {pendingItem.requestedQty} pairs of <strong>{pendingItem.name}</strong> ({pendingItem.color}, {pendingItem.size}) will be automatically added to your basket upon sign in.
+              </p>
+            </div>
+          </div>
+        )}
 
         {mode === "signin" ? (
           <form onSubmit={handleSignIn} className="space-y-4 rounded-2xl border border-border bg-card p-6">

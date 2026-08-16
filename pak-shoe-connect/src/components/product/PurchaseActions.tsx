@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Truck,
   Sparkles,
+  Package,
 } from "lucide-react";
 import type { EnterpriseProduct } from "@/types/product";
 import type { PricingCalculation } from "@/hooks/usePricingCalculator";
@@ -39,6 +40,7 @@ export function PurchaseActions({
   const [success, setSuccess] = useState(false);
 
   const { quantity, unitPrice, subtotal, currency } = pricing;
+  const samplePrice = product.bulkPricing?.[0]?.unitPrice || unitPrice;
 
   const handleAddWithFeedback = () => {
     setLoading(true);
@@ -51,6 +53,22 @@ export function PurchaseActions({
       });
       setTimeout(() => setSuccess(false), 2500);
     }, 400);
+  };
+
+  const handleOrderSample = () => {
+    const sizeText = isAssorted ? `Size EU ${selectedSize}` : `Size EU ${selectedSize}`;
+    const text = encodeURIComponent(
+      `Assalam-o-Alaikum, I want to order 1 Sample Pair for quality inspection:\n\n` +
+      `📦 Product: ${product.title}\n` +
+      `🏷️ SKU: ${product.sku}\n` +
+      `🎨 Color: ${selectedColor}\n` +
+      `📏 Size: ${sizeText}\n` +
+      `🔢 Quantity: 1 Sample Pair\n` +
+      `💰 Sample Rate: ${currency} ${samplePrice.toLocaleString()}/pair\n\n` +
+      `Please provide dispatch schedule and payment account for this 1 sample pair.`
+    );
+    window.open(`https://wa.me/923432178305?text=${text}`, "_blank");
+    toast.success(`Opening WhatsApp for 1 Sample Pair Order of ${product.title}!`);
   };
 
   const handleDirectWhatsApp = () => {
@@ -66,22 +84,40 @@ export function PurchaseActions({
       `💵 Estimated Total: ${currency} ${subtotal.toLocaleString()}\n\n` +
       `Please confirm stock availability & dispatch schedule.`
     );
-    window.open(`https://wa.me/923001234567?text=${text}`, "_blank");
+    window.open(`https://wa.me/923432178305?text=${text}`, "_blank");
   };
 
   return (
     <div className="flex flex-col gap-3">
-      {/* ── Primary CTA: Add to Inquiry Basket / Cart ── */}
+      {/* ── 1. Order 1 Sample Pair Option ── */}
+      <button
+        type="button"
+        onClick={handleOrderSample}
+        className="flex items-center justify-between w-full px-3.5 py-2.5 rounded-xl border border-[#C9A84C]/50 bg-[#C9A84C]/10 hover:bg-[#C9A84C]/20 text-[#0F1A13] dark:text-[#FAF7F2] transition-all cursor-pointer shadow-xs group"
+      >
+        <span className="flex items-center gap-1.5 text-xs font-bold">
+          <Sparkles className="h-4 w-4 text-[#C9A84C] group-hover:rotate-12 transition-transform" />
+          <span>Order 1 Sample Pair</span>
+          <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.2 rounded">
+            QA Check
+          </span>
+        </span>
+        <span className="text-xs font-extrabold text-[#1B4332] dark:text-[#C9A84C]">
+          {currency} {samplePrice.toLocaleString()} →
+        </span>
+      </button>
+
+      {/* ── 2. Primary CTA: Add Bulk Carton to Inquiry Basket ── */}
       <motion.button
         type="button"
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
         onClick={handleAddWithFeedback}
         disabled={loading}
-        className={`relative flex h-13 w-full items-center justify-center gap-2.5 rounded-2xl px-6 font-black text-base shadow-xl transition-all ${
+        className={`relative flex h-12 sm:h-13 w-full items-center justify-center gap-2.5 rounded-2xl px-6 font-black text-sm sm:text-base shadow-xl transition-all cursor-pointer ${
           success
             ? "bg-emerald-600 text-white shadow-emerald-600/30"
-            : "bg-amber-500 text-black hover:bg-amber-400 shadow-amber-500/25"
+            : "bg-[#1B4332] text-white hover:bg-[#1B4332]/90 shadow-lg"
         }`}
       >
         <AnimatePresence mode="wait">
@@ -115,33 +151,33 @@ export function PurchaseActions({
               exit={{ opacity: 0 }}
               className="flex items-center gap-2"
             >
-              <ShoppingCart className="h-5 w-5" />
-              <span>Add {quantity} Pairs to Inquiry Basket • {currency} {subtotal.toLocaleString()}</span>
+              <ShoppingCart className="h-5 w-5 text-[#C9A84C]" />
+              <span>Add {quantity} Pairs ({pricing.cartonsCount} Ctn) • {currency} {subtotal.toLocaleString()}</span>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.button>
 
-      {/* ── Secondary B2B Action Buttons ── */}
+      {/* ── 3. Secondary B2B Action Buttons ── */}
       <div className="grid grid-cols-2 gap-2.5">
         {/* WhatsApp Direct Negotiation */}
         <button
           type="button"
           onClick={handleDirectWhatsApp}
-          className="flex items-center justify-center gap-2 rounded-xl border border-emerald-600/30 bg-emerald-500/10 px-4 py-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all shadow-sm"
+          className="flex items-center justify-center gap-2 rounded-xl border border-emerald-600/30 bg-emerald-500/10 px-4 py-3 text-xs font-bold text-emerald-700 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all shadow-xs cursor-pointer"
         >
-          <MessageCircle className="h-4 w-4" />
-          <span>WhatsApp Supplier</span>
+          <MessageCircle className="h-4 w-4 text-[#25D366]" />
+          <span>WhatsApp Inquiry</span>
         </button>
 
         {/* Request RFQ Custom Quotation */}
         <button
           type="button"
           onClick={onOpenRfq || handleDirectWhatsApp}
-          className="flex items-center justify-center gap-2 rounded-xl border border-border/80 bg-secondary/60 px-4 py-3 text-xs font-bold text-foreground hover:bg-secondary transition-all shadow-sm"
+          className="flex items-center justify-center gap-2 rounded-xl border border-border/80 bg-secondary/60 px-4 py-3 text-xs font-bold text-foreground hover:bg-secondary transition-all shadow-xs cursor-pointer"
         >
-          <FileText className="h-4 w-4 text-amber-500" />
-          <span>Request Custom RFQ</span>
+          <FileText className="h-4 w-4 text-[#C9A84C]" />
+          <span>Custom OEM RFQ</span>
         </button>
       </div>
     </div>

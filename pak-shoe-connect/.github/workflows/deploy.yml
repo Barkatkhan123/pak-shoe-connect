@@ -1,21 +1,29 @@
-name: DevSecOps CI/CD Deployment Pipeline
+name: Enterprise DevSecOps CI/CD Pipeline
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-test:
-    name: 1. Code Quality, Build & Security
+  # ──────────────────────────────────────────────────────────
+  # 1. QUALITY ASSURANCE & AUTOMATED TESTING
+  # ──────────────────────────────────────────────────────────
+  quality-and-test:
+    name: 1. Code Quality & Automated Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
@@ -23,7 +31,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Verify TypeScript Type Compliance
+      - name: TypeScript Strict Type Check
         run: npx tsc --noEmit --skipLibCheck
 
       - name: Run Vitest Unit & Integration Suite
@@ -32,53 +40,130 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Build Production Bundle
-        run: npm run build
-
-      - name: Verify Build Output
+      - name: Build Full Production Bundle
         run: |
-          if [ ! -f dist/server/server.js ]; then
-            echo "ERROR: Expected build output dist/server/server.js not found"
-            ls -la dist/ || echo "dist/ directory does not exist"
-            exit 1
-          fi
-          echo "Build output verified: dist/server/server.js exists"
+          npm run build
+          node scripts/build-spa-bundle.mjs
+
+      - name: Verify Build Artifacts
+        run: |
+          test -f dist/client/index.html || exit 1
+          test -f dist/client/assets/app-v3.js || exit 1
+          echo "✅ Production artifacts verified successfully!"
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-client-build
+          path: dist/client/
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────
+  # 2. SECURITY SCANNING & SBOM
+  # ──────────────────────────────────────────────────────────
+  security-audit:
+    name: 2. DevSecOps Audit & Container Scan
+    needs: quality-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
 
       - name: Dependency Vulnerability Audit
         run: npm audit --audit-level=high || true
 
-  supply-chain-security:
-    name: 2. Supply Chain Security & Container Scan
-    needs: build-and-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-
-      - name: Generate Software Bill of Materials (SBOM)
-        uses: anchore/sbom-action@e11c554f704a0b820cbf8c51673f6945e0731532 # v0.18.0
-        with:
-          format: spdx-json
-          output-file: 'sbom.spdx.json'
-
-      - name: Run Container Security Vulnerability Scan
-        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947e7f3b01245f6dc09 # v0.31.0
+      - name: Run Filesystem Vulnerability Scan (Trivy)
+        uses: aquasecurity/trivy-action@master
         with:
           scan-type: 'fs'
           ignore-unfixed: true
           severity: 'CRITICAL,HIGH'
 
-  deploy-vercel:
-    name: 3. Vercel Deployment
-    needs: [build-and-test, supply-chain-security]
+      - name: Generate Software Bill of Materials (SBOM)
+        uses: anchore/sbom-action@v0
+        with:
+          format: spdx-json
+          output-file: 'sbom.spdx.json'
+
+  # ──────────────────────────────────────────────────────────
+  # 3. DOCKER BUILD & REGISTRY PUSH
+  # ──────────────────────────────────────────────────────────
+  docker-build:
+    name: 3. Docker Container Build
+    needs: quality-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Production Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          tags: anamon-web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ──────────────────────────────────────────────────────────
+  # 4. HOSTINGER AUTOMATED MULTI-DOMAIN DEPLOYMENT
+  # ──────────────────────────────────────────────────────────
+  deploy-hostinger:
+    name: 4. Hostinger Live Deployment
+    needs: [quality-and-test, security-audit]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        uses: actions/checkout@v4
+
+      - name: Download Build Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: production-client-build
+          path: dist/client/
 
       - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install FTP Deployment Client
+        run: npm install basic-ftp
+
+      - name: Deploy to Hostinger All Domains
+        run: node scripts/deploy-ftp-v2.mjs
+        env:
+          HOSTINGER_FTP_HOST: ${{ secrets.HOSTINGER_FTP_HOST || '145.79.26.180' }}
+          HOSTINGER_FTP_USER: ${{ secrets.HOSTINGER_FTP_USER || 'u988207622' }}
+          HOSTINGER_FTP_PASS: ${{ secrets.HOSTINGER_FTP_PASS }}
+
+  # ──────────────────────────────────────────────────────────
+  # 5. VERCEL PRODUCTION DEPLOYMENT
+  # ──────────────────────────────────────────────────────────
+  deploy-vercel:
+    name: 5. Vercel Cloud Deployment
+    needs: [quality-and-test, security-audit]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && env.HAS_VERCEL == 'true'
+    runs-on: ubuntu-latest
+    env:
+      HAS_VERCEL: ${{ secrets.VERCEL_TOKEN != '' }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
@@ -92,15 +177,8 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Build for Vercel
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
-        env:
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
       - name: Deploy to Vercel Production
         run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-

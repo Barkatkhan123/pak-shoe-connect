@@ -147,5 +147,6 @@ export function authorize(
 export function attachIdentity(ctx: RequestContext, token: AuthToken): void {
   // Only expose non-sensitive identifier for logging (not the full sub)
   ctx.userId = token.sub.slice(0, 8) + "…"; // Truncated for logs — never full UUID
+  ctx.fullUserId = token.sub; // Full internal ID for business logic
   ctx.role = token.role;
 }

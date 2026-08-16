@@ -234,10 +234,10 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
     brand: "Anamon Certified Manufacturing Hub",
     categorySlug: product.categorySlug,
     supplier: {
-      name: "Sialkot & Lahore Master Footwear Syndicate",
+      name: "Rawalpindi & Lahore Master Footwear Manufacturing Hub",
       verified: true,
       rating: 4.9,
-      location: "Industrial Estate, Lahore & Sialkot, Pakistan",
+      location: "Manufacturing Facilities in Rawalpindi & Lahore, Pakistan",
       responseRate: 99,
       replyTime: "< 1.5 Hours",
       establishedYear: 2012,

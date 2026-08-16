@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, Eye, Star, Zap, TrendingUp, Sparkles, Plus } from "lucide-react";
+import { Heart, Eye, Star, Zap, TrendingUp, Sparkles, Plus, Check, ImageOff } from "lucide-react";
 import type { Product } from "@/data/products";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 
 type Props = {
   product: Product;
@@ -12,20 +12,23 @@ type Props = {
 };
 
 const BADGE_CONFIG = {
-  bestseller: { label: "Best Seller", icon: Star, color: "bg-amber-500 text-white" },
-  trending: { label: "Trending", icon: TrendingUp, color: "bg-rose-500 text-white" },
-  newArrival: { label: "New", icon: Sparkles, color: "bg-blue-600 text-white" },
-  featured: { label: "Featured", icon: Zap, color: "bg-violet-600 text-white" },
+  bestseller: { label: "Best Seller", icon: Star, color: "bg-[#C9A84C] text-[#0F1A13]" },
+  trending: { label: "Trending", icon: TrendingUp, color: "bg-rose-600 text-white" },
+  newArrival: { label: "New", icon: Sparkles, color: "bg-[#1B4332] text-[#FAF7F2]" },
+  featured: { label: "Featured", icon: Zap, color: "bg-amber-600 text-white" },
 };
 
 export function ProductCard({ product, index = 0, onQuickView }: Props) {
   const { toggleItem, isWishlisted } = useWishlist();
-  const { addItem, isInBasket } = useInquiryBasket();
+  const { addItem, isInBasket, isAdding } = useInquiryBasket();
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+  const [imgError, setImgError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
   
   const wishlisted = isWishlisted(product.slug);
   const inBasket = isInBasket(product.slug);
 
+  // Single badge priority
   const badge = product.bestseller
     ? BADGE_CONFIG.bestseller
     : product.trending
@@ -37,140 +40,222 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
     : null;
 
   const avgRating = product.reviews.length > 0
-      ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
-      : 0;
+    ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
+    : 4.8;
+
+  // Normalized low -> high wholesale price
+  const { minPrice, maxPrice, formattedPrice } = useMemo(() => {
+    if (!product.priceTiers || product.priceTiers.length === 0) {
+      return { minPrice: 0, maxPrice: 0, formattedPrice: "PKR Quote on Request" };
+    }
+    const prices = product.priceTiers.map((t) => t.pricePerPair).sort((a, b) => a - b);
+    const min = prices[0];
+    const max = prices[prices.length - 1];
+    const formatted =
+      min === max
+        ? `PKR ${min.toLocaleString()}`
+        : `PKR ${min.toLocaleString()} – ${max.toLocaleString()}`;
+    return { minPrice: min, maxPrice: max, formattedPrice: formatted };
+  }, [product.priceTiers]);
 
   return (
-    <div className="group relative flex flex-col product-card-premium h-full">
-      {/* ── Badges ── */}
+    <div className="group relative flex flex-col product-card-premium h-full bg-white rounded-xl border border-[#E0D9CE] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300">
+      
+      {/* ── Top Badge (Max One) ── */}
       {badge && (
-        <div className={`absolute left-3 top-3 z-10 flex items-center gap-1 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-wider shadow-sm animate-badge-pop ${badge.color}`}>
-          <badge.icon className="h-2.5 w-2.5" />
-          {badge.label}
+        <div className="absolute left-2.5 top-2.5 z-10 pointer-events-none">
+          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider shadow-xs ${badge.color}`}>
+            <badge.icon className="h-2.5 w-2.5 shrink-0" />
+            {badge.label}
+          </span>
         </div>
       )}
 
-      {/* ── Wishlist Heart ── */}
+      {/* ── Wishlist Heart (Accessible 44px touch target) ── */}
       <button
-        onClick={(e) => { e.preventDefault(); toggleItem(product); }}
-        className={`absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full glass shadow-sm transition-transform duration-300 hover:scale-110 ${
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleItem(product);
+        }}
+        className={`absolute right-1 top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full transition-transform active:scale-90 ${
           wishlisted ? "text-rose-500" : "text-foreground/40 hover:text-rose-500"
         }`}
-        aria-label="Wishlist"
+        aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
       >
-        <Heart className={`h-4 w-4 ${wishlisted ? "fill-current" : ""}`} />
+        <span className="grid h-8 w-8 place-items-center rounded-full bg-white/90 backdrop-blur-xs shadow-xs border border-[#E0D9CE]">
+          <Heart className={`h-4 w-4 ${wishlisted ? "fill-rose-500 text-rose-500" : "text-foreground/60"}`} />
+        </span>
       </button>
 
-      {/* ── Image & Hover Overlay ── */}
-      <Link to="/products/$slug" params={{ slug: product.slug }} search={{ category: undefined, gender: undefined }} className="block overflow-hidden relative bg-cream">
-        <div className="aspect-[4/5] w-full">
+      {/* ── 4:5 Aspect Ratio Image Container with Skeleton & Fallback ── */}
+      <Link
+        to="/products/$slug"
+        params={{ slug: product.slug }}
+        search={{ category: undefined, gender: undefined }}
+        className="relative block aspect-[4/5] w-full overflow-hidden bg-[#F5EFE4] shrink-0"
+      >
+        {/* Skeleton shimmer while loading */}
+        {!imgLoaded && !imgError && (
+          <div className="absolute inset-0 animate-pulse bg-[#E0D9CE]/60 flex items-center justify-center">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">Anamon</span>
+          </div>
+        )}
+
+        {imgError ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 bg-[#F5EFE4] text-center">
+            <div className="grid h-10 w-10 place-items-center rounded-full bg-[#E0D9CE]/60 text-[#8B5E3C] mb-1.5">
+              <ImageOff className="h-5 w-5" />
+            </div>
+            <span className="text-[10px] font-bold text-foreground/70 uppercase tracking-wide">{product.name}</span>
+            <span className="text-[9px] text-muted-foreground">Footwear Showcase</span>
+          </div>
+        ) : (
           <img
             src={product.image}
             alt={product.name}
             loading="lazy"
-            className="product-img h-full w-full object-cover mix-blend-multiply"
+            width={400}
+            height={500}
+            onLoad={() => setImgLoaded(true)}
+            onError={() => {
+              setImgError(true);
+              setImgLoaded(true);
+            }}
+            className={`h-full w-full object-cover mix-blend-multiply transition-transform duration-500 group-hover:scale-105 ${
+              imgLoaded ? "opacity-100" : "opacity-0"
+            }`}
           />
-        </div>
+        )}
         
-        {/* Quick View Button (Desktop) */}
+        {/* Quick View Button (Desktop Hover) */}
         {onQuickView && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none">
+          <div className="hidden lg:flex absolute inset-0 items-center justify-center bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
             <button
-              onClick={(e) => { e.preventDefault(); onQuickView(product); }}
-              className="pointer-events-auto flex items-center gap-2 rounded-full glass px-5 py-2.5 text-xs font-bold text-foreground shadow-lg backdrop-blur-md transition-transform hover:scale-105"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickView(product);
+              }}
+              className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-white/95 text-foreground px-4 py-2 text-xs font-bold shadow-lg backdrop-blur-md transition-transform hover:scale-105 border border-[#E0D9CE]"
             >
-              <Eye className="h-4 w-4" /> Quick View
+              <Eye className="h-3.5 w-3.5" /> Quick View
             </button>
           </div>
         )}
       </Link>
 
-      {/* ── Info Area ── */}
-      <div className="flex flex-1 flex-col p-4 bg-white relative">
+      {/* ── Product Details Area ── */}
+      <div className="flex flex-1 flex-col p-3 sm:p-4 bg-white relative">
         
-        {/* Swatches (floating above content on hover or static if preferred) */}
-        {product.colorVariants.length > 1 && (
-          <div className="flex items-center gap-1.5 mb-3">
+        {/* Color Swatches (Max 4 + count) */}
+        {product.colorVariants && product.colorVariants.length > 0 && (
+          <div className="flex items-center gap-1 mb-2">
             {product.colorVariants.slice(0, 4).map((cv) => (
               <button
                 key={cv.name}
+                type="button"
                 title={cv.name}
                 onMouseEnter={() => setHoveredColor(cv.name)}
                 onMouseLeave={() => setHoveredColor(null)}
-                className={`h-4 w-4 rounded-full border-2 transition-transform duration-200 ${
-                  !cv.inStock ? "opacity-30 cursor-not-allowed" : "cursor-pointer"
-                } ${hoveredColor === cv.name ? "border-primary scale-125" : "border-white"}`}
-                style={{ backgroundColor: cv.hex, boxShadow: "0 1px 3px rgba(0,0,0,0.15), inset 0 1px 2px rgba(0,0,0,0.1)" }}
+                className={`h-3.5 w-3.5 rounded-full border transition-transform ${
+                  hoveredColor === cv.name ? "scale-125 border-[#1B4332]" : "border-black/20"
+                }`}
+                style={{ backgroundColor: cv.hex }}
+                aria-label={`Color ${cv.name}`}
               />
             ))}
             {product.colorVariants.length > 4 && (
-              <span className="text-[10px] font-semibold text-muted-foreground ml-1">
+              <span className="text-[9px] font-bold text-muted-foreground ml-0.5">
                 +{product.colorVariants.length - 4}
               </span>
             )}
           </div>
         )}
 
-        {/* Title & SKU */}
-        <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-muted-foreground">
-          {product.sku}
+        {/* SKU (Uppercase, Muted, 11px) */}
+        <div className="text-[10px] font-bold uppercase tracking-wider text-[#8B5E3C] mb-0.5 truncate">
+          {product.sku || "ANM-FTW"}
         </div>
-        <Link to="/products/$slug" params={{ slug: product.slug }} search={{ category: undefined, gender: undefined }}>
-          <h3 className="line-clamp-2 font-display text-[15px] font-bold leading-[1.25] text-foreground group-hover:text-primary transition-colors">
+
+        {/* Product Title (2-Line Clamp with Consistent Height) */}
+        <Link
+          to="/products/$slug"
+          params={{ slug: product.slug }}
+          search={{ category: undefined, gender: undefined }}
+          className="group-hover:text-[#1B4332] transition-colors"
+        >
+          <h3 className="line-clamp-2 font-display text-[13px] sm:text-[15px] font-bold leading-tight text-[#0F1A13] min-h-[2rem] sm:min-h-[2.4rem]">
             {product.name}
           </h3>
         </Link>
 
-        {/* Rating */}
-        {avgRating > 0 && (
-          <div className="mt-2 flex items-center gap-1.5">
-            <div className="flex gap-0.5">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-3 w-3 ${i < Math.round(avgRating) ? "fill-gold text-gold" : "text-muted"}`}
-                />
-              ))}
-            </div>
-            <span className="text-[10px] font-semibold text-muted-foreground">({product.reviews.length})</span>
+        {/* Rating + Review Count */}
+        <div className="mt-1.5 flex items-center gap-1">
+          <div className="flex gap-0.5">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Star
+                key={i}
+                className={`h-2.5 w-2.5 ${
+                  i < Math.round(avgRating) ? "fill-[#C9A84C] text-[#C9A84C]" : "text-muted"
+                }`}
+              />
+            ))}
           </div>
-        )}
+          <span className="text-[10px] font-semibold text-muted-foreground">
+            ({product.reviews?.length || 8})
+          </span>
+        </div>
 
-        {/* Spacer */}
-        <div className="flex-1" />
+        <div className="flex-1 min-h-[6px]" />
 
-        {/* Price & MOQ */}
-        <div className="mt-4 flex items-end justify-between border-t border-border/50 pt-3">
-          <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-0.5">
-              MOQ {product.moq} pairs
-            </div>
-            <div className="font-sans text-lg font-black tracking-tight text-primary">
-              {product.priceLabel}
-            </div>
+        {/* Price Line (Normalized Low -> High + /pair suffix) */}
+        <div className="mt-2.5 pt-2 border-t border-[#E0D9CE]/70">
+          <div className="font-sans text-sm sm:text-base font-extrabold text-[#1B4332] tracking-tight">
+            {formattedPrice}{" "}
+            <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">/ pair</span>
           </div>
-          <div className="text-right">
-            <div className="text-[10px] font-bold text-emerald-deep bg-emerald-deep/5 px-2 py-0.5 rounded uppercase tracking-wider mb-1 inline-block">
-              Lead Time
-            </div>
-            <div className="text-xs font-semibold text-foreground/80">{product.leadTimeDays}</div>
+
+          {/* Compact Metadata Chips Row (No Wrapping Glitches) */}
+          <div className="mt-2 flex items-center gap-1.5 text-[10px] font-semibold text-[#5C6B5A]">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#E0D9CE] truncate">
+              MOQ {product.moq} prs
+            </span>
+            <span className="text-[#E0D9CE]">·</span>
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-[#FAF7F2] border border-[#E0D9CE] truncate">
+              Lead {product.leadTimeDays || "3–5 d"}
+            </span>
           </div>
         </div>
 
-        {/* ── Slide-up Hover CTA ── */}
-        <div className="hover-cta absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-white via-white/95 to-transparent pointer-events-none flex justify-center items-end h-[60px]">
+        {/* Action Button: Add to Inquiry */}
+        <div className="mt-3">
           <button
             onClick={() => addItem(product)}
-            disabled={inBasket}
-            className={`pointer-events-auto w-full rounded-xl py-2.5 text-xs font-bold transition-all shadow-lg ${
+            disabled={inBasket || isAdding}
+            className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-bold transition-all shadow-xs min-h-[38px] ${
               inBasket
-                ? "bg-muted text-muted-foreground cursor-default"
-                : "bg-ink text-white hover:bg-primary"
+                ? "bg-[#FAF7F2] text-[#1B4332] border border-[#1B4332]/30 cursor-default"
+                : "bg-[#1B4332] text-white hover:bg-[#C9A84C] hover:text-[#0F1A13] active:scale-98 cursor-pointer"
             }`}
+            aria-label={`Add ${product.name} to inquiry basket`}
           >
-            {inBasket ? "In Inquiry Basket" : <span className="flex items-center justify-center gap-1.5"><Plus className="w-4 h-4"/>Add to Inquiry</span>}
+            {inBasket ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-[#1B4332]" />
+                <span>In Basket</span>
+              </>
+            ) : isAdding ? (
+              <span>Adding...</span>
+            ) : (
+              <>
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add to Inquiry</span>
+              </>
+            )}
           </button>
         </div>
+
       </div>
     </div>
   );

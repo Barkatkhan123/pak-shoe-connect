@@ -20,5 +20,11 @@ export function useAuth() {
     return () => sub.subscription.unsubscribe();
   }, []);
 
-  return { session, user, loading };
+  return {
+    session,
+    user,
+    loading,
+    isAuthenticated: !!user && !!session,
+    accessToken: session?.access_token || null,
+  };
 }

@@ -4,6 +4,7 @@
  */
 
 import { adminSecurityEngine, MASTER_ADMIN_EMAIL } from "./admin-auth";
+import { supabase } from "@/integrations/supabase/client";
 
 const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
@@ -33,6 +34,26 @@ async function request<T = any>(
 ): Promise<ApiResponse<T>> {
   const { method = "GET", body, params, headers = {} } = options;
 
+  let authHeader = headers["authorization"] || headers["Authorization"];
+  if (!authHeader && typeof window !== "undefined") {
+    try {
+      const session = (await supabase.auth.getSession()).data.session;
+      if (session?.access_token) {
+        authHeader = `Bearer ${session.access_token}`;
+      }
+    } catch {
+      // Ignore if supabase not initialized
+    }
+  }
+
+  const finalHeaders: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...headers,
+  };
+  if (authHeader) {
+    finalHeaders["Authorization"] = authHeader;
+  }
+
   let url = `${API_BASE_URL}${endpoint}`;
   if (params) {
     const searchParams = new URLSearchParams();
@@ -50,10 +71,7 @@ async function request<T = any>(
   try {
     const res = await fetch(url, {
       method,
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
+      headers: finalHeaders,
       body: body ? JSON.stringify(body) : undefined,
     });
 
@@ -108,6 +126,40 @@ export const apiClient = {
       items: Array<{ productId?: string; cartonQty: number; pairsCount?: number; unitPrice?: number }>;
       destinationCity?: string;
     }) => request("/api/v1/cart/calculate", { method: "POST", body: payload }),
+  },
+
+  // 2b. Authenticated B2B Basket Engine
+  basket: {
+    get: (headers?: Record<string, string>) =>
+      request("/api/v1/basket", { method: "GET", headers }),
+
+    addItem: (
+      payload: {
+        productId?: string;
+        productSlug: string;
+        quantityPairs: number;
+        cartonCount?: number;
+        color?: string;
+        size?: string;
+        variantSku?: string;
+        idempotencyKey?: string;
+      },
+      headers?: Record<string, string>
+    ) => request("/api/v1/basket/add", { method: "POST", body: payload, headers }),
+
+    updateQty: (
+      payload: { slug: string; quantity: number },
+      headers?: Record<string, string>
+    ) => request("/api/v1/basket/qty", { method: "PUT", body: payload, headers }),
+
+    removeItem: (
+      slug: string,
+      params?: { color?: string; size?: string },
+      headers?: Record<string, string>
+    ) => request(`/api/v1/basket/${slug}`, { method: "DELETE", params, headers }),
+
+    clear: (headers?: Record<string, string>) =>
+      request("/api/v1/basket", { method: "DELETE", headers }),
   },
 
   // 3. RFQ Negotiation Engine

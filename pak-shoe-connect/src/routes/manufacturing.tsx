@@ -11,9 +11,9 @@ export const Route = createFileRoute("/manufacturing")({
       {
         name: "description",
         content:
-          "Inside Anamon's shoe factories in Lahore. In-house cutting, stitching, sole moulding, 3-stage QC and warehousing.",
+          "Inside Anamon's shoe manufacturing facilities in Rawalpindi and Lahore, Pakistan. In-house cutting, stitching, sole moulding, 3-stage QC and warehousing.",
       },
-      { property: "og:title", content: "Manufacturing — Anamon" },
+      { property: "og:title", content: "Manufacturing & Facilities — Anamon" },
       { property: "og:url", content: "/manufacturing" },
     ],
     links: [{ rel: "canonical", href: "/manufacturing" }],
@@ -41,7 +41,7 @@ function Manufacturing() {
             Every pair, built under one roof.
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto leading-relaxed text-balance">
-            From raw leather cutting to final carton packing — experience the full Anamon production process, engineered for B2B scale.
+            Dual manufacturing facilities in Rawalpindi & Lahore — engineered for nationwide B2B scale, custom OEM production, and direct factory pricing.
           </p>
         </div>
       </section>
@@ -50,9 +50,9 @@ function Manufacturing() {
       <section className="relative z-20 max-w-[1440px] mx-auto px-4 sm:px-6 -mt-16 mb-16">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {[
-            { value: "8,000", label: "Pairs / Day" },
-            { value: "400+", label: "Skilled Workers" },
-            { value: "2", label: "Facilities in Lahore" },
+            { value: "8,000", label: "Pairs / Day Capacity" },
+            { value: "400+", label: "Skilled Artisans & Workers" },
+            { value: "2", label: "Plants (Rawalpindi & Lahore)" },
             { value: "15-25", label: "Days Lead Time" },
           ].map((stat) => (
             <div key={stat.label} className="glass rounded-2xl p-6 md:p-8 text-center premium-shadow border border-white/40">
@@ -60,6 +60,92 @@ function Manufacturing() {
               <div className="mt-2 text-sm font-medium text-foreground">{stat.label}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Plant Locations Breakdown */}
+      <section className="py-16 border-b border-border bg-card/50">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-primary mb-2">
+              <Factory className="h-3.5 w-3.5" />
+              <span>Production Hubs</span>
+            </div>
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Our Manufacturing Facilities
+            </h2>
+            <p className="text-muted-foreground text-sm sm:text-base">
+              Strategically located manufacturing hubs in Rawalpindi and Lahore to serve retailers and wholesale buyers across Pakistan.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Rawalpindi Plant */}
+            <div className="rounded-2xl border border-border bg-card p-8 premium-shadow transition-all duration-300 hover:border-primary/30">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <span className="inline-block px-2.5 py-1 rounded-md text-xs font-bold bg-primary/10 text-primary mb-2">
+                    Plant 01 · Northern Hub
+                  </span>
+                  <h3 className="font-display text-2xl font-bold text-foreground">
+                    Rawalpindi Manufacturing Facility
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Industrial Estate, Rawalpindi, Pakistan
+                  </p>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Factory className="h-6 w-6 text-primary" />
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                Specialized in traditional craftsmanship, handcrafted Peshawari chappals, full-grain leather Oxfords, precision laser cutting, and master artisan upper stitching lines.
+              </p>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                  <span className="text-muted-foreground block">Key Focus</span>
+                  <strong className="text-foreground font-semibold">Leather & Peshawari Craft</strong>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                  <span className="text-muted-foreground block">Daily Output</span>
+                  <strong className="text-foreground font-semibold">3,500+ Pairs / Day</strong>
+                </div>
+              </div>
+            </div>
+
+            {/* Lahore Plant */}
+            <div className="rounded-2xl border border-border bg-card p-8 premium-shadow transition-all duration-300 hover:border-primary/30">
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div>
+                  <span className="inline-block px-2.5 py-1 rounded-md text-xs font-bold bg-[#C9A84C]/15 text-[#C9A84C] mb-2">
+                    Plant 02 · Central Hub
+                  </span>
+                  <h3 className="font-display text-2xl font-bold text-foreground">
+                    Lahore Manufacturing Facility
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Industrial Hub / Gulberg Area, Lahore, Pakistan
+                  </p>
+                </div>
+                <div className="w-12 h-12 rounded-xl bg-[#C9A84C]/10 flex items-center justify-center shrink-0">
+                  <Factory className="h-6 w-6 text-[#C9A84C]" />
+                </div>
+              </div>
+              <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+                High-capacity industrial sole moulding (PU, TPR, and vulcanized rubber), automated sneaker assembly lines, 3-stage QC testing labs, and central warehouse logistics.
+              </p>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                  <span className="text-muted-foreground block">Key Focus</span>
+                  <strong className="text-foreground font-semibold">Sole Moulding & Assembly</strong>
+                </div>
+                <div className="p-3 rounded-lg bg-muted/40 border border-border/50">
+                  <span className="text-muted-foreground block">Daily Output</span>
+                  <strong className="text-foreground font-semibold">4,500+ Pairs / Day</strong>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

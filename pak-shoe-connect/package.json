@@ -15,7 +15,13 @@
     "db:generate": "prisma generate",
     "db:seed": "npx tsx prisma/seed.ts",
     "test": "npx vitest run",
-    "simulate": "npx tsx scripts/simulate-e2e-flow.ts"
+    "simulate": "npx tsx scripts/simulate-e2e-flow.ts",
+    "devops:check": "npx tsc --noEmit --skipLibCheck && npx vitest run && npm run build && node scripts/build-spa-bundle.mjs",
+    "docker:build": "docker build -t anamon-web:latest .",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f app",
+    "deploy:bundle": "npm run build && node scripts/build-spa-bundle.mjs"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
