@@ -115,7 +115,8 @@ export function clearPendingAction(): void {
 export function useInquiryBasket() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
-  const [localItems, setLocalItems] = useState<InquiryItem[]>(loadLocalBasket);
+  const [localItems, setLocalItems] = useState<InquiryItem[]>([]);
+  const [mounted, setMounted] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const isMountedRef = useRef(false);
 
@@ -154,12 +155,16 @@ export function useInquiryBasket() {
     staleTime: 1000 * 30, // 30s
   });
 
-  // Effective items (prefer server query when authenticated, fallback to local storage)
-  const items: InquiryItem[] = (isAuthenticated && serverBasket?.items) ? serverBasket.items : localItems;
+  // Effective items (guarantee SSR hydration match)
+  const items: InquiryItem[] = mounted
+    ? (isAuthenticated && serverBasket?.items ? serverBasket.items : localItems)
+    : [];
 
   // Sync across tabs/instances via storage events
   useEffect(() => {
     isMountedRef.current = true;
+    setMounted(true);
+    setLocalItems(loadLocalBasket());
     const onStorage = (e: StorageEvent) => {
       if (e.key === STORAGE_KEY || e.key === null) {
         setLocalItems(loadLocalBasket());
