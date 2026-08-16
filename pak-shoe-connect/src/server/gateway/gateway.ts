@@ -851,8 +851,8 @@ export async function apiGateway(
       // ── Audit Logs & System Health ──
       if (path === "/api/v1/admin/audit-logs" && method === "GET") {
         const logs = [
-          { id: "log-1", action: "PRODUCT_APPROVED", entityType: "PRODUCT", entityId: "SHR-SHOE-101", userEmail: "admin@shersha.pk", role: "ADMIN", timestamp: new Date() },
-          { id: "log-2", action: "FOUR_EYES_PAYOUT_INITIATED", entityType: "FINANCE", entityId: "PAY-9901", userEmail: "operator@shersha.pk", role: "OPERATOR", timestamp: new Date() },
+          { id: "log-1", action: "PRODUCT_APPROVED", entityType: "PRODUCT", entityId: "SHR-SHOE-101", userEmail: "anamoontotrade@gmail.com", role: "ADMIN", timestamp: new Date() },
+          { id: "log-2", action: "FOUR_EYES_PAYOUT_INITIATED", entityType: "FINANCE", entityId: "PAY-9901", userEmail: "operator@anamonofficial.com", role: "OPERATOR", timestamp: new Date() },
         ].map(toAdminAuditLogDto);
         return ok({ logs }, ctx);
       }

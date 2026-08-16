@@ -8,11 +8,15 @@ async function main() {
   // ── 1. Create Admin & Factory Suppliers ──
   const admin = await prisma.user.upsert({
     where: { phone: "+923000000001" },
-    update: {},
+    update: {
+      email: "anamoontotrade@gmail.com",
+      fullName: "Anamon Master Admin",
+      role: UserRole.ADMIN,
+    },
     create: {
       phone: "+923000000001",
-      email: "admin@shersha.pk",
-      fullName: "SherSha Operations Lead",
+      email: "anamoontotrade@gmail.com",
+      fullName: "Anamon Master Admin",
       city: "Lahore",
       role: UserRole.ADMIN,
     },

@@ -155,7 +155,7 @@ export function toAdminAuditLogDto(l: any): AdminAuditLogDto {
   return {
     id:            l.id,
     timestamp:     l.timestamp?.toISOString?.() || l.createdAt?.toISOString?.() || new Date().toISOString(),
-    userEmail:     l.userEmail || "admin@shersha.pk",
+    userEmail:     l.userEmail || "anamoontotrade@gmail.com",
     role:          l.role || "ADMIN",
     action:        l.action || "PRODUCT_APPROVED",
     entityType:    l.entityType || "PRODUCT",
