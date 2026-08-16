@@ -237,10 +237,46 @@ export function ProductManageModal({
     setColorVariants(colorVariants.filter((_, i) => i !== idx));
   };
 
-  // Handlers for Image Gallery
+  // Handlers for Local Image File Upload & Gallery
+  const handleMainImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (JPG, PNG, WebP)");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setMainImage(dataUrl);
+        toast.success(`Main cover picture updated: ${file.name}`);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleGalleryFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith("image/")) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const dataUrl = event.target?.result as string;
+        if (dataUrl) {
+          setGalleryImages((prev) => [...prev, dataUrl]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    toast.success(`Added ${files.length} picture(s) to product gallery`);
+  };
+
   const handleAddGalleryImage = () => {
-    if (!newImageUrl) return;
-    setGalleryImages([...galleryImages, newImageUrl]);
+    if (!newImageUrl.trim()) return;
+    setGalleryImages([...galleryImages, newImageUrl.trim()]);
     setNewImageUrl("");
     toast.success("Image URL added to gallery");
   };
@@ -731,55 +767,121 @@ export function ProductManageModal({
             </TabsContent>
 
             {/* ── TAB 4: MEDIA & DOCUMENTS ── */}
-            <TabsContent value="media" className="space-y-4 focus:outline-none">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300">Main Cover Image URL *</label>
-                <Input
-                  value={mainImage}
-                  onChange={(e) => setMainImage(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="bg-slate-950 border-slate-800 text-xs font-mono"
-                />
+            <TabsContent value="media" className="space-y-5 focus:outline-none">
+              {/* Main Cover Image */}
+              <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-200">Main Cover Product Picture *</label>
+                  <span className="text-[10px] text-slate-400">Direct upload or web URL</span>
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4 items-start">
+                  {mainImage ? (
+                    <div className="relative h-24 w-24 rounded-xl border border-amber-500/40 overflow-hidden bg-slate-900 shrink-0 shadow-md">
+                      <img src={mainImage} alt="Cover preview" className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setMainImage("")}
+                        className="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white flex items-center justify-center shadow"
+                        title="Remove image"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="h-24 w-24 rounded-xl border border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 shrink-0 bg-slate-900/50">
+                      <ImageIcon className="h-6 w-6 mb-1" />
+                      <span className="text-[9px]">No Cover</span>
+                    </div>
+                  )}
+
+                  <div className="flex-1 space-y-2 w-full">
+                    <div className="flex items-center gap-2">
+                      <label className="flex-1 cursor-pointer">
+                        <div className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-700 hover:border-amber-500/50 rounded-lg text-xs font-bold text-slate-200 transition-colors">
+                          <Upload className="h-4 w-4 text-amber-400" />
+                          <span>Upload from Computer</span>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleMainImageFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        value={mainImage}
+                        onChange={(e) => setMainImage(e.target.value)}
+                        placeholder="Or paste image URL (https://...)"
+                        className="bg-slate-900 border-slate-800 text-xs font-mono"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-300">Gallery Image URLs</label>
+              {/* Gallery Images */}
+              <div className="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <label className="text-xs font-bold text-slate-200 block">Product Gallery Angles & Close-ups</label>
+                    <span className="text-[10px] text-slate-400">Upload multiple photos (sole, side angle, top view, packaging)</span>
+                  </div>
+                  <label className="cursor-pointer">
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg text-xs font-bold text-amber-400 transition-colors">
+                      <Upload className="h-3.5 w-3.5" />
+                      <span>Upload Photos</span>
+                    </div>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleGalleryFilesChange}
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+
                 <div className="flex items-center gap-2">
                   <Input
                     value={newImageUrl}
                     onChange={(e) => setNewImageUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="bg-slate-950 border-slate-800 text-xs font-mono flex-1"
+                    placeholder="Or paste additional image URL..."
+                    className="bg-slate-900 border-slate-800 text-xs font-mono flex-1"
                   />
                   <Button
                     type="button"
                     onClick={handleAddGalleryImage}
-                    className="bg-amber-500 text-slate-950 font-bold text-xs"
+                    className="bg-slate-900 border border-slate-700 hover:bg-slate-800 text-slate-200 text-xs h-9"
                   >
-                    Add Image
+                    Add URL
                   </Button>
                 </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                  {galleryImages.map((url, idx) => (
-                    <div
-                      key={idx}
-                      className="group relative aspect-square rounded-xl border border-slate-800 overflow-hidden bg-slate-950"
-                    >
-                      <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveGalleryImage(idx)}
-                        className="absolute top-1 right-1 h-6 w-6 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                {galleryImages.length > 0 && (
+                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 pt-2">
+                    {galleryImages.map((url, idx) => (
+                      <div
+                        key={idx}
+                        className="group relative aspect-square rounded-xl border border-slate-800 overflow-hidden bg-slate-900 shadow-xs"
                       >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
+                        <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveGalleryImage(idx)}
+                          className="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-slate-300">Product HD Demo Video URL</label>
                   <Input
