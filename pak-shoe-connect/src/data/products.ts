@@ -73,6 +73,10 @@ export type Product = {
   shippingInfo: string;
   reviews: Review[];
   video?: string;
+  sampleAvailable?: boolean;
+  samplePrice?: number;
+  sampleLeadDays?: string;
+  sampleRefundable?: boolean;
   stats: {
     unitsSold: number;
     ordersCompleted: number;

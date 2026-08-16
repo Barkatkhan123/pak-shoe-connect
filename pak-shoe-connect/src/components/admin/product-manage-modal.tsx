@@ -31,6 +31,7 @@ import {
   Hash,
   Globe,
   Upload,
+  PackageCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Product, CATEGORIES } from "@/data/products";
@@ -55,30 +56,32 @@ export function ProductManageModal({
   // Form State
   const [activeFormTab, setActiveFormTab] = useState("basic");
 
-  // Tab 1: Basic Info & SEO
+  // Tab 1: Basic Info
   const [name, setName] = useState("");
   const [nameUrdu, setNameUrdu] = useState("");
   const [sku, setSku] = useState("");
   const [categorySlug, setCategorySlug] = useState("men-formal");
-  const [subcategory, setSubcategory] = useState("");
-  const [gender, setGender] = useState<"men" | "women" | "kids" | "unisex">("men");
-  const [material, setMaterial] = useState("Full-grain genuine leather");
-  const [soleType, setSoleType] = useState("Rubber");
+  const [gender, setGender] = useState<"men" | "women" | "unisex" | "kids">("men");
+  const [material, setMaterial] = useState("Full-Grain Cowhide Leather");
+  const [soleType, setSoleType] = useState("Direct Injection TPU Sole");
+  const [productionCapacity, setProductionCapacity] = useState("20,000 Pairs/Month");
+  const [leadTimeDays, setLeadTimeDays] = useState("7-14 Days Production");
   const [description, setDescription] = useState("");
-  const [leadTimeDays, setLeadTimeDays] = useState("10–14 days");
-  const [productionCapacity, setProductionCapacity] = useState("10,000 pairs/month");
   const [tags, setTags] = useState("leather, wholesale, formal, Oxford");
   const [metaTitle, setMetaTitle] = useState("");
-  const [metaDescription, setMetaDescription] = useState("");
 
-  // Tab 2: Pricing, MOQ & Cartons
+  // Tab 2: Pricing & MOQs
   const [basePrice, setBasePrice] = useState(1850);
-  const [retailPrice, setRetailPrice] = useState(2800);
-  const [discountType, setDiscountType] = useState<"percentage" | "fixed">("percentage");
-  const [discountValue, setDiscountValue] = useState(20);
+  const [retailPrice, setRetailPrice] = useState(3500);
   const [moq, setMoq] = useState(12);
   const [cartonQty, setCartonQty] = useState(12);
   const [singleColorPerCarton, setSingleColorPerCarton] = useState(true);
+
+  // Sample Product Configuration State
+  const [sampleAvailable, setSampleAvailable] = useState(true);
+  const [samplePrice, setSamplePrice] = useState(2500);
+  const [sampleLeadDays, setSampleLeadDays] = useState("2–4 days express courier");
+  const [sampleRefundable, setSampleRefundable] = useState(true);
 
   // Price Tiers State
   const [priceTiers, setPriceTiers] = useState<
@@ -147,6 +150,12 @@ export function ProductManageModal({
       setMoq(productToEdit.moq || 12);
       setCartonQty(productToEdit.cartonQty || 12);
 
+      // Sample Configuration
+      setSampleAvailable(productToEdit.sampleAvailable !== false);
+      setSamplePrice(productToEdit.samplePrice || (productToEdit.priceTiers?.[0]?.pricePerPair ? productToEdit.priceTiers[0].pricePerPair + 500 : 2500));
+      setSampleLeadDays(productToEdit.sampleLeadDays || "2–4 days express courier");
+      setSampleRefundable(productToEdit.sampleRefundable !== false);
+
       if (productToEdit.colorVariants) {
         setColorVariants(productToEdit.colorVariants);
       }
@@ -171,6 +180,10 @@ export function ProductManageModal({
       setSku(`SHR-${Math.floor(100 + Math.random() * 900)}`);
       setCategorySlug("men-formal");
       setDescription("");
+      setSampleAvailable(true);
+      setSamplePrice(2500);
+      setSampleLeadDays("2–4 days express courier");
+      setSampleRefundable(true);
       setMainImage("https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800&auto=format&fit=crop");
       setGalleryImages([
         "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800&auto=format&fit=crop",
@@ -325,6 +338,10 @@ export function ProductManageModal({
       priceTiers,
       leadTimeDays,
       productionCapacity,
+      sampleAvailable,
+      samplePrice,
+      sampleLeadDays,
+      sampleRefundable,
       // BUG-11 FIX: Use toLocaleString() so numbers have thousands-separating commas
       // (e.g. "PKR 1,250–1,850" instead of "PKR 1250–1850"), matching the rest of the UI.
       priceLabel: lowestPrice === highestPrice
@@ -652,6 +669,71 @@ export function ProductManageModal({
                     </tbody>
                   </table>
                 </div>
+              </div>
+
+              {/* Product 1-Pair Sample Order Configuration Card */}
+              <div className="space-y-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <PackageCheck className="h-4 w-4 text-amber-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-slate-200">
+                      1-Pair Sample Order Settings
+                    </span>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-300">
+                    <span>Enable Sample Orders:</span>
+                    <input
+                      type="checkbox"
+                      checked={sampleAvailable}
+                      onChange={(e) => setSampleAvailable(e.target.checked)}
+                      className="rounded bg-slate-900 border-slate-700 text-amber-500 focus:ring-amber-500 h-4 w-4"
+                    />
+                  </label>
+                </div>
+
+                {sampleAvailable && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">Sample Unit Price (PKR)</label>
+                      <Input
+                        type="number"
+                        value={samplePrice}
+                        onChange={(e) => setSamplePrice(parseInt(e.target.value, 10) || 0)}
+                        placeholder="e.g. 2500"
+                        className="bg-slate-950 border-slate-800 text-xs font-mono font-bold text-amber-400"
+                      />
+                      <span className="text-[10px] text-slate-400">Single pair sample inspection fee</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">Sample Dispatch Lead Time</label>
+                      <Input
+                        value={sampleLeadDays}
+                        onChange={(e) => setSampleLeadDays(e.target.value)}
+                        placeholder="e.g. 2–4 days express courier"
+                        className="bg-slate-950 border-slate-800 text-xs"
+                      />
+                      <span className="text-[10px] text-slate-400">Dispatch speed for sample pair</span>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-slate-300">Bulk Refund Policy</label>
+                      <div className="flex items-center gap-2 h-9 px-3 bg-slate-950 border border-slate-800 rounded-md">
+                        <input
+                          type="checkbox"
+                          id="sampleRefundableCheckbox"
+                          checked={sampleRefundable}
+                          onChange={(e) => setSampleRefundable(e.target.checked)}
+                          className="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500 h-4 w-4"
+                        />
+                        <label htmlFor="sampleRefundableCheckbox" className="text-xs text-slate-300 cursor-pointer">
+                          Refund on bulk order
+                        </label>
+                      </div>
+                      <span className="text-[10px] text-emerald-400">Deduct sample fee from 100+ pair order</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </TabsContent>
 

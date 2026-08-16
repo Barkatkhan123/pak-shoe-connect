@@ -12,7 +12,7 @@ import {
   LogOut, Shield, Mail, CheckCircle, Smartphone, Terminal, History, Fingerprint,
   Download, Send, LifeBuoy, Wifi, WifiOff, Zap, Globe, Database, Server,
   AlertCircle, ToggleLeft, ToggleRight, Banknote, Scale, MessageSquareWarning,
-  HeartPulse, SlidersHorizontal, X, Trash2
+  HeartPulse, SlidersHorizontal, X, Trash2, PackageCheck, Phone, MapPin, Calendar, Edit3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -96,6 +96,95 @@ const MOCK_ORDERS = [
   { id: "ORD-9824", buyer: "Quetta Traders Syndicate", amount: "PKR 310,000", items: "240 pairs (20 ctns)", biltiNo: "QTA-BLT-7719", status: "PROCESSING" },
 ];
 
+export interface ProductSample {
+  id: string;
+  buyerName: string;
+  buyerPhone: string;
+  buyerCity: string;
+  productSku: string;
+  productName: string;
+  color: string;
+  size: string;
+  courier: string;
+  trackingNo: string;
+  sampleFee: number;
+  paymentStatus: "PAID" | "PENDING_FEE" | "WAIVED_VIP";
+  status: "REQUESTED" | "PREPARING" | "DISPATCHED" | "DELIVERED" | "CONVERTED_TO_BULK" | "CANCELLED";
+  requestedDate: string;
+  notes?: string;
+}
+
+const INITIAL_SAMPLES: ProductSample[] = [
+  {
+    id: "SMP-1081",
+    buyerName: "Apex Retail Group",
+    buyerPhone: "+92 300 8492019",
+    buyerCity: "Lahore",
+    productSku: "SHR-101",
+    productName: "Presidential Oxford Leather Shoe",
+    color: "Tan",
+    size: "9",
+    courier: "TCS Express",
+    trackingNo: "TCS-9921048",
+    sampleFee: 2500,
+    paymentStatus: "PAID",
+    status: "DISPATCHED",
+    requestedDate: "2026-08-12",
+    notes: "Requires sole cross-section sample piece inside box",
+  },
+  {
+    id: "SMP-1082",
+    buyerName: "Khyber Shoe Emporium",
+    buyerPhone: "+92 333 4910283",
+    buyerCity: "Peshawar",
+    productSku: "SHR-104",
+    productName: "Artisanal Peshawari Chappal Norozi Cut",
+    color: "Dark Chocolate",
+    size: "8",
+    courier: "Leopard Courier",
+    trackingNo: "LEO-4019283",
+    sampleFee: 2800,
+    paymentStatus: "PAID",
+    status: "DELIVERED",
+    requestedDate: "2026-08-09",
+    notes: "Checking tyre sole density before placing 120 cartons order",
+  },
+  {
+    id: "SMP-1083",
+    buyerName: "Karachi Leather Footwear Hub",
+    buyerPhone: "+92 321 9820194",
+    buyerCity: "Karachi",
+    productSku: "SHR-102",
+    productName: "Executive Derby Brogue",
+    color: "Black",
+    size: "10",
+    courier: "M&P Express",
+    trackingNo: "Pending Dispatch",
+    sampleFee: 2500,
+    paymentStatus: "PAID",
+    status: "PREPARING",
+    requestedDate: "2026-08-14",
+    notes: "Urgent sample pair needed for board review",
+  },
+  {
+    id: "SMP-1084",
+    buyerName: "Multan Bazaars Syndicate",
+    buyerPhone: "+92 301 5519283",
+    buyerCity: "Multan",
+    productSku: "SHR-103",
+    productName: "Monk Strap Hand-Burnished Loafer",
+    color: "Burgundy",
+    size: "8",
+    courier: "TCS Express",
+    trackingNo: "TCS-1102934",
+    sampleFee: 2600,
+    paymentStatus: "PAID",
+    status: "CONVERTED_TO_BULK",
+    requestedDate: "2026-08-02",
+    notes: "Sample approved! Converted to 60 cartons bulk order ORD-9822.",
+  },
+];
+
 // ── Mock data for Payments / Escrow tab ──
 const MOCK_ESCROW_TRANSACTIONS = [
   { id: "ESC-4401", orderId: "ORD-9821", buyer: "Karachi Leather Hub", supplier: "Sialkot Master Syndicate", amount: "PKR 148,000", held: "PKR 4,440", status: "HELD", date: "2026-08-10" },
@@ -144,6 +233,28 @@ export function AdminDashboardPage() {
   const [newOrderAmount, setNewOrderAmount] = useState("PKR 120,000");
   const [newOrderItems, setNewOrderItems] = useState("60 pairs (5 ctns)");
   const [newOrderBilti, setNewOrderBilti] = useState("");
+
+  // Sample Product state
+  const [samplesList, setSamplesList] = useState<ProductSample[]>(INITIAL_SAMPLES);
+  const [sampleSearch, setSampleSearch] = useState("");
+  const [sampleFilter, setSampleFilter] = useState<string>("ALL");
+  const [isAddSampleOpen, setIsAddSampleOpen] = useState(false);
+  const [newSampleBuyer, setNewSampleBuyer] = useState("");
+  const [newSamplePhone, setNewSamplePhone] = useState("+92 300 ");
+  const [newSampleCity, setNewSampleCity] = useState("Lahore");
+  const [newSampleSku, setNewSampleSku] = useState("SHR-101");
+  const [newSampleColor, setNewSampleColor] = useState("Tan");
+  const [newSampleSize, setNewSampleSize] = useState("9");
+  const [newSampleCourier, setNewSampleCourier] = useState("TCS Express");
+  const [newSampleTracking, setNewSampleTracking] = useState("");
+  const [newSampleFee, setNewSampleFee] = useState(2500);
+  const [newSamplePayment, setNewSamplePayment] = useState<"PAID" | "PENDING_FEE" | "WAIVED_VIP">("PAID");
+  const [newSampleNotes, setNewSampleNotes] = useState("");
+
+  // Edit Tracking Modal state
+  const [editingSample, setEditingSample] = useState<ProductSample | null>(null);
+  const [editTrackingNo, setEditTrackingNo] = useState("");
+  const [editCourier, setEditCourier] = useState("TCS Express");
 
   // Settings state for Platform Settings tab
   const [commissionRate, setCommissionRate] = useState(3);
@@ -674,11 +785,12 @@ export function AdminDashboardPage() {
             <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Core Modules</p>
 
             <SidebarItem icon={Package} label="Product Management" id="products" active={activeTab} onClick={setActiveTab} badge={productsList.length} />
+            <SidebarItem icon={PackageCheck} label="Product Samples" id="samples" active={activeTab} onClick={setActiveTab} badge={samplesList.filter((s) => ["REQUESTED", "PREPARING"].includes(s.status)).length} />
             <SidebarItem icon={LayoutDashboard} label="Overview & GMV" id="overview" active={activeTab} onClick={setActiveTab} />
             <SidebarItem icon={Building2} label="Suppliers Queue" id="suppliers" active={activeTab} onClick={setActiveTab} badge={suppliers.filter((s) => s.status === "PENDING").length} />
-            <SidebarItem icon={ShoppingBag} label="Orders & Bilti" id="orders" active={activeTab} onClick={setActiveTab} badge={3} />
+            <SidebarItem icon={ShoppingBag} label="Orders & Bilti" id="orders" active={activeTab} onClick={setActiveTab} badge={ordersList.length} />
             <SidebarItem icon={CreditCard} label="Escrow & Payments" id="payments" active={activeTab} onClick={setActiveTab} />
-            <SidebarItem icon={ShieldAlert} label="Disputes Center" id="disputes" active={activeTab} onClick={setActiveTab} />
+            <SidebarItem icon={ShieldAlert} label="Disputes Center" id="disputes" active={activeTab} onClick={setActiveTab} badge={disputes.filter((d) => d.status === "OPEN").length} />
 
             <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-2">Governance & Audit</p>
             <SidebarItem icon={History} label="Audit Trail Logs" id="audit" active={activeTab} onClick={setActiveTab} badge={auditLogs.length} />
@@ -1391,6 +1503,563 @@ export function AdminDashboardPage() {
                         </TableCell>
                       </TableRow>
                     ))}
+                  </TableBody>
+                </Table>
+              </Card>
+            </div>
+          )}
+
+          {/* TAB: PRODUCT SAMPLES MANAGEMENT (Full CRUD) */}
+          {activeTab === "samples" && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
+                    <PackageCheck className="h-5 w-5 text-amber-400" /> Product Samples Management
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Process single-pair sample inspection requests, courier dispatch tracking, and bulk conversion analytics
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setIsAddSampleOpen(true)}
+                  className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs shrink-0 flex items-center gap-1.5"
+                >
+                  <Plus className="h-4 w-4" /> Record Sample Dispatch
+                </Button>
+              </div>
+
+              {/* Sample Metrics KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <Card className="border-slate-800 bg-slate-900/60 p-4">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Samples</div>
+                  <div className="text-2xl font-black text-slate-100 mt-1">{samplesList.length}</div>
+                  <div className="text-[10px] text-slate-500 mt-1">Inspection requests</div>
+                </Card>
+                <Card className="border-amber-500/20 bg-amber-500/5 p-4">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400">In Preparation</div>
+                  <div className="text-2xl font-black text-amber-400 mt-1">
+                    {samplesList.filter((s) => ["REQUESTED", "PREPARING"].includes(s.status)).length}
+                  </div>
+                  <div className="text-[10px] text-amber-400/70 mt-1">Awaiting factory dispatch</div>
+                </Card>
+                <Card className="border-blue-500/20 bg-blue-500/5 p-4">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400">In Transit</div>
+                  <div className="text-2xl font-black text-blue-400 mt-1">
+                    {samplesList.filter((s) => s.status === "DISPATCHED").length}
+                  </div>
+                  <div className="text-[10px] text-blue-400/70 mt-1">Courier tracking active</div>
+                </Card>
+                <Card className="border-emerald-500/20 bg-emerald-500/5 p-4">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Converted to Bulk</div>
+                  <div className="text-2xl font-black text-emerald-400 mt-1">
+                    {samplesList.filter((s) => s.status === "CONVERTED_TO_BULK").length}
+                  </div>
+                  <div className="text-[10px] text-emerald-400/70 mt-1">
+                    {samplesList.length > 0
+                      ? `${Math.round((samplesList.filter((s) => s.status === "CONVERTED_TO_BULK").length / samplesList.length) * 100)}% conversion rate`
+                      : "0%"}
+                  </div>
+                </Card>
+              </div>
+
+              {/* Add New Sample Request Modal / Card */}
+              {isAddSampleOpen && (
+                <Card className="border-amber-500/40 bg-slate-900/95 p-5 space-y-4 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                    <div className="flex items-center gap-2">
+                      <PackageCheck className="h-4 w-4 text-amber-400" />
+                      <h3 className="text-sm font-bold text-slate-100">Record New Sample Pair Dispatch</h3>
+                    </div>
+                    <button onClick={() => setIsAddSampleOpen(false)} className="text-slate-400 hover:text-white">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Buyer / Retailer Name *</label>
+                      <Input
+                        value={newSampleBuyer}
+                        onChange={(e) => setNewSampleBuyer(e.target.value)}
+                        placeholder="e.g. Royal Footwear Boutique"
+                        className="bg-slate-950 border-slate-800 text-xs text-slate-100"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">WhatsApp / Phone *</label>
+                      <Input
+                        value={newSamplePhone}
+                        onChange={(e) => setNewSamplePhone(e.target.value)}
+                        placeholder="+92 300 1234567"
+                        className="bg-slate-950 border-slate-800 text-xs font-mono text-slate-100"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Destination City *</label>
+                      <select
+                        value={newSampleCity}
+                        onChange={(e) => setNewSampleCity(e.target.value)}
+                        className="w-full h-9 bg-slate-950 border border-slate-800 rounded-md px-3 text-xs text-slate-100 focus:outline-none"
+                      >
+                        <option value="Lahore">Lahore</option>
+                        <option value="Karachi">Karachi</option>
+                        <option value="Islamabad">Islamabad</option>
+                        <option value="Rawalpindi">Rawalpindi</option>
+                        <option value="Faisalabad">Faisalabad</option>
+                        <option value="Multan">Multan</option>
+                        <option value="Peshawar">Peshawar</option>
+                        <option value="Quetta">Quetta</option>
+                        <option value="Sialkot">Sialkot</option>
+                        <option value="Gujranwala">Gujranwala</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Select Footwear Model *</label>
+                      <select
+                        value={newSampleSku}
+                        onChange={(e) => {
+                          setNewSampleSku(e.target.value);
+                          const prod = productsList.find((p) => p.sku === e.target.value);
+                          if (prod && prod.colorVariants?.[0]) {
+                            setNewSampleColor(prod.colorVariants[0].name);
+                          }
+                        }}
+                        className="w-full h-9 bg-slate-950 border border-slate-800 rounded-md px-3 text-xs text-slate-100 focus:outline-none"
+                      >
+                        {productsList.map((p) => (
+                          <option key={p.sku} value={p.sku}>
+                            {p.sku} - {p.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Color Variant</label>
+                      <Input
+                        value={newSampleColor}
+                        onChange={(e) => setNewSampleColor(e.target.value)}
+                        placeholder="e.g. Tan / Black / Dark Brown"
+                        className="bg-slate-950 border-slate-800 text-xs text-slate-100"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Sample Shoe Size</label>
+                      <select
+                        value={newSampleSize}
+                        onChange={(e) => setNewSampleSize(e.target.value)}
+                        className="w-full h-9 bg-slate-950 border border-slate-800 rounded-md px-3 text-xs text-slate-100 focus:outline-none font-mono"
+                      >
+                        {["6", "7", "8", "9", "10", "11", "12"].map((sz) => (
+                          <option key={sz} value={sz}>
+                            Size EU {sz} (UK {sz})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Courier Service</label>
+                      <select
+                        value={newSampleCourier}
+                        onChange={(e) => setNewSampleCourier(e.target.value)}
+                        className="w-full h-9 bg-slate-950 border border-slate-800 rounded-md px-3 text-xs text-slate-100 focus:outline-none"
+                      >
+                        <option value="TCS Express">TCS Express</option>
+                        <option value="Leopard Courier">Leopard Courier</option>
+                        <option value="M&P Express">M&P Express</option>
+                        <option value="Trax Logistics">Trax Logistics</option>
+                        <option value="Call Courier">Call Courier</option>
+                        <option value="Factory Direct Pickup">Factory Direct Pickup</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Courier Tracking ID</label>
+                      <Input
+                        value={newSampleTracking}
+                        onChange={(e) => setNewSampleTracking(e.target.value)}
+                        placeholder="e.g. TCS-8829104"
+                        className="bg-slate-950 border-slate-800 text-xs font-mono text-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Sample Fee (PKR)</label>
+                      <Input
+                        type="number"
+                        value={newSampleFee}
+                        onChange={(e) => setNewSampleFee(parseInt(e.target.value, 10) || 0)}
+                        placeholder="2500"
+                        className="bg-slate-950 border-slate-800 text-xs font-mono font-bold text-emerald-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Payment Status</label>
+                      <select
+                        value={newSamplePayment}
+                        onChange={(e) => setNewSamplePayment(e.target.value as any)}
+                        className="w-full h-9 bg-slate-950 border border-slate-800 rounded-md px-3 text-xs text-slate-100 focus:outline-none"
+                      >
+                        <option value="PAID">Paid (Fee Received)</option>
+                        <option value="PENDING_FEE">Pending Sample Fee</option>
+                        <option value="WAIVED_VIP">Waived (VIP Buyer / Partner)</option>
+                      </select>
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Sample Notes / Custom Requests</label>
+                      <Input
+                        value={newSampleNotes}
+                        onChange={(e) => setNewSampleNotes(e.target.value)}
+                        placeholder="e.g. Inspecting leather softness and sole grip"
+                        className="bg-slate-950 border-slate-800 text-xs text-slate-100"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsAddSampleOpen(false)}
+                      className="text-xs border-slate-800 text-slate-300"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        if (!newSampleBuyer.trim()) {
+                          toast.error("Buyer name is required");
+                          return;
+                        }
+                        const prod = productsList.find((p) => p.sku === newSampleSku);
+                        const newSample: ProductSample = {
+                          id: `SMP-${Math.floor(1000 + Math.random() * 9000)}`,
+                          buyerName: newSampleBuyer.trim(),
+                          buyerPhone: newSamplePhone.trim(),
+                          buyerCity: newSampleCity,
+                          productSku: newSampleSku,
+                          productName: prod ? prod.name : "Custom Footwear Sample",
+                          color: newSampleColor || "Standard",
+                          size: newSampleSize || "9",
+                          courier: newSampleCourier,
+                          trackingNo: newSampleTracking.trim() || "Pending Dispatch",
+                          sampleFee: newSampleFee || 2500,
+                          paymentStatus: newSamplePayment,
+                          status: newSampleTracking.trim() ? "DISPATCHED" : "PREPARING",
+                          requestedDate: new Date().toISOString().split("T")[0],
+                          notes: newSampleNotes.trim() || undefined,
+                        };
+                        setSamplesList((prev) => [newSample, ...prev]);
+                        setIsAddSampleOpen(false);
+                        setNewSampleBuyer("");
+                        setNewSampleTracking("");
+                        setNewSampleNotes("");
+                        toast.success(`Registered sample dispatch ${newSample.id} for ${newSample.buyerName}`);
+                      }}
+                      className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs"
+                    >
+                      Save Sample Dispatch
+                    </Button>
+                  </div>
+                </Card>
+              )}
+
+              {/* Edit Tracking Modal */}
+              {editingSample && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-xs">
+                  <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                      <h3 className="text-sm font-bold text-slate-100">
+                        Update Tracking: {editingSample.id} ({editingSample.buyerName})
+                      </h3>
+                      <button onClick={() => setEditingSample(null)} className="text-slate-400 hover:text-white">
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-xs font-bold text-slate-300 block mb-1">Courier Carrier</label>
+                        <select
+                          value={editCourier}
+                          onChange={(e) => setEditCourier(e.target.value)}
+                          className="w-full h-9 bg-slate-950 border border-slate-800 rounded-md px-3 text-xs text-slate-100"
+                        >
+                          <option value="TCS Express">TCS Express</option>
+                          <option value="Leopard Courier">Leopard Courier</option>
+                          <option value="M&P Express">M&P Express</option>
+                          <option value="Trax Logistics">Trax Logistics</option>
+                          <option value="Call Courier">Call Courier</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-bold text-slate-300 block mb-1">Consignment Tracking Number</label>
+                        <Input
+                          value={editTrackingNo}
+                          onChange={(e) => setEditTrackingNo(e.target.value)}
+                          placeholder="e.g. TCS-9948123"
+                          className="bg-slate-950 border-slate-800 text-xs font-mono text-amber-400"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2">
+                      <Button variant="outline" size="sm" onClick={() => setEditingSample(null)} className="text-xs border-slate-800">
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (!editTrackingNo.trim()) {
+                            toast.error("Please enter a tracking number");
+                            return;
+                          }
+                          setSamplesList((prev) =>
+                            prev.map((s) =>
+                              s.id === editingSample.id
+                                ? { ...s, trackingNo: editTrackingNo.trim(), courier: editCourier, status: "DISPATCHED" }
+                                : s
+                            )
+                          );
+                          toast.success(`Updated tracking for ${editingSample.id} and marked as DISPATCHED`);
+                          setEditingSample(null);
+                        }}
+                        className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs"
+                      >
+                        Update & Dispatch
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Filters & Search Row */}
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+                <div className="relative flex-1 max-w-sm">
+                  <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Input
+                    value={sampleSearch}
+                    onChange={(e) => setSampleSearch(e.target.value)}
+                    placeholder="Search by buyer, city, SKU, tracking..."
+                    className="pl-9 bg-slate-900 border-slate-800 text-xs"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                  {["ALL", "REQUESTED", "PREPARING", "DISPATCHED", "DELIVERED", "CONVERTED_TO_BULK"].map((st) => (
+                    <button
+                      key={st}
+                      onClick={() => setSampleFilter(st)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
+                        sampleFilter === st
+                          ? "bg-amber-500 text-slate-950"
+                          : "bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800"
+                      }`}
+                    >
+                      {st === "ALL" ? "All Samples" : st.replace(/_/g, " ")}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Samples Table */}
+              <Card className="border-slate-800 bg-slate-900/50 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-slate-900 border-b border-slate-800">
+                    <TableRow className="border-slate-800">
+                      <TableHead className="text-slate-400 text-xs">Sample ID & Date</TableHead>
+                      <TableHead className="text-slate-400 text-xs">Buyer & City</TableHead>
+                      <TableHead className="text-slate-400 text-xs">Footwear Model & Spec</TableHead>
+                      <TableHead className="text-slate-400 text-xs">Courier & Tracking</TableHead>
+                      <TableHead className="text-slate-400 text-xs">Fee & Payment</TableHead>
+                      <TableHead className="text-slate-400 text-xs">Status</TableHead>
+                      <TableHead className="text-slate-400 text-xs text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="divide-y divide-slate-800/60">
+                    {samplesList
+                      .filter((s) => {
+                        if (sampleFilter !== "ALL" && s.status !== sampleFilter) return false;
+                        if (!sampleSearch) return true;
+                        const query = sampleSearch.toLowerCase();
+                        return (
+                          s.id.toLowerCase().includes(query) ||
+                          s.buyerName.toLowerCase().includes(query) ||
+                          s.buyerCity.toLowerCase().includes(query) ||
+                          s.productSku.toLowerCase().includes(query) ||
+                          s.productName.toLowerCase().includes(query) ||
+                          s.trackingNo.toLowerCase().includes(query)
+                        );
+                      })
+                      .map((sample) => (
+                        <TableRow key={sample.id} className="border-slate-800/60 hover:bg-slate-900/80">
+                          <TableCell>
+                            <div className="font-mono text-amber-400 font-bold text-xs">{sample.id}</div>
+                            <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                              <Calendar className="h-3 w-3" /> {sample.requestedDate}
+                            </div>
+                          </TableCell>
+
+                          <TableCell>
+                            <div className="text-xs font-bold text-slate-200">{sample.buyerName}</div>
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
+                              <MapPin className="h-3 w-3 text-slate-500" /> {sample.buyerCity}
+                              <span className="text-slate-600">•</span>
+                              <Phone className="h-3 w-3 text-slate-500" /> {sample.buyerPhone}
+                            </div>
+                          </TableCell>
+
+                          <TableCell>
+                            <div className="text-xs font-semibold text-slate-200">{sample.productName}</div>
+                            <div className="text-[10px] text-amber-400 font-mono mt-0.5">
+                              SKU: {sample.productSku} • Color: {sample.color} • Size: EU {sample.size}
+                            </div>
+                            {sample.notes && (
+                              <div className="text-[10px] text-slate-400 italic mt-0.5 max-w-[220px] truncate" title={sample.notes}>
+                                Note: {sample.notes}
+                              </div>
+                            )}
+                          </TableCell>
+
+                          <TableCell>
+                            <div className="text-xs text-slate-300 font-medium">{sample.courier}</div>
+                            <div className="text-[10px] font-mono text-amber-400 mt-0.5 flex items-center gap-1.5">
+                              <span>{sample.trackingNo}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingSample(sample);
+                                  setEditTrackingNo(sample.trackingNo === "Pending Dispatch" ? "" : sample.trackingNo);
+                                  setEditCourier(sample.courier);
+                                }}
+                                className="text-slate-500 hover:text-amber-400"
+                                title="Edit tracking"
+                              >
+                                <Edit3 className="h-3 w-3" />
+                              </button>
+                            </div>
+                          </TableCell>
+
+                          <TableCell>
+                            <div className="text-xs font-bold text-emerald-400 font-mono">
+                              PKR {sample.sampleFee.toLocaleString()}
+                            </div>
+                            <div className="mt-0.5">
+                              <Badge className={
+                                sample.paymentStatus === "PAID"
+                                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[9px] px-1.5 py-0"
+                                  : sample.paymentStatus === "WAIVED_VIP"
+                                  ? "bg-purple-500/10 text-purple-400 border-purple-500/30 text-[9px] px-1.5 py-0"
+                                  : "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[9px] px-1.5 py-0"
+                              }>
+                                {sample.paymentStatus}
+                              </Badge>
+                            </div>
+                          </TableCell>
+
+                          <TableCell>
+                            <Badge className={
+                              sample.status === "CONVERTED_TO_BULK"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                                : sample.status === "DELIVERED"
+                                ? "bg-teal-500/10 text-teal-400 border-teal-500/30 text-[10px]"
+                                : sample.status === "DISPATCHED"
+                                ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]"
+                                : sample.status === "PREPARING"
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
+                                : "bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]"
+                            }>
+                              {sample.status.replace(/_/g, " ")}
+                            </Badge>
+                          </TableCell>
+
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              {sample.status === "REQUESTED" && (
+                                <Button
+                                  size="sm"
+                                  className="h-6 text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/40 px-2"
+                                  onClick={() => {
+                                    setSamplesList((prev) =>
+                                      prev.map((s) => (s.id === sample.id ? { ...s, status: "PREPARING" } : s))
+                                    );
+                                    toast.success(`Sample ${sample.id} moved to PREPARING`);
+                                  }}
+                                >
+                                  Prepare
+                                </Button>
+                              )}
+
+                              {sample.status === "PREPARING" && (
+                                <Button
+                                  size="sm"
+                                  className="h-6 text-[10px] bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/40 px-2"
+                                  onClick={() => {
+                                    setEditingSample(sample);
+                                    setEditTrackingNo("");
+                                    setEditCourier(sample.courier);
+                                  }}
+                                >
+                                  Dispatch
+                                </Button>
+                              )}
+
+                              {sample.status === "DISPATCHED" && (
+                                <Button
+                                  size="sm"
+                                  className="h-6 text-[10px] bg-teal-600/20 text-teal-400 border border-teal-600/30 hover:bg-teal-600/40 px-2"
+                                  onClick={() => {
+                                    setSamplesList((prev) =>
+                                      prev.map((s) => (s.id === sample.id ? { ...s, status: "DELIVERED" } : s))
+                                    );
+                                    toast.success(`Sample ${sample.id} marked as DELIVERED to ${sample.buyerName}`);
+                                  }}
+                                >
+                                  Mark Delivered
+                                </Button>
+                              )}
+
+                              {sample.status === "DELIVERED" && (
+                                <Button
+                                  size="sm"
+                                  className="h-6 text-[10px] bg-emerald-600/20 text-emerald-400 border border-emerald-600/30 hover:bg-emerald-600/40 px-2 font-bold"
+                                  onClick={() => {
+                                    setSamplesList((prev) =>
+                                      prev.map((s) => (s.id === sample.id ? { ...s, status: "CONVERTED_TO_BULK" } : s))
+                                    );
+                                    toast.success(`🎉 Sample ${sample.id} converted to wholesale bulk order!`);
+                                  }}
+                                >
+                                  Convert to Bulk
+                                </Button>
+                              )}
+
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => {
+                                  setSamplesList((prev) => prev.filter((s) => s.id !== sample.id));
+                                  toast.success(`Deleted sample record ${sample.id}`);
+                                }}
+                                className="h-6 w-6 p-0 text-slate-500 hover:text-rose-400"
+                                title="Delete sample record"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
                   </TableBody>
                 </Table>
               </Card>
