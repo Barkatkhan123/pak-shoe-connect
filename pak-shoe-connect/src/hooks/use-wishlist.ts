@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import type { Product } from "@/data/products";
+import { useAuth } from "./use-auth";
 
 export type WishlistItem = {
   slug: string;
@@ -27,6 +28,7 @@ function save(items: WishlistItem[]) {
 }
 
 export function useWishlist() {
+  const { isAuthenticated } = useAuth();
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -43,6 +45,20 @@ export function useWishlist() {
   }, []);
 
   const addItem = useCallback((product: Product) => {
+    if (!isAuthenticated) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("shersha:open-auth-modal", {
+            detail: {
+              title: "Sign in to your Wishlist",
+              description: "Sign in or create your wholesale account to save bookmarked products across your devices.",
+            },
+          })
+        );
+      }
+      return;
+    }
+
     const current = load();
     if (current.some((i) => i.slug === product.slug)) return;
     const next = [...current, {
@@ -54,7 +70,7 @@ export function useWishlist() {
     }];
     save(next);
     setItems(next);
-  }, []);
+  }, [isAuthenticated]);
 
   const removeItem = useCallback((slug: string) => {
     const current = load();
@@ -64,6 +80,20 @@ export function useWishlist() {
   }, []);
 
   const toggleItem = useCallback((product: Product) => {
+    if (!isAuthenticated) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(
+          new CustomEvent("shersha:open-auth-modal", {
+            detail: {
+              title: "Sign in to your Wishlist",
+              description: "Sign in or create your wholesale account to save and manage your bookmarked footwear designs.",
+            },
+          })
+        );
+      }
+      return;
+    }
+
     const current = load();
     const exists = current.some((i) => i.slug === product.slug);
     if (exists) {
@@ -81,7 +111,7 @@ export function useWishlist() {
       save(next);
       setItems(next);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const isInWishlist = useCallback((slug: string) => {
     return items.some((i) => i.slug === slug);

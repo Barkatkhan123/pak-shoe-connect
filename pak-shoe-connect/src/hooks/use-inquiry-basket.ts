@@ -316,21 +316,21 @@ export function useInquiryBasket() {
         saveLocalBasket(updated);
         setLocalItems(updated);
 
-        // 3. User feedback & open drawer
-        toast.success(`Added ${requestedQty} pairs of ${product.name} to Inquiry Basket!`, {
-          description: `Color: ${color} • Size: ${size}`,
-          action: {
-            label: "Sign In",
-            onClick: () => {
-              window.dispatchEvent(new CustomEvent("shersha:open-auth-modal", {
-                detail: { hasPendingItem: true, productSlug: product.slug }
-              }));
-            },
-          },
+        // 3. Trigger sign in modal popup with pending selection preserved
+        toast.info("Please sign in to add items to your Inquiry Basket.", {
+          description: `Saved selection: ${requestedQty} pairs of ${product.name} (${color}, ${size}).`,
         });
 
-        // Open the inquiry drawer immediately so the product is visible in the cart
-        window.dispatchEvent(new CustomEvent("shersha:open-inquiry-drawer"));
+        window.dispatchEvent(
+          new CustomEvent("shersha:open-auth-modal", {
+            detail: {
+              hasPendingItem: true,
+              productSlug: product.slug,
+              title: "Sign in to your Basket",
+              description: "Sign in or create your wholesale buyer account to add items to your inquiry basket and request factory bulk quotes.",
+            },
+          })
+        );
         return;
       }
 

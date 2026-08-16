@@ -10,7 +10,11 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
   const { scrollYProgress } = useScroll();
   const scaleX = useTransform(scrollYProgress, [0, 1], [0, 1]);
   const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalDetail, setAuthModalDetail] = useState<{ hasPendingItem?: boolean }>({});
+  const [authModalDetail, setAuthModalDetail] = useState<{
+    hasPendingItem?: boolean;
+    title?: string;
+    description?: string;
+  }>({});
 
   useEffect(() => {
     const onOpenAuth = (e: any) => {
@@ -41,6 +45,8 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
         hasPendingItem={authModalDetail.hasPendingItem}
+        title={authModalDetail.title}
+        description={authModalDetail.description}
       />
 
       {/* Global WhatsApp FAB (Mobile-safe, non-obstructing) */}

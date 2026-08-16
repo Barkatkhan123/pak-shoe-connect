@@ -104,12 +104,12 @@ export function AuthModal({
             {hasPendingItem ? <ShoppingBag className="h-6 w-6" /> : <Lock className="h-6 w-6" />}
           </div>
           <DialogTitle className="font-display text-2xl text-center font-bold text-foreground">
-            {hasPendingItem ? "Sign in to Add to Basket" : title}
+            {title || (hasPendingItem ? "Sign in to Add to Basket" : "Sign in to continue")}
           </DialogTitle>
           <DialogDescription className="text-center text-xs sm:text-sm text-muted-foreground">
-            {hasPendingItem
+            {description || (hasPendingItem
               ? "Your selected product, quantity, color, and size options have been saved. Sign in to automatically add this to your inquiry basket."
-              : description}
+              : "Access wholesale pricing and add items to your B2B inquiry basket.")}
           </DialogDescription>
         </DialogHeader>
 

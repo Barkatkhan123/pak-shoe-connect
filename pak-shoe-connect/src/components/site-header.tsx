@@ -20,10 +20,12 @@ import {
 import { NAV, SITE, CATEGORY_NAV } from "@/lib/site";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
+import { useAuth } from "@/hooks/use-auth";
 import { SearchCommand } from "./search-command";
 import { InquiryDrawer } from "./inquiry-drawer";
 
 export function SiteHeader() {
+  const { isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
@@ -32,6 +34,35 @@ export function SiteHeader() {
 
   const { count: wishlistCount } = useWishlist();
   const { count: inquiryCount } = useInquiryBasket();
+
+  const handleWishlistClick = (e: React.MouseEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      window.dispatchEvent(
+        new CustomEvent("shersha:open-auth-modal", {
+          detail: {
+            title: "Sign in to your Wishlist",
+            description: "Sign in or create your wholesale buyer account to save and manage your bookmarked footwear designs.",
+          },
+        })
+      );
+    }
+  };
+
+  const handleBasketClick = () => {
+    if (!isAuthenticated) {
+      window.dispatchEvent(
+        new CustomEvent("shersha:open-auth-modal", {
+          detail: {
+            title: "Sign in to access your Basket",
+            description: "Sign in to your wholesale account to review your inquiry basket, manage items, and request factory quotes.",
+          },
+        })
+      );
+    } else {
+      setInquiryOpen(true);
+    }
+  };
 
   // Detect scroll
   useEffect(() => {
@@ -232,7 +263,8 @@ export function SiteHeader() {
               {/* Wishlist Link */}
               <Link
                 to="/dashboard/buyer"
-                className="relative flex h-11 w-11 items-center justify-center text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full transition-all"
+                onClick={handleWishlistClick}
+                className="relative flex h-11 w-11 items-center justify-center text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full transition-all cursor-pointer"
                 title="Wishlist"
                 aria-label={`Wishlist with ${wishlistCount} items`}
               >
@@ -246,7 +278,7 @@ export function SiteHeader() {
 
               {/* Inquiry Basket Trigger */}
               <button
-                onClick={() => setInquiryOpen(true)}
+                onClick={handleBasketClick}
                 className="relative flex h-11 items-center gap-1.5 px-2.5 text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full transition-all cursor-pointer"
                 title="Inquiry Basket"
                 aria-label={`Inquiry Basket with ${inquiryCount} items`}
@@ -350,13 +382,41 @@ export function SiteHeader() {
                       <UserCheck className="h-4 w-4 text-[#1B4332]" />
                       <span>Become a Regional Dealer</span>
                     </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOpen(false);
+                        handleBasketClick();
+                      }}
+                      className="w-full flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2] cursor-pointer"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Package className="h-4 w-4 text-[#1B4332]" />
+                        <span>Inquiry Basket</span>
+                      </div>
+                      {inquiryCount > 0 && (
+                        <span className="rounded-full bg-[#1B4332] px-2 py-0.5 text-[10px] font-bold text-white">
+                          {inquiryCount}
+                        </span>
+                      )}
+                    </button>
                     <Link
                       to="/dashboard/buyer"
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2]"
+                      onClick={(e) => {
+                        setOpen(false);
+                        handleWishlistClick(e);
+                      }}
+                      className="flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-bold text-[#0F1A13] hover:bg-[#FAF7F2]"
                     >
-                      <Heart className="h-4 w-4 text-rose-500" />
-                      <span>Buyer Wishlist ({wishlistCount})</span>
+                      <div className="flex items-center gap-3">
+                        <Heart className="h-4 w-4 text-rose-500" />
+                        <span>Buyer Wishlist</span>
+                      </div>
+                      {wishlistCount > 0 && (
+                        <span className="rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                          {wishlistCount}
+                        </span>
+                      )}
                     </Link>
                     <Link
                       to="/contact"
