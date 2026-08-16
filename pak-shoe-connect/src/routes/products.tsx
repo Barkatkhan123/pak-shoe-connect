@@ -1,20 +1,21 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
 import { PRODUCTS, CATEGORIES } from "@/data/products";
 import { ProductCard } from "@/components/product-card";
 import { QuickViewModal } from "@/components/quick-view-modal";
 import { useState, useMemo, useEffect } from "react";
-import { Filter, X, Search, ChevronDown, Package, SlidersHorizontal, ArrowLeft } from "lucide-react";
+import { X, Search, ChevronDown, Package, SlidersHorizontal } from "lucide-react";
+import { z } from "zod";
 import type { Product } from "@/data/products";
 
+const productsSearchSchema = z.object({
+  category: z.string().optional(),
+  gender: z.string().optional(),
+});
+
 export const Route = createFileRoute("/products")({
+  validateSearch: (search) => productsSearchSchema.parse(search),
   component: ProductsPage,
-  validateSearch: (search: Record<string, unknown>) => {
-    return {
-      category: search.category as string | undefined,
-      gender: search.gender as string | undefined,
-    };
-  },
   head: () => ({
     meta: [
       { title: "Wholesale Footwear Catalog — Direct Factory Rates | Anamon" },
@@ -28,7 +29,9 @@ export const Route = createFileRoute("/products")({
 });
 
 function ProductsPage() {
-  const { category, gender } = Route.useSearch();
+  const searchParams = Route.useSearch();
+  const category = searchParams?.category;
+  const gender = searchParams?.gender;
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   
   // Mobile filter bottom sheet
@@ -42,39 +45,26 @@ function ProductsPage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [showFilters]);
   
-  // Filter state
-  const [selectedCats, setSelectedCats] = useState<string[]>(category ? [category] : []);
-  const [selectedGender, setSelectedGender] = useState<string | null>(gender || null);
+  // Filter state initialized from URL params
+  const [selectedCats, setSelectedCats] = useState<string[]>(() => (category ? [category] : []));
+  const [selectedGender, setSelectedGender] = useState<string | null>(() => gender || null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sort, setSort] = useState("newest"); // "newest", "price-low", "price-high", "moq-low"
-  const navigate = useNavigate();
 
-  // Sync URL search params to local filter state when URL changes
+  // Sync URL search params into filter state on direct URL navigation
   useEffect(() => {
-    setSelectedCats(category ? [category] : []);
+    if (category) {
+      setSelectedCats([category]);
+    } else {
+      setSelectedCats([]);
+    }
   }, [category]);
 
   useEffect(() => {
     setSelectedGender(gender || null);
   }, [gender]);
 
-  // Sync filter state changes back to URL
-  useEffect(() => {
-    const targetCat = selectedCats.length === 1 ? selectedCats[0] : undefined;
-    const targetGender = selectedGender || undefined;
-    if (targetCat !== category || targetGender !== gender) {
-      navigate({
-        to: "/products",
-        search: {
-          category: targetCat,
-          gender: targetGender,
-        },
-        replace: true,
-      });
-    }
-  }, [selectedCats, selectedGender, category, gender]);
-
-  // Filtered & Sorted Products
+  // Filtered & Sorted Products with resilient optional chaining
   const filteredProducts = useMemo(() => {
     let result = PRODUCTS;
 
@@ -82,28 +72,35 @@ function ProductsPage() {
       result = result.filter((p) => selectedCats.includes(p.categorySlug));
     }
     
-    if (selectedGender) {
+    if (selectedGender && selectedGender !== "all") {
       result = result.filter((p) => p.gender === selectedGender);
     }
     
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
+    if (searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
       result = result.filter((p) => 
         p.name.toLowerCase().includes(q) || 
         p.sku.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q)
+        (p.description && p.description.toLowerCase().includes(q))
       );
     }
 
-    // Sort
+    // Sort safely
     return [...result].sort((a, b) => {
+      const aMinPrice = a.priceTiers?.[a.priceTiers.length - 1]?.pricePerPair || 0;
+      const bMinPrice = b.priceTiers?.[b.priceTiers.length - 1]?.pricePerPair || 0;
+      const aMaxPrice = a.priceTiers?.[0]?.pricePerPair || 0;
+      const bMaxPrice = b.priceTiers?.[0]?.pricePerPair || 0;
+      const aMoq = a.moq || 0;
+      const bMoq = b.moq || 0;
+
       switch (sort) {
         case "price-low":
-          return a.priceTiers[a.priceTiers.length - 1].pricePerPair - b.priceTiers[b.priceTiers.length - 1].pricePerPair;
+          return aMinPrice - bMinPrice;
         case "price-high":
-          return b.priceTiers[0].pricePerPair - a.priceTiers[0].pricePerPair;
+          return bMaxPrice - aMaxPrice;
         case "moq-low":
-          return a.moq - b.moq;
+          return aMoq - bMoq;
         case "newest":
         default:
           return (b.newArrival ? 1 : 0) - (a.newArrival ? 1 : 0);

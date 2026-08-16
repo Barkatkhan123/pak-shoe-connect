@@ -238,6 +238,25 @@ export function SiteHeader() {
                             ))}
                           </ul>
                         </div>
+                        {/* Mega Menu Footer Banner */}
+                        <div className="col-span-2 pt-3 border-t border-[#E0D9CE]/60 flex items-center justify-between">
+                          <Link
+                            to="/products"
+                            search={{ category: undefined, gender: undefined }}
+                            onClick={() => setMegaMenuOpen(false)}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1B4332] hover:text-[#C9A84C] transition-colors"
+                          >
+                            <span>Browse All 200+ Footwear Models</span>
+                            <ArrowRight className="h-3 w-3" />
+                          </Link>
+                          <Link
+                            to="/catalog"
+                            onClick={() => setMegaMenuOpen(false)}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <span>Download PDF Linesheet</span>
+                          </Link>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -319,12 +338,24 @@ export function SiteHeader() {
               <div className="flex flex-col p-4 sm:p-6 space-y-6">
                 
                 {/* 1. Quick Wholesale Search Link / Trigger */}
-                <div className="relative">
+                <div className="relative space-y-2">
                   <Link
                     to="/products"
                     search={{ category: undefined, gender: undefined }}
                     onClick={() => setOpen(false)}
-                    className="flex w-full items-center gap-3 rounded-xl border border-[#E0D9CE] bg-[#FAF7F2] px-4 py-3 text-xs font-bold text-muted-foreground"
+                    className="flex w-full items-center justify-between rounded-xl bg-[#1B4332] px-4 py-3 text-xs font-bold text-white shadow-xs"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Package className="h-4 w-4" />
+                      <span>Browse All Wholesale Catalog</span>
+                    </div>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                  <Link
+                    to="/products"
+                    search={{ category: undefined, gender: undefined }}
+                    onClick={() => setOpen(false)}
+                    className="flex w-full items-center gap-3 rounded-xl border border-[#E0D9CE] bg-[#FAF7F2] px-4 py-2.5 text-xs font-bold text-muted-foreground"
                   >
                     <Search className="h-4 w-4 text-[#8B5E3C]" />
                     <span>Search all 200+ footwear models...</span>
