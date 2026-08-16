@@ -50,6 +50,7 @@ export interface AuditLogEntry {
 }
 
 export const MASTER_ADMIN_EMAIL = "anamoontotrade@gmail.com";
+export const MASTER_ADMIN_PASSWORD_DEFAULT = "Anamon12&1marcH2007";
 
 export const MASTER_ADMIN_PERMISSIONS: Permission[] = [
   "Products.Create",
@@ -216,7 +217,7 @@ export const adminSecurityEngine = {
   /**
    * 3. Server & DB Role Verification (Database-Controlled RBAC)
    */
-  async verifyServerAuthorization(email: string): Promise<{ authorized: boolean; role: AdminRole; reason?: string }> {
+  async verifyServerAuthorization(email: string, password?: string): Promise<{ authorized: boolean; role: AdminRole; reason?: string }> {
     const normalizedEmail = email.trim().toLowerCase();
 
     if (normalizedEmail !== MASTER_ADMIN_EMAIL.toLowerCase()) {
@@ -227,9 +228,22 @@ export const adminSecurityEngine = {
       };
     }
 
-    // BUG-04 FIX: Only return authorized:true when Supabase explicitly confirms the session.
-    // Errors and missing sessions both result in denied access.
+    // Direct password check against configured Master Admin credential
+    if (password && password === MASTER_ADMIN_PASSWORD_DEFAULT) {
+      return { authorized: true, role: "MASTER_ADMIN" };
+    }
+
     try {
+      if (password) {
+        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password: password,
+        });
+        if (!authError && authData.user) {
+          return { authorized: true, role: "MASTER_ADMIN" };
+        }
+      }
+
       const { data: userSession, error } = await supabase.auth.getSession();
       if (!error && userSession?.session?.user) {
         const userEmail = userSession.session.user.email?.toLowerCase();
@@ -244,7 +258,7 @@ export const adminSecurityEngine = {
     return {
       authorized: false,
       role: "USER",
-      reason: "No active Supabase session found for this account. Please sign in first.",
+      reason: "Invalid admin password or unauthorized account.",
     };
   },
 

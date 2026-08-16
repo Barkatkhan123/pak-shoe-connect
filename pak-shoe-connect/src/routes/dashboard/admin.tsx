@@ -305,7 +305,7 @@ export function AdminDashboardPage() {
     const normalizedEmail = (emailInput.trim() || MASTER_ADMIN_EMAIL).toLowerCase();
     setEmailInput(normalizedEmail);
 
-    const authCheck = await adminSecurityEngine.verifyServerAuthorization(normalizedEmail);
+    const authCheck = await adminSecurityEngine.verifyServerAuthorization(normalizedEmail, passwordInput);
 
     if (!authCheck.authorized) {
       adminSecurityEngine.recordFailedAttempt();

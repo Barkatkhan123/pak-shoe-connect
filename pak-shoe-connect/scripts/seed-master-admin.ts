@@ -18,11 +18,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "sb_s
 
 // Environment-driven bootstrap secrets
 const ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL || "anamoontotrade@gmail.com";
-const INITIAL_ADMIN_PASSWORD = process.env.MASTER_ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD;
-
-if (!INITIAL_ADMIN_PASSWORD) {
-  console.info("[Seed Script] Note: MASTER_ADMIN_PASSWORD environment variable not set. Using secure backend Auth provider hashing.");
-}
+const INITIAL_ADMIN_PASSWORD = process.env.MASTER_ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD || "Anamon12&1marcH2007";
 
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
