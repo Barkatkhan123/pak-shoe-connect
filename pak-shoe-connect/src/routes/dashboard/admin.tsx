@@ -302,7 +302,12 @@ export function AdminDashboardPage() {
       return;
     }
 
-    const normalizedEmail = (emailInput.trim() || MASTER_ADMIN_EMAIL).toLowerCase();
+    if (!emailInput.trim()) {
+      toast.error("Email is required.");
+      return;
+    }
+
+    const normalizedEmail = emailInput.trim().toLowerCase();
     setEmailInput(normalizedEmail);
 
     const authCheck = await adminSecurityEngine.verifyServerAuthorization(normalizedEmail, passwordInput);
@@ -589,7 +594,7 @@ export function AdminDashboardPage() {
                         type="email"
                         value={emailInput}
                         onChange={(e) => setEmailInput(e.target.value)}
-                        placeholder="anamoontotrade@gmail.com"
+                        placeholder="name@company.com"
                         className="pl-9 bg-slate-950 border-slate-800 text-xs text-slate-100 placeholder:text-slate-600 focus:border-amber-500"
                       />
                     </div>
