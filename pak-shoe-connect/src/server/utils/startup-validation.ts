@@ -23,23 +23,27 @@ const isVercel = !!process.env.VERCEL;
 const REQUIRED_ENV: EnvRequirement[] = [
   // ── Database & Cache ──────────────────────────────────────────────
   { name: "DATABASE_URL", group: "Database", requiredIn: "production" },
-  { name: "REDIS_URL", group: "Cache & Queues", requiredIn: "production",
-    skipWhen: () => isVercel },
+  {
+    name: "REDIS_URL",
+    group: "Cache & Queues",
+    requiredIn: "production",
+    skipWhen: () => isVercel,
+  },
 
   // ── Supabase ──────────────────────────────────────────────────────
-  { name: "SUPABASE_URL",             group: "Supabase",  requiredIn: "all" },
-  { name: "SUPABASE_PUBLISHABLE_KEY", group: "Supabase",  requiredIn: "all" },
+  { name: "SUPABASE_URL", group: "Supabase", requiredIn: "all" },
+  { name: "SUPABASE_PUBLISHABLE_KEY", group: "Supabase", requiredIn: "all" },
   // VITE_ variants are also needed for client-side hydration
-  { name: "VITE_SUPABASE_URL",             group: "Supabase",  requiredIn: "all" },
-  { name: "VITE_SUPABASE_PUBLISHABLE_KEY", group: "Supabase",  requiredIn: "all" },
+  { name: "VITE_SUPABASE_URL", group: "Supabase", requiredIn: "all" },
+  { name: "VITE_SUPABASE_PUBLISHABLE_KEY", group: "Supabase", requiredIn: "all" },
 
   // ── Payment Gateways (production only) ────────────────────────────
-  { name: "EASYPAISA_STORE_ID",    group: "Payment — EasyPaisa",  requiredIn: "production" },
-  { name: "EASYPAISA_HASH_KEY",    group: "Payment — EasyPaisa",  requiredIn: "production" },
-  { name: "JAZZCASH_MERCHANT_ID",  group: "Payment — JazzCash",   requiredIn: "production" },
-  { name: "JAZZCASH_SALT",         group: "Payment — JazzCash",   requiredIn: "production" },
-  { name: "PAYFAST_MERCHANT_ID",   group: "Payment — PayFast",    requiredIn: "production" },
-  { name: "PAYFAST_SECURED_KEY",   group: "Payment — PayFast",    requiredIn: "production" },
+  { name: "EASYPAISA_STORE_ID", group: "Payment — EasyPaisa", requiredIn: "production" },
+  { name: "EASYPAISA_HASH_KEY", group: "Payment — EasyPaisa", requiredIn: "production" },
+  { name: "JAZZCASH_MERCHANT_ID", group: "Payment — JazzCash", requiredIn: "production" },
+  { name: "JAZZCASH_SALT", group: "Payment — JazzCash", requiredIn: "production" },
+  { name: "PAYFAST_MERCHANT_ID", group: "Payment — PayFast", requiredIn: "production" },
+  { name: "PAYFAST_SECURED_KEY", group: "Payment — PayFast", requiredIn: "production" },
 ];
 
 export function validateStartupEnvironment(): void {
@@ -104,4 +108,3 @@ export function validateStartupEnvironment(): void {
 
 // Keep backward compatibility — old callers used this name
 export const validatePaymentConfig = validateStartupEnvironment;
-

@@ -19,9 +19,15 @@ describe("Zero Trust Gateway Route Coverage & Audit Safeguards", () => {
 
   it("should return sanitized error response with correlation ID on invalid routes for authenticated users", async () => {
     const validToken = signToken({ sub: "user-123", role: "BUYER" });
-    const res = await apiGateway("/api/v1/unknown-endpoint-path", "GET", {}, {}, {
-      authorization: `Bearer ${validToken}`,
-    });
+    const res = await apiGateway(
+      "/api/v1/unknown-endpoint-path",
+      "GET",
+      {},
+      {},
+      {
+        authorization: `Bearer ${validToken}`,
+      },
+    );
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.code).toBe("NOT_FOUND");

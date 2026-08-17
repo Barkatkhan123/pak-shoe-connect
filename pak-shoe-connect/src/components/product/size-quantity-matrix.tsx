@@ -7,15 +7,26 @@ import { cn } from "@/lib/utils";
 interface SizeQuantityMatrixProps {
   product: Product;
   selectedColor: string;
-  onSelectionChange: (totals: { totalPairs: number; totalAmount: number; quantities: Record<string, number> }) => void;
+  onSelectionChange: (totals: {
+    totalPairs: number;
+    totalAmount: number;
+    quantities: Record<string, number>;
+  }) => void;
 }
 
-export function SizeQuantityMatrix({ product, selectedColor, onSelectionChange }: SizeQuantityMatrixProps) {
+export function SizeQuantityMatrix({
+  product,
+  selectedColor,
+  onSelectionChange,
+}: SizeQuantityMatrixProps) {
   // quantities maps size -> selected quantity
   const [quantities, setQuantities] = useState<Record<string, number>>({});
 
-  const colorVariant = product.colorVariants.find(c => c.name === selectedColor) || product.colorVariants[0];
-  const stockPerSize = colorVariant ? Math.floor(colorVariant.stockUnits / product.sizes.length) : 0; // Simplified logic since stock is per color in current schema
+  const colorVariant =
+    product.colorVariants.find((c) => c.name === selectedColor) || product.colorVariants[0];
+  const stockPerSize = colorVariant
+    ? Math.floor(colorVariant.stockUnits / product.sizes.length)
+    : 0; // Simplified logic since stock is per color in current schema
 
   const totalPairs = Object.values(quantities).reduce((acc, qty) => acc + qty, 0);
 
@@ -34,11 +45,11 @@ export function SizeQuantityMatrix({ product, selectedColor, onSelectionChange }
   }, [quantities, totalPairs, totalAmount, onSelectionChange]);
 
   const updateQuantity = (size: string, delta: number) => {
-    setQuantities(prev => {
+    setQuantities((prev) => {
       const current = prev[size] || 0;
       const next = Math.max(0, current + delta);
       if (next > stockPerSize) return prev; // Cannot exceed stock
-      
+
       const newQuantities = { ...prev };
       if (next === 0) {
         delete newQuantities[size];
@@ -79,9 +90,10 @@ export function SizeQuantityMatrix({ product, selectedColor, onSelectionChange }
       </div>
 
       <div className="mb-3 text-xs text-muted-foreground bg-muted/30 p-2.5 rounded-lg border border-border/50">
-        📌 <strong>Packing Rule:</strong> Each carton contains 12 pairs of single color (<strong>{selectedColor}</strong>). Orders must be in multiples of 12 pairs.
+        📌 <strong>Packing Rule:</strong> Each carton contains 12 pairs of single color (
+        <strong>{selectedColor}</strong>). Orders must be in multiples of 12 pairs.
       </div>
-      
+
       <div className="border border-border rounded-xl overflow-hidden">
         {/* Table Header (Desktop) */}
         <div className="hidden sm:grid grid-cols-12 gap-4 bg-muted/40 p-4 border-b border-border text-sm text-muted-foreground font-medium">
@@ -96,10 +108,15 @@ export function SizeQuantityMatrix({ product, selectedColor, onSelectionChange }
           {product.sizes.map((size) => {
             const qty = quantities[size] || 0;
             return (
-              <div key={size} className="grid grid-cols-2 sm:grid-cols-12 gap-4 p-4 items-center hover:bg-muted/10 transition-colors">
+              <div
+                key={size}
+                className="grid grid-cols-2 sm:grid-cols-12 gap-4 p-4 items-center hover:bg-muted/10 transition-colors"
+              >
                 <div className="font-medium text-foreground sm:col-span-3 flex items-center gap-1.5">
                   <span className="font-bold">Size {size}</span>
-                  <span className="text-[11px] text-muted-foreground">(EU {parseInt(size, 10) >= 36 ? size : (parseInt(size, 10) || 8) + 33})</span>
+                  <span className="text-[11px] text-muted-foreground">
+                    (EU {parseInt(size, 10) >= 36 ? size : (parseInt(size, 10) || 8) + 33})
+                  </span>
                 </div>
                 <div className="text-sm text-muted-foreground sm:col-span-3 sm:text-center">
                   {stockPerSize} pairs
@@ -107,21 +124,19 @@ export function SizeQuantityMatrix({ product, selectedColor, onSelectionChange }
                 <div className="hidden sm:block text-sm text-foreground sm:col-span-3 text-center">
                   {formatPKR(currentPricePerPair)}
                 </div>
-                
+
                 {/* Stepper */}
                 <div className="flex items-center justify-end sm:col-span-3">
                   <div className="flex items-center border border-border rounded-lg overflow-hidden bg-background">
-                    <button 
+                    <button
                       onClick={() => updateQuantity(size, -1)}
                       disabled={qty === 0}
                       className="p-2 hover:bg-muted disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
                     >
                       <Minus className="w-4 h-4" />
                     </button>
-                    <div className="w-12 text-center text-sm font-medium">
-                      {qty}
-                    </div>
-                    <button 
+                    <div className="w-12 text-center text-sm font-medium">{qty}</div>
+                    <button
                       onClick={() => updateQuantity(size, 1)}
                       disabled={qty >= stockPerSize}
                       className="p-2 hover:bg-muted disabled:opacity-50 disabled:hover:bg-transparent transition-colors"
@@ -141,11 +156,15 @@ export function SizeQuantityMatrix({ product, selectedColor, onSelectionChange }
             {moqMet && isMultipleOf12 ? (
               <div className="flex items-center gap-1 text-emerald font-medium">
                 <Check className="w-4 h-4" />
-                <span>Valid Order ({totalPairs / 12} Carton{totalPairs === 12 ? "" : "s"} - {totalPairs} Pairs)</span>
+                <span>
+                  Valid Order ({totalPairs / 12} Carton{totalPairs === 12 ? "" : "s"} - {totalPairs}{" "}
+                  Pairs)
+                </span>
               </div>
             ) : moqMet && !isMultipleOf12 ? (
               <div className="text-amber-600 font-medium">
-                ⚠️ Order total ({totalPairs} pairs) must be in multiples of 12. Add {12 - (totalPairs % 12)} more pair(s).
+                ⚠️ Order total ({totalPairs} pairs) must be in multiples of 12. Add{" "}
+                {12 - (totalPairs % 12)} more pair(s).
               </div>
             ) : (
               <div className="text-leather-deep">

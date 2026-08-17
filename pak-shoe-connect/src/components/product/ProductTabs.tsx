@@ -25,13 +25,14 @@ export function ProductTabs({ product }: ProductTabsProps) {
   const [activeTab, setActiveTab] = useState<TabType>("description");
   const [selectedCity, setSelectedCity] = useState("Lahore");
 
-  const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-    { id: "description", label: "Overview", icon: FileText },
-    { id: "specifications", label: "Specifications", icon: Layers },
-    { id: "shipping", label: "Shipping & Lead Time", icon: Truck },
-    { id: "supplier", label: "Factory Profile", icon: Factory },
-    { id: "reviews", label: `Reviews (${product.stats.totalReviews})`, icon: Star },
-  ];
+  const tabs: { id: TabType; label: string; icon: React.ComponentType<{ className?: string }> }[] =
+    [
+      { id: "description", label: "Overview", icon: FileText },
+      { id: "specifications", label: "Specifications", icon: Layers },
+      { id: "shipping", label: "Shipping & Lead Time", icon: Truck },
+      { id: "supplier", label: "Factory Profile", icon: Factory },
+      { id: "reviews", label: `Reviews (${product.stats.totalReviews})`, icon: Star },
+    ];
 
   const specsList = Object.entries(product.specifications).filter(([_, val]) => !!val);
 
@@ -71,9 +72,7 @@ export function ProductTabs({ product }: ProductTabsProps) {
               exit={{ opacity: 0, y: -6 }}
               className="flex flex-col gap-4 text-xs text-foreground/90 leading-relaxed"
             >
-              <p className="text-muted-foreground leading-relaxed">
-                {product.description}
-              </p>
+              <p className="text-muted-foreground leading-relaxed">{product.description}</p>
 
               {/* Selling points bullet checklist */}
               <div className="flex flex-col gap-2 rounded-2xl bg-secondary/30 p-4 border border-border/60">
@@ -154,20 +153,31 @@ export function ProductTabs({ product }: ProductTabsProps) {
                     onChange={(e) => setSelectedCity(e.target.value)}
                     className="rounded-xl border border-border bg-white dark:bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-foreground focus:outline-none"
                   >
-                    {["Lahore", "Karachi", "Rawalpindi / Islamabad", "Peshawar", "Faisalabad", "Multan", "Quetta", "Dubai / GCC Port"].map(
-                      (c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      )
-                    )}
+                    {[
+                      "Lahore",
+                      "Karachi",
+                      "Rawalpindi / Islamabad",
+                      "Peshawar",
+                      "Faisalabad",
+                      "Multan",
+                      "Quetta",
+                      "Dubai / GCC Port",
+                    ].map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
                 <div className="mt-3 flex items-center justify-between rounded-xl bg-white dark:bg-neutral-900 p-3 border border-border/50 text-xs">
-                  <span className="text-muted-foreground">Estimated B2B Goods Freight (per master carton):</span>
+                  <span className="text-muted-foreground">
+                    Estimated B2B Goods Freight (per master carton):
+                  </span>
                   <span className="font-mono font-bold text-foreground">
-                    {selectedCity === "Dubai / GCC Port" ? "$35 USD / ctn (Air/Sea)" : "PKR 450 – 850 / ctn"}
+                    {selectedCity === "Dubai / GCC Port"
+                      ? "$35 USD / ctn (Air/Sea)"
+                      : "PKR 450 – 850 / ctn"}
                   </span>
                 </div>
               </div>

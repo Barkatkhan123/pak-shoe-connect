@@ -24,7 +24,7 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
   const [hoveredColor, setHoveredColor] = useState<string | null>(null);
   const [imgError, setImgError] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  
+
   const wishlisted = isWishlisted(product.slug);
   const inBasket = isInBasket(product.slug);
 
@@ -32,16 +32,17 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
   const badge = product.bestseller
     ? BADGE_CONFIG.bestseller
     : product.trending
-    ? BADGE_CONFIG.trending
-    : product.newArrival
-    ? BADGE_CONFIG.newArrival
-    : product.featured
-    ? BADGE_CONFIG.featured
-    : null;
+      ? BADGE_CONFIG.trending
+      : product.newArrival
+        ? BADGE_CONFIG.newArrival
+        : product.featured
+          ? BADGE_CONFIG.featured
+          : null;
 
-  const avgRating = product.reviews.length > 0
-    ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
-    : 4.8;
+  const avgRating =
+    product.reviews.length > 0
+      ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
+      : 4.8;
 
   // Normalized low -> high wholesale price
   const { minPrice, maxPrice, formattedPrice } = useMemo(() => {
@@ -60,11 +61,12 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
 
   return (
     <div className="group relative flex flex-col product-card-premium h-full bg-white rounded-xl border border-[#E0D9CE] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300">
-      
       {/* ── Top Badge (Max One) ── */}
       {badge && (
         <div className="absolute left-2.5 top-2.5 z-10 pointer-events-none">
-          <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider shadow-xs ${badge.color}`}>
+          <span
+            className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider shadow-xs ${badge.color}`}
+          >
             <badge.icon className="h-2.5 w-2.5 shrink-0" />
             {badge.label}
           </span>
@@ -81,10 +83,14 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
         className={`absolute right-1 top-1 z-10 flex h-11 w-11 items-center justify-center rounded-full transition-transform active:scale-90 ${
           wishlisted ? "text-rose-500" : "text-foreground/40 hover:text-rose-500"
         }`}
-        aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+        aria-label={
+          wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`
+        }
       >
         <span className="grid h-8 w-8 place-items-center rounded-full bg-white/90 backdrop-blur-xs shadow-xs border border-[#E0D9CE]">
-          <Heart className={`h-4 w-4 ${wishlisted ? "fill-rose-500 text-rose-500" : "text-foreground/60"}`} />
+          <Heart
+            className={`h-4 w-4 ${wishlisted ? "fill-rose-500 text-rose-500" : "text-foreground/60"}`}
+          />
         </span>
       </button>
 
@@ -98,7 +104,9 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
         {/* Skeleton shimmer while loading */}
         {!imgLoaded && !imgError && (
           <div className="absolute inset-0 animate-pulse bg-[#E0D9CE]/60 flex items-center justify-center">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">Anamon</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/50">
+              Anamon
+            </span>
           </div>
         )}
 
@@ -107,7 +115,9 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
             <div className="grid h-10 w-10 place-items-center rounded-full bg-[#E0D9CE]/60 text-[#8B5E3C] mb-1.5">
               <ImageOff className="h-5 w-5" />
             </div>
-            <span className="text-[10px] font-bold text-foreground/70 uppercase tracking-wide">{product.name}</span>
+            <span className="text-[10px] font-bold text-foreground/70 uppercase tracking-wide">
+              {product.name}
+            </span>
             <span className="text-[9px] text-muted-foreground">Footwear Showcase</span>
           </div>
         ) : (
@@ -127,7 +137,7 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
             }`}
           />
         )}
-        
+
         {/* Quick View Button (Desktop Hover) */}
         {onQuickView && (
           <div className="hidden lg:flex absolute inset-0 items-center justify-center bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
@@ -147,7 +157,6 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
 
       {/* ── Product Details Area ── */}
       <div className="flex flex-1 flex-col p-3 sm:p-4 bg-white relative">
-        
         {/* Color Swatches (Max 4 + count) */}
         {product.colorVariants && product.colorVariants.length > 0 && (
           <div className="flex items-center gap-1 mb-2">
@@ -213,7 +222,9 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
         <div className="mt-2.5 pt-2 border-t border-[#E0D9CE]/70">
           <div className="font-sans text-sm sm:text-base font-extrabold text-[#1B4332] tracking-tight">
             {formattedPrice}{" "}
-            <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">/ pair</span>
+            <span className="text-[10px] sm:text-xs font-semibold text-muted-foreground">
+              / pair
+            </span>
           </div>
 
           {/* Compact Metadata Chips Row (No Wrapping Glitches) */}
@@ -255,7 +266,6 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
             )}
           </button>
         </div>
-
       </div>
     </div>
   );

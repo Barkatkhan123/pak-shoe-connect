@@ -24,9 +24,7 @@ export function SizeMatrix({
           <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
             Size Run Matrix (6–12)
           </span>
-          <span className="text-[11px] text-muted-foreground font-mono">
-            (PK/UK • EU • US)
-          </span>
+          <span className="text-[11px] text-muted-foreground font-mono">(PK/UK • EU • US)</span>
         </div>
 
         {onToggleAssorted && (
@@ -64,8 +62,8 @@ export function SizeMatrix({
                 isOut
                   ? "border-border/40 bg-secondary/20 opacity-40 cursor-not-allowed"
                   : isSelected
-                  ? "border-foreground bg-foreground text-background shadow-md ring-2 ring-foreground/20"
-                  : "border-border/70 bg-secondary/30 hover:border-border hover:bg-secondary/70 text-foreground"
+                    ? "border-foreground bg-foreground text-background shadow-md ring-2 ring-foreground/20"
+                    : "border-border/70 bg-secondary/30 hover:border-border hover:bg-secondary/70 text-foreground"
               }`}
             >
               {/* Primary Size */}
@@ -109,7 +107,8 @@ export function SizeMatrix({
       {isAssortedRatio && (
         <div className="rounded-xl bg-secondary/40 p-2.5 text-[11px] text-muted-foreground flex items-center justify-between border border-border/40">
           <span>
-            📦 <strong>Standard B2B Wholesale Carton Breakdown (12 Pairs):</strong> Size 6 (1), 7 (2), 8 (3), 9 (3), 10 (2), 11 (1).
+            📦 <strong>Standard B2B Wholesale Carton Breakdown (12 Pairs):</strong> Size 6 (1), 7
+            (2), 8 (3), 9 (3), 10 (2), 11 (1).
           </span>
         </div>
       )}

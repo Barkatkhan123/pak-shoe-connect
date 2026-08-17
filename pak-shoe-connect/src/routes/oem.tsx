@@ -30,12 +30,36 @@ function OEM() {
       <section className="mx-auto max-w-7xl px-4 py-14">
         <div className="grid gap-6 md:grid-cols-3">
           {[
-            { icon: Ruler, title: "Design customization", body: "Bring your tech-pack or work with our design team on lasts, patterns, colors and materials." },
-            { icon: Tag, title: "Custom logo", body: "Debossed, printed or metal-tag branding on upper, insole, sole and packaging." },
-            { icon: Boxes, title: "Custom box & packaging", body: "Printed shoeboxes, dust bags, tissue paper, hangtags — designed and produced in-house." },
-            { icon: Palette, title: "Material sourcing", body: "Genuine leather, PU, canvas, mesh, suede — sourced from certified Pakistani tanneries." },
-            { icon: PackageCheck, title: "Sample in 7 days", body: "Approved sampling process before production. Revisions included." },
-            { icon: Sparkles, title: "Small MOQ", body: "Private label from 300 pairs per style. Scale up as your brand grows." },
+            {
+              icon: Ruler,
+              title: "Design customization",
+              body: "Bring your tech-pack or work with our design team on lasts, patterns, colors and materials.",
+            },
+            {
+              icon: Tag,
+              title: "Custom logo",
+              body: "Debossed, printed or metal-tag branding on upper, insole, sole and packaging.",
+            },
+            {
+              icon: Boxes,
+              title: "Custom box & packaging",
+              body: "Printed shoeboxes, dust bags, tissue paper, hangtags — designed and produced in-house.",
+            },
+            {
+              icon: Palette,
+              title: "Material sourcing",
+              body: "Genuine leather, PU, canvas, mesh, suede — sourced from certified Pakistani tanneries.",
+            },
+            {
+              icon: PackageCheck,
+              title: "Sample in 7 days",
+              body: "Approved sampling process before production. Revisions included.",
+            },
+            {
+              icon: Sparkles,
+              title: "Small MOQ",
+              body: "Private label from 300 pairs per style. Scale up as your brand grows.",
+            },
           ].map((f) => (
             <div key={f.title} className="rounded-xl border border-border bg-card p-6">
               <f.icon className="h-6 w-6 text-primary" />

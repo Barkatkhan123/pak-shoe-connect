@@ -60,7 +60,8 @@ export class JazzCashGateway implements PaymentGateway {
       };
     }
 
-    const responseCode = payload?.pp_ResponseCode ?? (transactionId.includes("FAIL") ? "124" : "000");
+    const responseCode =
+      payload?.pp_ResponseCode ?? (transactionId.includes("FAIL") ? "124" : "000");
     const isSuccess = responseCode === "000" && !transactionId.includes("FAIL");
 
     return {
@@ -78,7 +79,11 @@ export class JazzCashGateway implements PaymentGateway {
     };
   }
 
-  async refundPayment(transactionId: string, amount?: number, reason?: string): Promise<RefundResult> {
+  async refundPayment(
+    transactionId: string,
+    amount?: number,
+    reason?: string,
+  ): Promise<RefundResult> {
     const refundTxId = `JC-REF-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     return {
       success: true,
@@ -94,7 +99,11 @@ export class JazzCashGateway implements PaymentGateway {
     };
   }
 
-  verifyWebhookSignature(signature: string, payload: Record<string, any> | string, secret?: string): boolean {
+  verifyWebhookSignature(
+    signature: string,
+    payload: Record<string, any> | string,
+    secret?: string,
+  ): boolean {
     const salt = secret || this.integritySalt;
     let expectedHash: string;
 
@@ -113,7 +122,7 @@ export class JazzCashGateway implements PaymentGateway {
     try {
       return crypto.timingSafeEqual(
         Buffer.from(signature.toLowerCase(), "hex"),
-        Buffer.from(expectedHash.toLowerCase(), "hex")
+        Buffer.from(expectedHash.toLowerCase(), "hex"),
       );
     } catch {
       // Buffers of different length — definitively not equal

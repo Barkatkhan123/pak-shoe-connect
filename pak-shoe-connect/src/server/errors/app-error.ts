@@ -9,14 +9,14 @@ export class AppError extends Error {
     code: string,
     statusCode: number = 500,
     correlationId?: string,
-    isOperational: boolean = true
+    isOperational: boolean = true,
   ) {
     super(message);
     this.code = code;
     this.statusCode = statusCode;
     this.correlationId = correlationId;
     this.isOperational = isOperational;
-    
+
     // Set the prototype explicitly.
     Object.setPrototypeOf(this, AppError.prototype);
   }

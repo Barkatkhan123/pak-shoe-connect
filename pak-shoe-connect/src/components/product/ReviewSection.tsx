@@ -23,9 +23,7 @@ export function ReviewSection({ product }: ReviewSectionProps) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-2xl border border-border/80 bg-secondary/30 p-4 items-center">
         {/* Big Rating */}
         <div className="flex flex-col items-center justify-center text-center sm:border-r border-border/60 sm:pr-4">
-          <span className="text-3xl md:text-4xl font-black text-foreground">
-            {stats.rating}
-          </span>
+          <span className="text-3xl md:text-4xl font-black text-foreground">{stats.rating}</span>
           <div className="flex items-center gap-1 my-1 text-amber-500">
             {Array.from({ length: 5 }).map((_, i) => (
               <Star
@@ -107,9 +105,7 @@ export function ReviewSection({ product }: ReviewSectionProps) {
                 </div>
               </div>
 
-              <p className="text-xs text-foreground/90 leading-relaxed mt-1">
-                "{r.comment}"
-              </p>
+              <p className="text-xs text-foreground/90 leading-relaxed mt-1">"{r.comment}"</p>
 
               <div className="flex items-center justify-end pt-1">
                 <button

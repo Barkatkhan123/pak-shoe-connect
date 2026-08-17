@@ -44,33 +44,40 @@ export function useWishlist() {
     };
   }, []);
 
-  const addItem = useCallback((product: Product) => {
-    if (!isAuthenticated) {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent("shersha:open-auth-modal", {
-            detail: {
-              title: "Sign in to your Wishlist",
-              description: "Sign in or create your wholesale account to save bookmarked products across your devices.",
-            },
-          })
-        );
+  const addItem = useCallback(
+    (product: Product) => {
+      if (!isAuthenticated) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("shersha:open-auth-modal", {
+              detail: {
+                title: "Sign in to your Wishlist",
+                description:
+                  "Sign in or create your wholesale account to save bookmarked products across your devices.",
+              },
+            }),
+          );
+        }
+        return;
       }
-      return;
-    }
 
-    const current = load();
-    if (current.some((i) => i.slug === product.slug)) return;
-    const next = [...current, {
-      slug: product.slug,
-      name: product.name,
-      image: product.image,
-      priceLabel: product.priceLabel,
-      sku: product.sku,
-    }];
-    save(next);
-    setItems(next);
-  }, [isAuthenticated]);
+      const current = load();
+      if (current.some((i) => i.slug === product.slug)) return;
+      const next = [
+        ...current,
+        {
+          slug: product.slug,
+          name: product.name,
+          image: product.image,
+          priceLabel: product.priceLabel,
+          sku: product.sku,
+        },
+      ];
+      save(next);
+      setItems(next);
+    },
+    [isAuthenticated],
+  );
 
   const removeItem = useCallback((slug: string) => {
     const current = load();
@@ -79,43 +86,53 @@ export function useWishlist() {
     setItems(next);
   }, []);
 
-  const toggleItem = useCallback((product: Product) => {
-    if (!isAuthenticated) {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent("shersha:open-auth-modal", {
-            detail: {
-              title: "Sign in to your Wishlist",
-              description: "Sign in or create your wholesale account to save and manage your bookmarked footwear designs.",
-            },
-          })
-        );
+  const toggleItem = useCallback(
+    (product: Product) => {
+      if (!isAuthenticated) {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("shersha:open-auth-modal", {
+              detail: {
+                title: "Sign in to your Wishlist",
+                description:
+                  "Sign in or create your wholesale account to save and manage your bookmarked footwear designs.",
+              },
+            }),
+          );
+        }
+        return;
       }
-      return;
-    }
 
-    const current = load();
-    const exists = current.some((i) => i.slug === product.slug);
-    if (exists) {
-      const next = current.filter((i) => i.slug !== product.slug);
-      save(next);
-      setItems(next);
-    } else {
-      const next = [...current, {
-        slug: product.slug,
-        name: product.name,
-        image: product.image,
-        priceLabel: product.priceLabel,
-        sku: product.sku,
-      }];
-      save(next);
-      setItems(next);
-    }
-  }, [isAuthenticated]);
+      const current = load();
+      const exists = current.some((i) => i.slug === product.slug);
+      if (exists) {
+        const next = current.filter((i) => i.slug !== product.slug);
+        save(next);
+        setItems(next);
+      } else {
+        const next = [
+          ...current,
+          {
+            slug: product.slug,
+            name: product.name,
+            image: product.image,
+            priceLabel: product.priceLabel,
+            sku: product.sku,
+          },
+        ];
+        save(next);
+        setItems(next);
+      }
+    },
+    [isAuthenticated],
+  );
 
-  const isInWishlist = useCallback((slug: string) => {
-    return items.some((i) => i.slug === slug);
-  }, [items]);
+  const isInWishlist = useCallback(
+    (slug: string) => {
+      return items.some((i) => i.slug === slug);
+    },
+    [items],
+  );
 
   const clearWishlist = useCallback(() => {
     save([]);

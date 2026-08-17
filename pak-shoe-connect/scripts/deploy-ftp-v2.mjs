@@ -100,7 +100,7 @@ async function deploy() {
           password: CONFIG.password,
           secure: attempt.secure,
         },
-        3
+        3,
       );
       console.log(`✅ Connected successfully via ${attempt.label}!\n`);
       break;

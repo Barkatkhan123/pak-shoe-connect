@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { SupplierService } from "../src/server/modules/supplier/supplier.service";
 import { handleApiRequest } from "../src/server/routes/api.router";
 import { prisma } from "../src/server/db";
+import { signToken } from "../src/server/gateway/middleware/auth.middleware";
 
 describe("Supplier Portal & Live RFQ Quotation Engine", () => {
   it("should calculate factory overview KPIs with Trust Score and active orders", async () => {
@@ -25,13 +26,17 @@ describe("Supplier Portal & Live RFQ Quotation Engine", () => {
       factoryVideoUrl: null,
       createdAt: new Date(),
       updatedAt: new Date(),
-      user: { fullName: "Tariq Mahmood", phone: "+923001234567", email: "tariq@sialkotfootwear.com" },
+      user: {
+        fullName: "Tariq Mahmood",
+        phone: "+923001234567",
+        email: "tariq@sialkotfootwear.com",
+      },
       _count: { products: 12 },
     } as any);
 
     vi.spyOn(prisma.rfq, "count")
       .mockResolvedValueOnce(18) // activeRFQs
-      .mockResolvedValueOnce(6);  // pendingQuotes
+      .mockResolvedValueOnce(6); // pendingQuotes
 
     vi.spyOn(prisma.order, "findMany").mockResolvedValueOnce([
       { status: "ESCROW_FUNDED", totalAmount: 669450 },
@@ -86,16 +91,18 @@ describe("Supplier Portal & Live RFQ Quotation Engine", () => {
       expect.arrayContaining([
         expect.objectContaining({ city: "Karachi", percentage: 45 }),
         expect.objectContaining({ city: "Dubai (Export)", percentage: 15 }),
-      ])
+      ]),
     );
   });
 
   it("should route supplier API calls via handleApiRequest gateway", async () => {
+    const supplierToken = signToken({ sub: "user-sup-1", role: "SUPPLIER", supplierId: "sup-factory-1" });
     const res = await handleApiRequest(
       "/api/v1/supplier/analytics",
       "GET",
       {},
-      { supplierId: "sup-factory-1" }
+      {},
+      { authorization: `Bearer ${supplierToken}` }
     );
 
     expect(res.status).toBe(200);

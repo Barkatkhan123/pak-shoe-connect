@@ -54,11 +54,7 @@ export class CatalogService {
     const stockWeight = Math.min(10, (totalStock / 2000) * 10);
 
     const totalScore = Math.round(
-      verificationWeight +
-        responseSpeedWeight +
-        capacityWeight +
-        reviewRatingWeight +
-        stockWeight
+      verificationWeight + responseSpeedWeight + capacityWeight + reviewRatingWeight + stockWeight,
     );
 
     let badge: SupplierRankingScore["badge"] = "Starter Workshop";
@@ -163,10 +159,7 @@ export class CatalogService {
       const startingTier = product.bulkPriceTiers[0];
       const lowestTier = product.bulkPriceTiers[product.bulkPriceTiers.length - 1];
 
-      const totalAvailableStock = product.variants.reduce(
-        (sum, v) => sum + v.availableStock,
-        0
-      );
+      const totalAvailableStock = product.variants.reduce((sum, v) => sum + v.availableStock, 0);
 
       const isVerified = product.supplier.verificationStatus === "VERIFIED";
       const supplierScore = this.calculateSupplierScore({

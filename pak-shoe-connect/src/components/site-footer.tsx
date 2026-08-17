@@ -46,14 +46,17 @@ export function SiteFooter() {
               Subscribe to Trade Updates & Price Lists
             </h3>
             <p className="mt-1 text-xs sm:text-sm text-[#FAF7F2]/80">
-              Get notified first on factory catalog releases, volume discounts, and seasonal clearance batches.
+              Get notified first on factory catalog releases, volume discounts, and seasonal
+              clearance batches.
             </p>
           </div>
           <form
             className="flex w-full max-w-md items-center gap-2"
             onSubmit={(e) => {
               e.preventDefault();
-              toast.success("Subscribed! You'll receive wholesale price sheets and catalog releases.");
+              toast.success(
+                "Subscribed! You'll receive wholesale price sheets and catalog releases.",
+              );
             }}
           >
             <input
@@ -75,7 +78,6 @@ export function SiteFooter() {
       {/* ── Main Footer Links & Information Grid ── */}
       <div className="mx-auto max-w-7xl px-4 py-12 md:py-16">
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-5 lg:gap-8">
-          
           {/* Col 1: Brand & Positioning (Full span on mobile) */}
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center gap-3">
@@ -96,8 +98,9 @@ export function SiteFooter() {
             </div>
 
             <p className="text-xs sm:text-sm text-[#FAF7F2]/80 leading-relaxed max-w-sm">
-              Pakistan's premier direct-from-factory footwear sourcing hub. Supplying 1,200+ verified retailers,
-              distributors, and private-label brands across Karachi, Lahore, Rawalpindi, Peshawar, and Quetta.
+              Pakistan's premier direct-from-factory footwear sourcing hub. Supplying 1,200+
+              verified retailers, distributors, and private-label brands across Karachi, Lahore,
+              Rawalpindi, Peshawar, and Quetta.
             </p>
 
             {/* Direct Contact Pills */}
@@ -177,7 +180,9 @@ export function SiteFooter() {
                 }`}
               />
             </button>
-            <div className={`mt-3 space-y-2.5 text-xs text-[#FAF7F2]/80 md:block ${openSections.factory ? "block" : "hidden"}`}>
+            <div
+              className={`mt-3 space-y-2.5 text-xs text-[#FAF7F2]/80 md:block ${openSections.factory ? "block" : "hidden"}`}
+            >
               <div className="flex items-start gap-2">
                 <Factory className="h-4 w-4 text-[#C9A84C] shrink-0 mt-0.5" />
                 <div>
@@ -193,7 +198,8 @@ export function SiteFooter() {
               <div className="flex items-start gap-2">
                 <Truck className="h-4 w-4 text-[#C9A84C] shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-white">MOQ & Lead:</strong> Min 12 prs (multiples of 12) · 3–5 days dispatch
+                  <strong className="text-white">MOQ & Lead:</strong> Min 12 prs (multiples of 12) ·
+                  3–5 days dispatch
                 </div>
               </div>
               <div className="flex items-start gap-2">
@@ -226,7 +232,9 @@ export function SiteFooter() {
                 }`}
               />
             </button>
-            <ul className={`mt-3 grid grid-cols-2 gap-x-2 gap-y-2 text-xs text-[#FAF7F2]/80 md:grid ${openSections.categories ? "grid" : "hidden"}`}>
+            <ul
+              className={`mt-3 grid grid-cols-2 gap-x-2 gap-y-2 text-xs text-[#FAF7F2]/80 md:grid ${openSections.categories ? "grid" : "hidden"}`}
+            >
               {CATEGORY_NAV.slice(0, 10).map((c) => (
                 <li key={c.slug}>
                   <Link
@@ -264,47 +272,66 @@ export function SiteFooter() {
                 }`}
               />
             </button>
-            <ul className={`mt-3 space-y-2 text-xs text-[#FAF7F2]/80 md:block ${openSections.company ? "block" : "hidden"}`}>
+            <ul
+              className={`mt-3 space-y-2 text-xs text-[#FAF7F2]/80 md:block ${openSections.company ? "block" : "hidden"}`}
+            >
               <li>
                 <Link to="/about" className="hover:text-[#C9A84C] transition-colors block py-0.5">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/manufacturing" className="hover:text-[#C9A84C] transition-colors block py-0.5">
+                <Link
+                  to="/manufacturing"
+                  className="hover:text-[#C9A84C] transition-colors block py-0.5"
+                >
                   Manufacturing Facility
                 </Link>
               </li>
               <li>
-                <Link to="/bulk-order" className="hover:text-[#C9A84C] transition-colors block py-0.5">
+                <Link
+                  to="/bulk-order"
+                  className="hover:text-[#C9A84C] transition-colors block py-0.5"
+                >
                   Request Bulk Quote (RFQ)
                 </Link>
               </li>
               <li>
-                <Link to="/become-distributor" className="hover:text-[#C9A84C] transition-colors block py-0.5">
+                <Link
+                  to="/become-distributor"
+                  className="hover:text-[#C9A84C] transition-colors block py-0.5"
+                >
                   Become a Regional Dealer
                 </Link>
               </li>
               <li>
-                <Link to="/dashboard/buyer" className="hover:text-[#C9A84C] transition-colors block py-0.5">
+                <Link
+                  to="/dashboard/buyer"
+                  className="hover:text-[#C9A84C] transition-colors block py-0.5"
+                >
                   Buyer Portal & Tracking
                 </Link>
               </li>
               <li className="pt-2 border-t border-white/10">
-                <a href={SITE.phoneHref} className="flex items-center gap-2 text-white hover:text-[#C9A84C]">
+                <a
+                  href={SITE.phoneHref}
+                  className="flex items-center gap-2 text-white hover:text-[#C9A84C]"
+                >
                   <Phone className="h-3.5 w-3.5 text-[#C9A84C]" />
                   <span>{SITE.phone}</span>
                 </a>
               </li>
               <li>
-                <a href={SITE.emailHref} className="flex items-center gap-2 text-white/90 hover:text-[#C9A84C]">
+                <a
+                  href={SITE.emailHref}
+                  className="flex items-center gap-2 text-white/90 hover:text-[#C9A84C]"
+                >
                   <Mail className="h-3.5 w-3.5 text-[#C9A84C] shrink-0" />
                   <span>{SITE.email}</span>
                 </a>
               </li>
             </ul>
           </div>
-
         </div>
       </div>
 
@@ -312,18 +339,28 @@ export function SiteFooter() {
       <div className="border-t border-white/10 bg-black/30">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-[#FAF7F2]/70 sm:flex-row">
           <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center sm:text-left">
-            <p>© {new Date().getFullYear()} {SITE.brand} Footwear Industries Pakistan. All rights reserved.</p>
+            <p>
+              © {new Date().getFullYear()} {SITE.brand} Footwear Industries Pakistan. All rights
+              reserved.
+            </p>
             <span className="hidden sm:inline text-white/30">•</span>
             <p className="text-[11px] font-medium text-[#FAF7F2]/80">
-              Made with <span className="text-white">🤍</span> by <span className="font-semibold text-[#C9A84C]">Barkat</span>
+              Made with <span className="text-white">🤍</span> by{" "}
+              <span className="font-semibold text-[#C9A84C]">Barkat</span>
             </p>
           </div>
           <div className="flex items-center gap-4 text-xs">
-            <Link to="/about" className="hover:text-white transition-colors">Privacy Policy</Link>
+            <Link to="/about" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
             <span className="text-white/20">·</span>
-            <Link to="/bulk-order" className="hover:text-white transition-colors">B2B Terms</Link>
+            <Link to="/bulk-order" className="hover:text-white transition-colors">
+              B2B Terms
+            </Link>
             <span className="text-white/20">·</span>
-            <Link to="/contact" className="hover:text-white transition-colors">Trade Inquiries</Link>
+            <Link to="/contact" className="hover:text-white transition-colors">
+              Trade Inquiries
+            </Link>
           </div>
         </div>
       </div>

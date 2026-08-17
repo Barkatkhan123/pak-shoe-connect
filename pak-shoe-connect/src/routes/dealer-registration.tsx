@@ -35,28 +35,43 @@ function DealerRegistration() {
             <CheckCircle2 className="mx-auto h-10 w-10 text-emerald" />
             <h2 className="mt-4 font-display text-2xl font-semibold">Application received</h2>
             <p className="mt-2 text-muted-foreground">
-              Our team reviews new dealers within 1–2 working days. We'll contact you on the
-              number you provided.
+              Our team reviews new dealers within 1–2 working days. We'll contact you on the number
+              you provided.
             </p>
           </div>
         ) : (
           <form
-            onSubmit={(e) => { e.preventDefault(); setOk(true); }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              setOk(true);
+            }}
             className="space-y-5 rounded-2xl border border-border bg-card p-6 md:p-8"
           >
             <Row>
-              <Field label="Business name" required><input required className={inp} /></Field>
-              <Field label="Owner name" required><input required className={inp} /></Field>
+              <Field label="Business name" required>
+                <input required className={inp} />
+              </Field>
+              <Field label="Owner name" required>
+                <input required className={inp} />
+              </Field>
             </Row>
             <Row>
-              <Field label="Phone / WhatsApp" required><input required type="tel" placeholder="+92 3XX XXXXXXX" className={inp} /></Field>
-              <Field label="Email"><input type="email" className={inp} /></Field>
+              <Field label="Phone / WhatsApp" required>
+                <input required type="tel" placeholder="+92 3XX XXXXXXX" className={inp} />
+              </Field>
+              <Field label="Email">
+                <input type="email" className={inp} />
+              </Field>
             </Row>
             <Row>
-              <Field label="City" required><input required className={inp} /></Field>
+              <Field label="City" required>
+                <input required className={inp} />
+              </Field>
               <Field label="Business type" required>
                 <select required defaultValue="" className={inp}>
-                  <option value="" disabled>Select…</option>
+                  <option value="" disabled>
+                    Select…
+                  </option>
                   <option>Retail shop</option>
                   <option>Multi-brand store</option>
                   <option>Online seller</option>
@@ -64,9 +79,13 @@ function DealerRegistration() {
                 </select>
               </Field>
             </Row>
-            <Field label="Shop address" required><textarea required rows={2} className={inp} /></Field>
+            <Field label="Shop address" required>
+              <textarea required rows={2} className={inp} />
+            </Field>
             <Row>
-              <Field label="NTN (optional)"><input className={inp} /></Field>
+              <Field label="NTN (optional)">
+                <input className={inp} />
+              </Field>
               <Field label="Years in business">
                 <select className={inp} defaultValue="1-3">
                   <option>Less than 1</option>
@@ -87,12 +106,22 @@ function DealerRegistration() {
   );
 }
 
-const inp = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring";
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+const inp =
+  "w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring";
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}{required && <span className="text-destructive"> *</span>}
+        {label}
+        {required && <span className="text-destructive"> *</span>}
       </span>
       {children}
     </label>

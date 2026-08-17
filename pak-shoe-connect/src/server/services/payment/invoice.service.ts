@@ -65,7 +65,9 @@ export class InvoiceService {
     paymentTxId?: string;
     provider?: string;
   }): B2BInvoice {
-    const rawSubtotal = orderData.totalAmount ? Math.round(orderData.totalAmount * 0.82) : 3_750_000;
+    const rawSubtotal = orderData.totalAmount
+      ? Math.round(orderData.totalAmount * 0.82)
+      : 3_750_000;
     const gstRate = 18; // 18% standard GST in Pakistan
     const gstTax = Math.round((rawSubtotal * gstRate) / 100);
     const freight = orderData.freightAmount ?? 25_000;
@@ -89,17 +91,20 @@ export class InvoiceService {
         businessName: "Khyber Wholesale Footwear Traders",
         ntnNumber: "7829104-9",
         shippingCity: orderData.shippingCity || "Shah Alam Market, Lahore",
-        shippingAddress: orderData.shippingAddress || "Shop #44-48, Shoes Bazaar, Shah Alam Market, Lahore",
+        shippingAddress:
+          orderData.shippingAddress || "Shop #44-48, Shoes Bazaar, Shah Alam Market, Lahore",
         contactPhone: "+92 300 8829102",
       },
-      items: (orderData.items || [
-        {
-          title: "Charsadda Traditional Double-Sole Peshawari Chappal (Master Grade)",
-          cartons: orderData.totalCartons || 125,
-          pairs: orderData.totalPairs || 3000,
-          unitPrice: 1250,
-        },
-      ]).map((it) => ({
+      items: (
+        orderData.items || [
+          {
+            title: "Charsadda Traditional Double-Sole Peshawari Chappal (Master Grade)",
+            cartons: orderData.totalCartons || 125,
+            pairs: orderData.totalPairs || 3000,
+            unitPrice: 1250,
+          },
+        ]
+      ).map((it) => ({
         description: it.title,
         cartonCount: it.cartons,
         pairsPerCarton: 24,

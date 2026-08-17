@@ -300,15 +300,23 @@ export function PaymentGateway({
                 <div className="bg-white p-4 rounded border border-border text-left">
                   <div className="flex justify-between border-b border-border pb-2 mb-2">
                     <span className="text-muted-foreground text-xs">Bank Name:</span>
-                    <span className="font-bold">Meezan Bank Ltd (Escrow Account)</span>
+                    <span className="font-bold">Allied Bank (Escrow Account)</span>
                   </div>
                   <div className="flex justify-between border-b border-border pb-2 mb-2">
                     <span className="text-muted-foreground text-xs">Account Title:</span>
                     <span className="font-bold">Anamon B2B (Pvt) Ltd - Escrow Ledger</span>
                   </div>
+                  <div className="flex justify-between border-b border-border pb-2 mb-2">
+                    <span className="text-muted-foreground text-xs">Account Number:</span>
+                    <span className="font-mono text-xs font-bold">13700010102233200015</span>
+                  </div>
+                  <div className="flex justify-between border-b border-border pb-2 mb-2">
+                    <span className="text-muted-foreground text-xs">Branch:</span>
+                    <span className="font-bold">Sher Shah Branch</span>
+                  </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground text-xs">IBAN:</span>
-                    <span className="font-mono text-xs font-bold">PK42 MEZN 0001 0928 3746 1928</span>
+                    <span className="font-mono text-xs font-bold">PK18 ABPA 0010 1022 3320 0015</span>
                   </div>
                 </div>
               </div>

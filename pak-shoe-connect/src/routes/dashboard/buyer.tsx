@@ -12,11 +12,14 @@ import { Package, Heart, Clock, LogOut, Settings, Bell, LayoutDashboard } from "
 
 export const Route = createFileRoute("/dashboard/buyer")({
   loader: async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     if (!session) {
       throw redirect({ to: "/auth" });
     }
-    const role = session.user?.user_metadata?.role || session.user?.user_metadata?.accountType || "BUYER";
+    const role =
+      session.user?.user_metadata?.role || session.user?.user_metadata?.accountType || "BUYER";
     if (role && role !== "BUYER" && role !== "buyer" && role !== "ADMIN") {
       throw redirect({ to: "/dashboard/supplier" });
     }
@@ -28,15 +31,15 @@ export const Route = createFileRoute("/dashboard/buyer")({
 function BuyerDashboard() {
   const { session } = Route.useLoaderData();
   const userMetadata = session?.user?.user_metadata || {};
-  
+
   const { items: wishlistItems } = useWishlist();
   const { count: inquiryCount } = useInquiryBasket();
   const { products: recentProducts } = useRecentlyViewed(PRODUCTS);
-  
+
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const wishlistedProducts = PRODUCTS.filter(p => wishlistItems.some(w => w.slug === p.slug));
+  const wishlistedProducts = PRODUCTS.filter((p) => wishlistItems.some((w) => w.slug === p.slug));
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -49,15 +52,19 @@ function BuyerDashboard() {
         <div className="mx-auto max-w-7xl px-4 py-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <h1 className="font-display text-3xl font-bold">Welcome back, {userMetadata.full_name || 'Buyer'}</h1>
-              <p className="text-muted-foreground mt-1">{userMetadata.company || 'Wholesale Partner'}</p>
+              <h1 className="font-display text-3xl font-bold">
+                Welcome back, {userMetadata.full_name || "Buyer"}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                {userMetadata.company || "Wholesale Partner"}
+              </p>
             </div>
             <div className="flex items-center gap-3">
-              <button 
+              <button
                 onClick={() => setInquiryOpen(true)}
                 className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-emerald-deep transition"
               >
-                <Package className="h-4 w-4" /> 
+                <Package className="h-4 w-4" />
                 Active Inquiry ({inquiryCount})
               </button>
             </div>
@@ -67,7 +74,6 @@ function BuyerDashboard() {
 
       <div className="mx-auto max-w-7xl px-4 py-8">
         <div className="flex flex-col md:flex-row gap-8">
-          
           {/* Sidebar */}
           <div className="w-full md:w-64 shrink-0">
             <nav className="flex md:flex-col gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
@@ -76,7 +82,7 @@ function BuyerDashboard() {
                 { id: "wishlist", label: "Saved for Later", icon: Heart },
                 { id: "history", label: "Browsing History", icon: Clock },
                 { id: "settings", label: "Account Settings", icon: Settings },
-              ].map(item => (
+              ].map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
@@ -107,17 +113,33 @@ function BuyerDashboard() {
               <div className="space-y-8">
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div className="rounded-xl border border-border bg-card p-5">
-                    <div className="text-sm font-medium text-muted-foreground mb-1">Items in Inquiry</div>
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
+                      Items in Inquiry
+                    </div>
                     <div className="text-3xl font-bold text-foreground">{inquiryCount}</div>
-                    <button onClick={() => setInquiryOpen(true)} className="text-xs text-primary font-medium hover:underline mt-2">View current draft</button>
+                    <button
+                      onClick={() => setInquiryOpen(true)}
+                      className="text-xs text-primary font-medium hover:underline mt-2"
+                    >
+                      View current draft
+                    </button>
                   </div>
                   <div className="rounded-xl border border-border bg-card p-5">
-                    <div className="text-sm font-medium text-muted-foreground mb-1">Saved Items</div>
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
+                      Saved Items
+                    </div>
                     <div className="text-3xl font-bold text-foreground">{wishlistItems.length}</div>
-                    <button onClick={() => setActiveTab("wishlist")} className="text-xs text-primary font-medium hover:underline mt-2">View wishlist</button>
+                    <button
+                      onClick={() => setActiveTab("wishlist")}
+                      className="text-xs text-primary font-medium hover:underline mt-2"
+                    >
+                      View wishlist
+                    </button>
                   </div>
                   <div className="rounded-xl border border-border bg-card p-5">
-                    <div className="text-sm font-medium text-muted-foreground mb-1">Past Orders</div>
+                    <div className="text-sm font-medium text-muted-foreground mb-1">
+                      Past Orders
+                    </div>
                     <div className="text-3xl font-bold text-foreground">0</div>
                     <div className="text-xs text-muted-foreground mt-2">No orders yet</div>
                   </div>
@@ -127,7 +149,12 @@ function BuyerDashboard() {
                   <div>
                     <div className="flex items-center justify-between mb-4">
                       <h2 className="text-xl font-display font-bold">Recently Viewed</h2>
-                      <button onClick={() => setActiveTab("history")} className="text-sm text-primary font-medium hover:underline">View all</button>
+                      <button
+                        onClick={() => setActiveTab("history")}
+                        className="text-sm text-primary font-medium hover:underline"
+                      >
+                        View all
+                      </button>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                       {recentProducts.slice(0, 4).map((p, i) => (
@@ -152,8 +179,14 @@ function BuyerDashboard() {
                   <div className="text-center py-16 rounded-xl border border-border border-dashed bg-card/50">
                     <Heart className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
                     <h3 className="text-lg font-medium">Your wishlist is empty</h3>
-                    <p className="text-sm text-muted-foreground mt-1 mb-6">Save products you're interested in to review later.</p>
-                    <Link to="/products" search={{ category: undefined, gender: undefined }} className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-emerald-deep">
+                    <p className="text-sm text-muted-foreground mt-1 mb-6">
+                      Save products you're interested in to review later.
+                    </p>
+                    <Link
+                      to="/products"
+                      search={{ category: undefined, gender: undefined }}
+                      className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-emerald-deep"
+                    >
                       Browse Catalog
                     </Link>
                   </div>
@@ -174,8 +207,14 @@ function BuyerDashboard() {
                   <div className="text-center py-16 rounded-xl border border-border border-dashed bg-card/50">
                     <Clock className="h-10 w-10 text-muted-foreground mx-auto mb-4 opacity-50" />
                     <h3 className="text-lg font-medium">No history yet</h3>
-                    <p className="text-sm text-muted-foreground mt-1 mb-6">Products you view will appear here.</p>
-                    <Link to="/products" search={{ category: undefined, gender: undefined }} className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-emerald-deep">
+                    <p className="text-sm text-muted-foreground mt-1 mb-6">
+                      Products you view will appear here.
+                    </p>
+                    <Link
+                      to="/products"
+                      search={{ category: undefined, gender: undefined }}
+                      className="rounded-md bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-emerald-deep"
+                    >
                       Browse Catalog
                     </Link>
                   </div>
@@ -191,39 +230,55 @@ function BuyerDashboard() {
                     <h3 className="font-semibold mb-4">Business Information</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Company Name</label>
-                        <div className="mt-1 font-medium">{userMetadata.company || 'Not provided'}</div>
+                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                          Company Name
+                        </label>
+                        <div className="mt-1 font-medium">
+                          {userMetadata.company || "Not provided"}
+                        </div>
                       </div>
                       <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Contact Name</label>
-                        <div className="mt-1 font-medium">{userMetadata.full_name || 'Not provided'}</div>
+                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                          Contact Name
+                        </label>
+                        <div className="mt-1 font-medium">
+                          {userMetadata.full_name || "Not provided"}
+                        </div>
                       </div>
                       <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Email</label>
+                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                          Email
+                        </label>
                         <div className="mt-1 font-medium">{session?.user?.email}</div>
                       </div>
                       <div>
-                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Phone Number</label>
-                        <div className="mt-1 font-medium">{userMetadata.phone || 'Not provided'}</div>
+                        <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">
+                          Phone Number
+                        </label>
+                        <div className="mt-1 font-medium">
+                          {userMetadata.phone || "Not provided"}
+                        </div>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="rounded-xl border border-border bg-card p-6">
                     <div className="flex items-center gap-3 mb-2 text-amber-600">
                       <Bell className="h-5 w-5" />
                       <h3 className="font-semibold">Notification Preferences</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground">Notification settings are currently managed via your account manager. Please contact support to update preferences.</p>
+                    <p className="text-sm text-muted-foreground">
+                      Notification settings are currently managed via your account manager. Please
+                      contact support to update preferences.
+                    </p>
                   </div>
                 </div>
               </div>
             )}
-
           </div>
         </div>
       </div>
-      
+
       <InquiryDrawer isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} />
     </SiteLayout>
   );

@@ -76,13 +76,16 @@ export class SearchService {
   /**
    * High-speed typo-tolerant search across products, materials, hubs and categories
    */
-  static async searchCatalog(queryText: string, filters?: {
-    category?: string;
-    gender?: string;
-    verifiedOnly?: boolean;
-    maxMoq?: number;
-    city?: string;
-  }) {
+  static async searchCatalog(
+    queryText: string,
+    filters?: {
+      category?: string;
+      gender?: string;
+      verifiedOnly?: boolean;
+      maxMoq?: number;
+      city?: string;
+    },
+  ) {
     if (process.env.NODE_ENV !== "test") {
       try {
         const filterConditions: string[] = [];

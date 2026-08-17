@@ -44,7 +44,7 @@ export function ProductHeader({
   const handleWhatsAppShare = () => {
     const url = `${window.location.origin}/products/${product.slug}`;
     const text = encodeURIComponent(
-      `Check out ${product.title} on Anamon B2B Marketplace:\n${url}`
+      `Check out ${product.title} on Anamon B2B Marketplace:\n${url}`,
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
     setShowShareMenu(false);
@@ -59,9 +59,7 @@ export function ProductHeader({
             <BadgeCheck className="h-3.5 w-3.5" />
             Verified Manufacturer
           </span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {product.sku}
-          </span>
+          <span className="text-xs text-muted-foreground font-mono">{product.sku}</span>
           <span className="hidden sm:inline-block text-xs text-muted-foreground">
             • {product.supplier.location.split(",")[0]}
           </span>

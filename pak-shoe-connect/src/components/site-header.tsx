@@ -42,9 +42,10 @@ export function SiteHeader() {
         new CustomEvent("shersha:open-auth-modal", {
           detail: {
             title: "Sign in to your Wishlist",
-            description: "Sign in or create your wholesale buyer account to save and manage your bookmarked footwear designs.",
+            description:
+              "Sign in or create your wholesale buyer account to save and manage your bookmarked footwear designs.",
           },
-        })
+        }),
       );
     }
   };
@@ -55,9 +56,10 @@ export function SiteHeader() {
         new CustomEvent("shersha:open-auth-modal", {
           detail: {
             title: "Sign in to access your Basket",
-            description: "Sign in to your wholesale account to review your inquiry basket, manage items, and request factory quotes.",
+            description:
+              "Sign in to your wholesale account to review your inquiry basket, manage items, and request factory quotes.",
           },
-        })
+        }),
       );
     } else {
       setInquiryOpen(true);
@@ -113,8 +115,12 @@ export function SiteHeader() {
         <div className="w-full bg-[#0F1A13] text-[#FAF7F2] text-[11px] font-medium tracking-wide safe-top border-b border-white/10">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 h-7 min-h-[28px]">
             <p className="flex items-center gap-1.5 truncate text-[11px]">
-              <span aria-hidden className="text-xs shrink-0">🇵🇰</span>
-              <span className="truncate font-semibold">Premium Footwear Manufacturing · Delivery across Pakistan</span>
+              <span aria-hidden className="text-xs shrink-0">
+                🇵🇰
+              </span>
+              <span className="truncate font-semibold">
+                Premium Footwear Manufacturing · Delivery across Pakistan
+              </span>
             </p>
             <div className="flex items-center gap-4 shrink-0 text-[11px]">
               <div className="hidden items-center gap-2 sm:flex">
@@ -139,9 +145,12 @@ export function SiteHeader() {
         {/* ── Main Sticky Navigation Bar ── */}
         <div className="w-full bg-white relative z-[100]">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6 h-16 sm:h-[72px]">
-            
             {/* Logo (44px touch target) */}
-            <Link to="/" className="flex items-center gap-2.5 shrink-0 min-h-[44px] py-1 group" aria-label="Anamon Home">
+            <Link
+              to="/"
+              className="flex items-center gap-2.5 shrink-0 min-h-[44px] py-1 group"
+              aria-label="Anamon Home"
+            >
               <div
                 className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded shadow-xs transition-transform group-hover:scale-105"
                 style={{ background: "#1B4332" }}
@@ -170,7 +179,7 @@ export function SiteHeader() {
               >
                 Home
               </Link>
-              
+
               {/* Desktop Mega Menu Dropdown */}
               <div
                 className="relative"
@@ -185,7 +194,9 @@ export function SiteHeader() {
                   }`}
                 >
                   <span>Wholesale Catalog</span>
-                  <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 transition-transform duration-200 ${megaMenuOpen ? "rotate-180" : ""}`}
+                  />
                 </Link>
 
                 <AnimatePresence>
@@ -212,7 +223,9 @@ export function SiteHeader() {
                                   className="flex items-center gap-2.5 rounded-lg p-2 hover:bg-[#FAF7F2] transition-colors"
                                 >
                                   <span className="text-base">{c.icon}</span>
-                                  <span className="text-xs font-bold text-foreground">{c.label}</span>
+                                  <span className="text-xs font-bold text-foreground">
+                                    {c.label}
+                                  </span>
                                 </Link>
                               </li>
                             ))}
@@ -232,7 +245,9 @@ export function SiteHeader() {
                                   className="flex items-center gap-2.5 rounded-lg p-2 hover:bg-[#FAF7F2] transition-colors"
                                 >
                                   <span className="text-base">{c.icon}</span>
-                                  <span className="text-xs font-bold text-foreground">{c.label}</span>
+                                  <span className="text-xs font-bold text-foreground">
+                                    {c.label}
+                                  </span>
                                 </Link>
                               </li>
                             ))}
@@ -318,10 +333,13 @@ export function SiteHeader() {
                 aria-label={open ? "Close navigation menu" : "Open navigation menu"}
                 aria-expanded={open}
               >
-                {open ? <X className="h-6 w-6 text-[#0F1A13]" /> : <Menu className="h-6 w-6 text-[#0F1A13]" />}
+                {open ? (
+                  <X className="h-6 w-6 text-[#0F1A13]" />
+                ) : (
+                  <Menu className="h-6 w-6 text-[#0F1A13]" />
+                )}
               </button>
             </div>
-
           </div>
         </div>
 
@@ -336,7 +354,6 @@ export function SiteHeader() {
               className="absolute top-full left-0 w-full border-t border-[#E0D9CE] bg-white lg:hidden shadow-2xl max-h-[calc(100dvh-5.5rem)] overflow-y-auto z-[100]"
             >
               <div className="flex flex-col p-4 sm:p-6 space-y-6">
-                
                 {/* 1. Quick Wholesale Search Link / Trigger */}
                 <div className="relative space-y-2">
                   <Link
@@ -377,7 +394,9 @@ export function SiteHeader() {
                         className="flex items-center gap-2.5 p-2.5 rounded-lg border border-[#E0D9CE] bg-white hover:bg-[#FAF7F2] transition-colors"
                       >
                         <span className="text-base shrink-0">{c.icon}</span>
-                        <span className="text-xs font-bold text-foreground truncate">{c.label}</span>
+                        <span className="text-xs font-bold text-foreground truncate">
+                          {c.label}
+                        </span>
                       </Link>
                     ))}
                   </div>
@@ -471,7 +490,6 @@ export function SiteHeader() {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
-
               </div>
             </motion.div>
           )}

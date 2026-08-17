@@ -11,7 +11,14 @@ export class CartService {
   /**
    * Retrieves the authenticated user's current server-validated basket
    */
-  static async getBasket(userId: string): Promise<{ items: ServerBasketItem[]; totalPairs: number; totalCartons: number; subtotal: number }> {
+  static async getBasket(
+    userId: string,
+  ): Promise<{
+    items: ServerBasketItem[];
+    totalPairs: number;
+    totalCartons: number;
+    subtotal: number;
+  }> {
     const items = userBaskets.get(userId) || [];
     const totalPairs = items.reduce((sum, i) => sum + i.requestedQty, 0);
     const totalCartons = items.reduce((sum, i) => sum + i.cartonCount, 0);
@@ -23,7 +30,10 @@ export class CartService {
    * Adds or atomically updates a product in the authenticated user's basket.
    * Performs full server-side validation of existence, MOQ, options, and pricing tiers.
    */
-  static async addItem(userId: string, input: AddBasketItemInput): Promise<{ items: ServerBasketItem[]; addedItem: ServerBasketItem }> {
+  static async addItem(
+    userId: string,
+    input: AddBasketItemInput,
+  ): Promise<{ items: ServerBasketItem[]; addedItem: ServerBasketItem }> {
     // Idempotency check: prevent duplicate execution on rapid network retries
     if (input.idempotencyKey) {
       const cached = processedIdempotencyKeys.get(input.idempotencyKey);
@@ -88,7 +98,7 @@ export class CartService {
     // 4. Atomic Upsert into user's basket
     const currentBasket = userBaskets.get(userId) || [];
     const existingIndex = currentBasket.findIndex(
-      (i) => i.slug === product.slug && i.color === normalizedColor && i.size === normalizedSize
+      (i) => i.slug === product.slug && i.color === normalizedColor && i.size === normalizedSize,
     );
 
     let updatedBasket: ServerBasketItem[];
@@ -97,7 +107,7 @@ export class CartService {
     if (existingIndex >= 0) {
       const existing = currentBasket[existingIndex];
       const newTotalQty = existing.requestedQty + requestedQty;
-      
+
       // Recalculate price tier on cumulative quantity
       let updatedUnitPrice = product.priceTiers?.[0]?.pricePerPair || 1000;
       let updatedTierName = product.priceTiers?.[0]?.label || "Standard Wholesale Tier";
@@ -143,7 +153,11 @@ export class CartService {
   /**
    * Removes an item from the user's server basket
    */
-  static async removeItem(userId: string, slug: string, options?: { color?: string; size?: string }): Promise<ServerBasketItem[]> {
+  static async removeItem(
+    userId: string,
+    slug: string,
+    options?: { color?: string; size?: string },
+  ): Promise<ServerBasketItem[]> {
     const currentBasket = userBaskets.get(userId) || [];
     const updated = currentBasket.filter((i) => {
       if (i.slug !== slug) return true;
@@ -158,7 +172,11 @@ export class CartService {
   /**
    * Updates the quantity of an item in the user's server basket with tier recalculation
    */
-  static async updateQty(userId: string, slug: string, requestedQty: number): Promise<ServerBasketItem[]> {
+  static async updateQty(
+    userId: string,
+    slug: string,
+    requestedQty: number,
+  ): Promise<ServerBasketItem[]> {
     const currentBasket = userBaskets.get(userId) || [];
     const product = PRODUCTS.find((p) => p.slug === slug);
     const cartonQty = product?.cartonQty || 12;
@@ -166,7 +184,7 @@ export class CartService {
     const updated = currentBasket.map((item) => {
       if (item.slug !== slug) return item;
       const safeQty = Math.max(1, requestedQty);
-      
+
       let unitPrice = product?.priceTiers?.[0]?.pricePerPair || item.unitPrice;
       let tierName = product?.priceTiers?.[0]?.label || item.tierName;
       if (product?.priceTiers && product.priceTiers.length > 0) {
@@ -220,7 +238,7 @@ export class CartService {
         destinationCity: input.destinationCity,
       });
 
-      const itemSubtotal = priceResult.subtotal ?? (priceResult.unitPrice * item.quantityPairs);
+      const itemSubtotal = priceResult.subtotal ?? priceResult.unitPrice * item.quantityPairs;
       const freight = priceResult.logistics?.totalEstimatedFreight ?? 0;
       const tierLabel = priceResult.activeTier?.tierLabel ?? "Standard Tier";
 
@@ -254,4 +272,3 @@ export class CartService {
     };
   }
 }
-

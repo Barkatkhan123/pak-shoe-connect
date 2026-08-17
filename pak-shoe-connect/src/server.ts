@@ -35,28 +35,18 @@ if (!isVercel) {
  * x-forwarded-proto, set by ALB / CloudFront). This avoids HSTS lock-in
  * during local HTTP development.
  */
-function applySecurityHeaders(
-  response: Response,
-  request: Request,
-): Response {
+function applySecurityHeaders(response: Response, request: Request): Response {
   const headers = new Headers(response.headers);
 
   headers.set("X-Content-Type-Options", "nosniff");
   headers.set("X-Frame-Options", "DENY");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=()",
-  );
+  headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
   // HSTS only when behind TLS termination (ALB / CloudFront sets this header)
-  const proto =
-    request.headers.get("x-forwarded-proto") ?? "";
+  const proto = request.headers.get("x-forwarded-proto") ?? "";
   if (proto === "https" || process.env.NODE_ENV === "production") {
-    headers.set(
-      "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains",
-    );
+    headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains");
   }
 
   return new Response(response.body, {
@@ -208,7 +198,8 @@ export default {
               headers: {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization, x-signature, x-idempotency-key, x-correlation-id",
+                "Access-Control-Allow-Headers":
+                  "Content-Type, Authorization, x-signature, x-idempotency-key, x-correlation-id",
                 "X-Correlation-ID": correlationId,
               },
             }),
@@ -249,7 +240,12 @@ export default {
           }
 
           const rawFwd = headers["x-forwarded-for"];
-          const clientIp = rawFwd ? rawFwd.split(",").map(s => s.trim()).pop() || "127.0.0.1" : (headers["x-real-ip"] || "127.0.0.1");
+          const clientIp = rawFwd
+            ? rawFwd
+                .split(",")
+                .map((s) => s.trim())
+                .pop() || "127.0.0.1"
+            : headers["x-real-ip"] || "127.0.0.1";
 
           const apiResponse = await apiGateway(
             url.pathname,
@@ -267,7 +263,8 @@ export default {
                 "Content-Type": "application/json",
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-                "Access-Control-Allow-Headers": "Content-Type, Authorization, x-signature, x-idempotency-key, x-correlation-id",
+                "Access-Control-Allow-Headers":
+                  "Content-Type, Authorization, x-signature, x-idempotency-key, x-correlation-id",
                 "X-Correlation-ID": correlationId,
                 ...(apiResponse.headers || {}),
               },

@@ -56,7 +56,9 @@ export class PaymentCircuitBreaker {
     if (health.state === "OPEN") {
       if (health.cooldownUntil && now >= health.cooldownUntil) {
         health.state = "HALF_OPEN";
-        SecurityLogger.info("CIRCUIT_BREAKER", `Circuit HALF_OPEN for provider ${provider}`, { provider });
+        SecurityLogger.info("CIRCUIT_BREAKER", `Circuit HALF_OPEN for provider ${provider}`, {
+          provider,
+        });
         return true;
       }
       return false; // Still in cooldown window
@@ -79,7 +81,11 @@ export class PaymentCircuitBreaker {
 
     if (health.state !== "CLOSED") {
       health.state = "CLOSED";
-      SecurityLogger.info("CIRCUIT_BREAKER", `Circuit CLOSED (Recovered) for provider ${provider}`, { provider });
+      SecurityLogger.info(
+        "CIRCUIT_BREAKER",
+        `Circuit CLOSED (Recovered) for provider ${provider}`,
+        { provider },
+      );
     }
   }
 
@@ -126,10 +132,14 @@ export class PaymentCircuitBreaker {
     const alternatives = FALLBACK_MATRIX[requested] || [];
     for (const alt of alternatives) {
       if (this.isAvailable(alt)) {
-        SecurityLogger.info("CIRCUIT_BREAKER_FAILOVER", `Failing over from ${requested} to ${alt}`, {
-          requested,
-          fallback: alt,
-        });
+        SecurityLogger.info(
+          "CIRCUIT_BREAKER_FAILOVER",
+          `Failing over from ${requested} to ${alt}`,
+          {
+            requested,
+            fallback: alt,
+          },
+        );
         return alt;
       }
     }

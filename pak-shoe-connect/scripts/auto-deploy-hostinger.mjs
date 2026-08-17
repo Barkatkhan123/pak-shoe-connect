@@ -50,9 +50,8 @@ async function uploadToHostinger() {
     const list = await client.list();
     console.log("\n📋 Current Remote public_html Files:");
     list.forEach((item) => {
-      console.log(`  - ${item.name} (${item.size} bytes) [${item.isDirectory ? 'DIR' : 'FILE'}]`);
+      console.log(`  - ${item.name} (${item.size} bytes) [${item.isDirectory ? "DIR" : "FILE"}]`);
     });
-
   } catch (err) {
     console.error("🔴 Upload Error:", err);
   } finally {

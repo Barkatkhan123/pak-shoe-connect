@@ -118,7 +118,9 @@ export function ProductManageModal({
 
   // Tab 5: Inventory & Badges
   const [inStock, setInStock] = useState(true);
-  const [stockStatus, setStockStatus] = useState<"IN_STOCK" | "LOW_STOCK" | "MADE_TO_ORDER" | "OUT_OF_STOCK">("IN_STOCK");
+  const [stockStatus, setStockStatus] = useState<
+    "IN_STOCK" | "LOW_STOCK" | "MADE_TO_ORDER" | "OUT_OF_STOCK"
+  >("IN_STOCK");
   const [totalStockUnits, setTotalStockUnits] = useState(2700);
   const [isPublished, setIsPublished] = useState(true);
   const [featured, setFeatured] = useState(false);
@@ -152,7 +154,12 @@ export function ProductManageModal({
 
       // Sample Configuration
       setSampleAvailable(productToEdit.sampleAvailable !== false);
-      setSamplePrice(productToEdit.samplePrice || (productToEdit.priceTiers?.[0]?.pricePerPair ? productToEdit.priceTiers[0].pricePerPair + 500 : 2500));
+      setSamplePrice(
+        productToEdit.samplePrice ||
+          (productToEdit.priceTiers?.[0]?.pricePerPair
+            ? productToEdit.priceTiers[0].pricePerPair + 500
+            : 2500),
+      );
       setSampleLeadDays(productToEdit.sampleLeadDays || "2–4 days express courier");
       setSampleRefundable(productToEdit.sampleRefundable !== false);
 
@@ -184,12 +191,16 @@ export function ProductManageModal({
       setSamplePrice(2500);
       setSampleLeadDays("2–4 days express courier");
       setSampleRefundable(true);
-      setMainImage("https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800&auto=format&fit=crop");
+      setMainImage(
+        "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800&auto=format&fit=crop",
+      );
       setGalleryImages([
         "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop"
+        "https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=800&auto=format&fit=crop",
       ]);
-      setVideoUrl("https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4");
+      setVideoUrl(
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+      );
     }
   }, [productToEdit]);
 
@@ -344,9 +355,10 @@ export function ProductManageModal({
       sampleRefundable,
       // BUG-11 FIX: Use toLocaleString() so numbers have thousands-separating commas
       // (e.g. "PKR 1,250–1,850" instead of "PKR 1250–1850"), matching the rest of the UI.
-      priceLabel: lowestPrice === highestPrice
-        ? `PKR ${lowestPrice.toLocaleString()}`
-        : `PKR ${lowestPrice.toLocaleString()}–${highestPrice.toLocaleString()}`,
+      priceLabel:
+        lowestPrice === highestPrice
+          ? `PKR ${lowestPrice.toLocaleString()}`
+          : `PKR ${lowestPrice.toLocaleString()}–${highestPrice.toLocaleString()}`,
       inStock,
       featured,
       bestseller,
@@ -356,10 +368,10 @@ export function ProductManageModal({
       specifications: {
         "Upper Material": material,
         "Sole Material": soleType,
-        "Gender": gender,
+        Gender: gender,
         "Minimum Order": `${moq} pairs (1 carton)`,
-        "Packaging": `${cartonQty} pairs per carton (Single color)`,
-        "Origin": "Rawalpindi / Lahore, Pakistan",
+        Packaging: `${cartonQty} pairs per carton (Single color)`,
+        Origin: "Rawalpindi / Lahore, Pakistan",
       },
       shippingInfo: `Shipped in standard cartons of ${cartonQty} pairs. Single color per carton.`,
     };
@@ -369,7 +381,7 @@ export function ProductManageModal({
     toast.success(
       isEditing
         ? `Product "${name}" updated successfully!`
-        : `New product "${name}" created and published!`
+        : `New product "${name}" created and published!`,
     );
   };
 
@@ -384,7 +396,9 @@ export function ProductManageModal({
               </div>
               <div>
                 <DialogTitle className="text-lg font-bold text-slate-100">
-                  {isEditing ? `Edit Product: ${productToEdit?.name}` : "Create & Publish New Product"}
+                  {isEditing
+                    ? `Edit Product: ${productToEdit?.name}`
+                    : "Create & Publish New Product"}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-slate-400">
                   Full admin control over specs, MOQ, pricing tiers, variants & media.
@@ -401,19 +415,34 @@ export function ProductManageModal({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
           <Tabs value={activeFormTab} onValueChange={setActiveFormTab} className="w-full">
             <TabsList className="grid grid-cols-5 bg-slate-950 border border-slate-800 p-1 rounded-xl mb-6">
-              <TabsTrigger value="basic" className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950">
+              <TabsTrigger
+                value="basic"
+                className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950"
+              >
                 Basic & SEO
               </TabsTrigger>
-              <TabsTrigger value="pricing" className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950">
+              <TabsTrigger
+                value="pricing"
+                className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950"
+              >
                 Pricing & MOQ
               </TabsTrigger>
-              <TabsTrigger value="variants" className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950">
+              <TabsTrigger
+                value="variants"
+                className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950"
+              >
                 Colors & Sizes
               </TabsTrigger>
-              <TabsTrigger value="media" className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950">
+              <TabsTrigger
+                value="media"
+                className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950"
+              >
                 Media & Docs
               </TabsTrigger>
-              <TabsTrigger value="status" className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950">
+              <TabsTrigger
+                value="status"
+                className="text-xs font-semibold data-[state=active]:bg-amber-500 data-[state=active]:text-slate-950"
+              >
                 Status & Badges
               </TabsTrigger>
             </TabsList>
@@ -422,7 +451,9 @@ export function ProductManageModal({
             <TabsContent value="basic" className="space-y-4 focus:outline-none">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Product Name (English) *</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Product Name (English) *
+                  </label>
                   <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -432,7 +463,9 @@ export function ProductManageModal({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Product Name (Urdu / Urdu Title)</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Product Name (Urdu / Urdu Title)
+                  </label>
                   <Input
                     value={nameUrdu}
                     onChange={(e) => setNameUrdu(e.target.value)}
@@ -474,17 +507,27 @@ export function ProductManageModal({
                     onChange={(e) => setGender(e.target.value as any)}
                     className="w-full h-10 bg-slate-950 border border-slate-800 rounded-md px-3 text-xs text-slate-100 focus:outline-none"
                   >
-                    <option value="men" className="bg-slate-900">Men</option>
-                    <option value="women" className="bg-slate-900">Women</option>
-                    <option value="kids" className="bg-slate-900">Kids</option>
-                    <option value="unisex" className="bg-slate-900">Unisex</option>
+                    <option value="men" className="bg-slate-900">
+                      Men
+                    </option>
+                    <option value="women" className="bg-slate-900">
+                      Women
+                    </option>
+                    <option value="kids" className="bg-slate-900">
+                      Kids
+                    </option>
+                    <option value="unisex" className="bg-slate-900">
+                      Unisex
+                    </option>
                   </select>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Upper Material Specification</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Upper Material Specification
+                  </label>
                   <Input
                     value={material}
                     onChange={(e) => setMaterial(e.target.value)}
@@ -493,7 +536,9 @@ export function ProductManageModal({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Sole Material Specification</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Sole Material Specification
+                  </label>
                   <Input
                     value={soleType}
                     onChange={(e) => setSoleType(e.target.value)}
@@ -504,7 +549,9 @@ export function ProductManageModal({
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-300">Product Description & Copywriter Details</label>
+                <label className="text-xs font-bold text-slate-300">
+                  Product Description & Copywriter Details
+                </label>
                 <textarea
                   rows={3}
                   value={description}
@@ -521,7 +568,9 @@ export function ProductManageModal({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400">Meta Search Title</label>
+                    <label className="text-[11px] font-semibold text-slate-400">
+                      Meta Search Title
+                    </label>
                     <Input
                       value={metaTitle || name}
                       onChange={(e) => setMetaTitle(e.target.value)}
@@ -530,7 +579,9 @@ export function ProductManageModal({
                     />
                   </div>
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400">Search Tags (comma separated)</label>
+                    <label className="text-[11px] font-semibold text-slate-400">
+                      Search Tags (comma separated)
+                    </label>
                     <Input
                       value={tags}
                       onChange={(e) => setTags(e.target.value)}
@@ -549,13 +600,17 @@ export function ProductManageModal({
                   <Package className="h-4 w-4" /> Wholesale Packing & MOQ Rules (Factory Standard)
                 </div>
                 <p className="text-xs text-slate-300">
-                  Minimum Order Quantity is locked to <strong>12 pairs (1 carton)</strong>. Orders must be in multiples of <strong>12 pairs</strong> only. All 12 pairs in a carton must be of a single color.
+                  Minimum Order Quantity is locked to <strong>12 pairs (1 carton)</strong>. Orders
+                  must be in multiples of <strong>12 pairs</strong> only. All 12 pairs in a carton
+                  must be of a single color.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Minimum Order Quantity (MOQ) *</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Minimum Order Quantity (MOQ) *
+                  </label>
                   <Input
                     type="number"
                     step={12}
@@ -565,11 +620,15 @@ export function ProductManageModal({
                     className="bg-slate-950 border-slate-800 font-mono text-slate-100"
                     required
                   />
-                  <span className="text-[10px] text-slate-400">Multiples of 12 only (12, 24, 36, 48...)</span>
+                  <span className="text-[10px] text-slate-400">
+                    Multiples of 12 only (12, 24, 36, 48...)
+                  </span>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Carton Packing Quantity</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Carton Packing Quantity
+                  </label>
                   <Input
                     type="number"
                     value={cartonQty}
@@ -634,14 +693,19 @@ export function ProductManageModal({
                             />
                           </td>
                           <td className="p-3 font-mono text-slate-400">
-                            {Math.round(tier.moq / 12)} Ctn{Math.round(tier.moq / 12) > 1 ? "s" : ""}
+                            {Math.round(tier.moq / 12)} Ctn
+                            {Math.round(tier.moq / 12) > 1 ? "s" : ""}
                           </td>
                           <td className="p-3 font-mono">
                             <Input
                               type="number"
                               value={tier.pricePerPair}
                               onChange={(e) =>
-                                handleUpdateTier(idx, "pricePerPair", parseInt(e.target.value, 10) || 0)
+                                handleUpdateTier(
+                                  idx,
+                                  "pricePerPair",
+                                  parseInt(e.target.value, 10) || 0,
+                                )
                               }
                               className="w-28 h-8 bg-slate-900 border-slate-800 text-xs font-bold text-amber-400"
                             />
@@ -694,7 +758,9 @@ export function ProductManageModal({
                 {sampleAvailable && (
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-300">Sample Unit Price (PKR)</label>
+                      <label className="text-[11px] font-bold text-slate-300">
+                        Sample Unit Price (PKR)
+                      </label>
                       <Input
                         type="number"
                         value={samplePrice}
@@ -702,22 +768,30 @@ export function ProductManageModal({
                         placeholder="e.g. 2500"
                         className="bg-slate-950 border-slate-800 text-xs font-mono font-bold text-amber-400"
                       />
-                      <span className="text-[10px] text-slate-400">Single pair sample inspection fee</span>
+                      <span className="text-[10px] text-slate-400">
+                        Single pair sample inspection fee
+                      </span>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-300">Sample Dispatch Lead Time</label>
+                      <label className="text-[11px] font-bold text-slate-300">
+                        Sample Dispatch Lead Time
+                      </label>
                       <Input
                         value={sampleLeadDays}
                         onChange={(e) => setSampleLeadDays(e.target.value)}
                         placeholder="e.g. 2–4 days express courier"
                         className="bg-slate-950 border-slate-800 text-xs"
                       />
-                      <span className="text-[10px] text-slate-400">Dispatch speed for sample pair</span>
+                      <span className="text-[10px] text-slate-400">
+                        Dispatch speed for sample pair
+                      </span>
                     </div>
 
                     <div className="space-y-1">
-                      <label className="text-[11px] font-bold text-slate-300">Bulk Refund Policy</label>
+                      <label className="text-[11px] font-bold text-slate-300">
+                        Bulk Refund Policy
+                      </label>
                       <div className="flex items-center gap-2 h-9 px-3 bg-slate-950 border border-slate-800 rounded-md">
                         <input
                           type="checkbox"
@@ -726,11 +800,16 @@ export function ProductManageModal({
                           onChange={(e) => setSampleRefundable(e.target.checked)}
                           className="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-emerald-500 h-4 w-4"
                         />
-                        <label htmlFor="sampleRefundableCheckbox" className="text-xs text-slate-300 cursor-pointer">
+                        <label
+                          htmlFor="sampleRefundableCheckbox"
+                          className="text-xs text-slate-300 cursor-pointer"
+                        >
                           Refund on bulk order
                         </label>
                       </div>
-                      <span className="text-[10px] text-emerald-400">Deduct sample fee from 100+ pair order</span>
+                      <span className="text-[10px] text-emerald-400">
+                        Deduct sample fee from 100+ pair order
+                      </span>
                     </div>
                   </div>
                 )}
@@ -853,14 +932,20 @@ export function ProductManageModal({
               {/* Main Cover Image */}
               <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-200">Main Cover Product Picture *</label>
+                  <label className="text-xs font-bold text-slate-200">
+                    Main Cover Product Picture *
+                  </label>
                   <span className="text-[10px] text-slate-400">Direct upload or web URL</span>
                 </div>
-                
+
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
                   {mainImage ? (
                     <div className="relative h-24 w-24 rounded-xl border border-amber-500/40 overflow-hidden bg-slate-900 shrink-0 shadow-md">
-                      <img src={mainImage} alt="Cover preview" className="h-full w-full object-cover" />
+                      <img
+                        src={mainImage}
+                        alt="Cover preview"
+                        className="h-full w-full object-cover"
+                      />
                       <button
                         type="button"
                         onClick={() => setMainImage("")}
@@ -908,8 +993,12 @@ export function ProductManageModal({
               <div className="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between">
                   <div>
-                    <label className="text-xs font-bold text-slate-200 block">Product Gallery Angles & Close-ups</label>
-                    <span className="text-[10px] text-slate-400">Upload multiple photos (sole, side angle, top view, packaging)</span>
+                    <label className="text-xs font-bold text-slate-200 block">
+                      Product Gallery Angles & Close-ups
+                    </label>
+                    <span className="text-[10px] text-slate-400">
+                      Upload multiple photos (sole, side angle, top view, packaging)
+                    </span>
                   </div>
                   <label className="cursor-pointer">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg text-xs font-bold text-amber-400 transition-colors">
@@ -949,7 +1038,11 @@ export function ProductManageModal({
                         key={idx}
                         className="group relative aspect-square rounded-xl border border-slate-800 overflow-hidden bg-slate-900 shadow-xs"
                       >
-                        <img src={url} alt={`Gallery ${idx}`} className="h-full w-full object-cover" />
+                        <img
+                          src={url}
+                          alt={`Gallery ${idx}`}
+                          className="h-full w-full object-cover"
+                        />
                         <button
                           type="button"
                           onClick={() => handleRemoveGalleryImage(idx)}
@@ -965,7 +1058,9 @@ export function ProductManageModal({
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Product HD Demo Video URL</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Product HD Demo Video URL
+                  </label>
                   <Input
                     value={videoUrl}
                     onChange={(e) => setVideoUrl(e.target.value)}
@@ -974,7 +1069,9 @@ export function ProductManageModal({
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300">Tech Specification Sheet / Size Chart PDF URL</label>
+                  <label className="text-xs font-bold text-slate-300">
+                    Tech Specification Sheet / Size Chart PDF URL
+                  </label>
                   <Input
                     value={techDocUrl}
                     onChange={(e) => setTechDocUrl(e.target.value)}

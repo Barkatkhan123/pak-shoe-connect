@@ -21,12 +21,13 @@ export class BankTransferGateway implements PaymentGateway {
       voucherCode: reference,
       rawResponse: {
         accountTitle: "Anamon Technologies B2B Escrow (Pvt) Ltd",
-        bankName: "Meezan Bank Ltd",
-        iban: "PK42MEZN0001092837461928",
-        accountNumber: "01092837461928",
-        branchCode: "0102 (Gulberg Lahore)",
+        bankName: "Allied Bank",
+        iban: "PK18ABPA0010102233200015",
+        accountNumber: "13700010102233200015",
+        branchCode: "Sher Shah",
         referenceCode: reference,
-        instructions: "Transfer wholesale amount and submit bank transaction receipt for admin escrow lock",
+        instructions:
+          "Transfer wholesale amount and submit bank transaction receipt for admin escrow lock",
       },
       expiresAt,
     };
@@ -44,13 +45,18 @@ export class BankTransferGateway implements PaymentGateway {
       paidAt: new Date(),
       rawResponse: {
         referenceCode: transactionId,
-        depositSlipUrl: payload?.depositSlipUrl || "https://shersha.pk/uploads/slips/bank-slip-9921.jpg",
+        depositSlipUrl:
+          payload?.depositSlipUrl || "https://shersha.pk/uploads/slips/bank-slip-9921.jpg",
         verifiedByAdmin: isVerified,
       },
     };
   }
 
-  async refundPayment(transactionId: string, amount?: number, reason?: string): Promise<RefundResult> {
+  async refundPayment(
+    transactionId: string,
+    amount?: number,
+    reason?: string,
+  ): Promise<RefundResult> {
     return {
       success: true,
       refundTransactionId: `BANK-REV-${Date.now()}`,
@@ -63,7 +69,11 @@ export class BankTransferGateway implements PaymentGateway {
     };
   }
 
-  verifyWebhookSignature(signature: string, payload: Record<string, any> | string, secret?: string): boolean {
+  verifyWebhookSignature(
+    signature: string,
+    payload: Record<string, any> | string,
+    secret?: string,
+  ): boolean {
     // MED-05: Bank slip uploads are verified via admin RBAC and manual audit logs.
     // This gateway does NOT receive HMAC-signed webhooks from a payment provider.
     // Returning false ensures no code path accidentally trusts an unsigned bank transfer callback.

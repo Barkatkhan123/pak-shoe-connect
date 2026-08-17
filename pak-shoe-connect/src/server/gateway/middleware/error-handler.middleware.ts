@@ -28,20 +28,44 @@ export interface GatewayError {
 /** Maps internal error types to safe client-facing messages */
 const ERROR_MAP: Record<string, { message: string; status: number; code: string }> = {
   // Prisma errors — never expose P-codes
-  PrismaClientKnownRequestError:   { message: "Unable to process your request.",     status: 400, code: "REQUEST_FAILED" },
-  PrismaClientValidationError:     { message: "Invalid data provided.",              status: 400, code: "VALIDATION_ERROR" },
-  PrismaClientUnknownRequestError: { message: "An unexpected error occurred.",       status: 500, code: "INTERNAL_ERROR" },
-  PrismaClientRustPanicError:      { message: "Service temporarily unavailable.",    status: 503, code: "SERVICE_UNAVAILABLE" },
+  PrismaClientKnownRequestError: {
+    message: "Unable to process your request.",
+    status: 400,
+    code: "REQUEST_FAILED",
+  },
+  PrismaClientValidationError: {
+    message: "Invalid data provided.",
+    status: 400,
+    code: "VALIDATION_ERROR",
+  },
+  PrismaClientUnknownRequestError: {
+    message: "An unexpected error occurred.",
+    status: 500,
+    code: "INTERNAL_ERROR",
+  },
+  PrismaClientRustPanicError: {
+    message: "Service temporarily unavailable.",
+    status: 503,
+    code: "SERVICE_UNAVAILABLE",
+  },
   // Zod validation
-  ZodError:                        { message: "Request validation failed.",          status: 422, code: "VALIDATION_ERROR" },
+  ZodError: { message: "Request validation failed.", status: 422, code: "VALIDATION_ERROR" },
   // Payment errors
-  PaymentVerificationError:        { message: "Payment could not be verified.",      status: 400, code: "PAYMENT_FAILED" },
-  EscrowTransitionError:           { message: "Order state could not be updated.",   status: 409, code: "STATE_ERROR" },
+  PaymentVerificationError: {
+    message: "Payment could not be verified.",
+    status: 400,
+    code: "PAYMENT_FAILED",
+  },
+  EscrowTransitionError: {
+    message: "Order state could not be updated.",
+    status: 409,
+    code: "STATE_ERROR",
+  },
   // Auth errors
-  JsonWebTokenError:               { message: "Authentication failed.",              status: 401, code: "AUTH_FAILED" },
-  TokenExpiredError:               { message: "Session has expired.",                status: 401, code: "SESSION_EXPIRED" },
+  JsonWebTokenError: { message: "Authentication failed.", status: 401, code: "AUTH_FAILED" },
+  TokenExpiredError: { message: "Session has expired.", status: 401, code: "SESSION_EXPIRED" },
   // Default
-  DEFAULT:                         { message: "An unexpected error occurred.",       status: 500, code: "INTERNAL_ERROR" },
+  DEFAULT: { message: "An unexpected error occurred.", status: 500, code: "INTERNAL_ERROR" },
 };
 
 /**
@@ -50,7 +74,7 @@ const ERROR_MAP: Record<string, { message: string; status: number; code: string 
  */
 export function normalizeError(
   error: unknown,
-  ctx: RequestContext
+  ctx: RequestContext,
 ): { status: number; body: GatewayError } {
   const err = error as any;
   if (err?.code === "P2025") {
@@ -69,21 +93,23 @@ export function normalizeError(
   const mapping = ERROR_MAP[name] || ERROR_MAP["DEFAULT"];
 
   // Log full error internally — NEVER send this to client
-  console.error(JSON.stringify({
-    event:         "GATEWAY_ERROR",
-    correlationId: ctx.correlationId,
-    path:          ctx.path,
-    method:        ctx.method,
-    userId:        ctx.userId,
-    errorType:     name,
-    // Prisma code if present (e.g. P2025) — internal only
-    errorCode:     err?.code,
-    // Message for engineers
-    internalMessage: err?.message,
-    // Truncated stack — internal only
-    stack:         err?.stack?.split("\n").slice(0, 5).join(" | "),
-    durationMs:    Date.now() - ctx.startedAt,
-  }));
+  console.error(
+    JSON.stringify({
+      event: "GATEWAY_ERROR",
+      correlationId: ctx.correlationId,
+      path: ctx.path,
+      method: ctx.method,
+      userId: ctx.userId,
+      errorType: name,
+      // Prisma code if present (e.g. P2025) — internal only
+      errorCode: err?.code,
+      // Message for engineers
+      internalMessage: err?.message,
+      // Truncated stack — internal only
+      stack: err?.stack?.split("\n").slice(0, 5).join(" | "),
+      durationMs: Date.now() - ctx.startedAt,
+    }),
+  );
 
   return {
     status: mapping.status,
@@ -99,7 +125,7 @@ export function normalizeError(
 /** Builds a standard 401 Unauthorized response */
 export function unauthorizedResponse(
   message: string,
-  correlationId: string
+  correlationId: string,
 ): { status: 401; body: GatewayError } {
   return {
     status: 401,
@@ -108,9 +134,7 @@ export function unauthorizedResponse(
 }
 
 /** Builds a standard 403 Forbidden response */
-export function forbiddenResponse(
-  correlationId: string
-): { status: 403; body: GatewayError } {
+export function forbiddenResponse(correlationId: string): { status: 403; body: GatewayError } {
   return {
     status: 403,
     body: { success: false, message: "Access denied.", code: "FORBIDDEN", correlationId },
@@ -120,7 +144,7 @@ export function forbiddenResponse(
 /** Builds a standard 429 Too Many Requests response */
 export function rateLimitResponse(
   correlationId: string,
-  resetAt: number
+  resetAt: number,
 ): { status: 429; body: GatewayError & { retryAfter: number } } {
   return {
     status: 429,
@@ -137,7 +161,7 @@ export function rateLimitResponse(
 /** Builds a standard 422 Validation Error response */
 export function validationErrorResponse(
   errors: string[],
-  correlationId: string
+  correlationId: string,
 ): { status: 422; body: GatewayError & { errors: string[] } } {
   return {
     status: 422,
@@ -152,9 +176,7 @@ export function validationErrorResponse(
 }
 
 /** Builds a standard 404 Not Found response */
-export function notFoundResponse(
-  correlationId: string
-): { status: 404; body: GatewayError } {
+export function notFoundResponse(correlationId: string): { status: 404; body: GatewayError } {
   return {
     status: 404,
     body: {

@@ -8,11 +8,7 @@ interface VariantSelectorProps {
   onSelectColor: (colorName: string, image?: string) => void;
 }
 
-export function VariantSelector({
-  colors,
-  selectedColor,
-  onSelectColor,
-}: VariantSelectorProps) {
+export function VariantSelector({ colors, selectedColor, onSelectColor }: VariantSelectorProps) {
   const active = colors.find((c) => c.name === selectedColor) || colors[0];
 
   return (

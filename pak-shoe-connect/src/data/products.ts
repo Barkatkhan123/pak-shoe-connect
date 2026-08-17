@@ -248,13 +248,14 @@ export const PRODUCTS: Product[] = [
     specifications: {
       "Upper Material": "Full-grain buffalo leather",
       "Sole Material": "Natural rubber",
-      "Closure": "Slip-on with ankle strap",
+      Closure: "Slip-on with ankle strap",
       "Toe Style": "Open toe",
-      "Weight": "~280g per pair",
-      "Origin": "Charsadda, KPK, Pakistan",
-      "Standard": "ISO 9001 QC",
+      Weight: "~280g per pair",
+      Origin: "Charsadda, KPK, Pakistan",
+      Standard: "ISO 9001 QC",
     },
-    shippingInfo: "Shipped in cartons of 12 pairs. Nationwide delivery 3–5 business days. TCS / Leopards / Tranzum freight available.",
+    shippingInfo:
+      "Shipped in cartons of 12 pairs. Nationwide delivery 3–5 business days. TCS / Leopards / Tranzum freight available.",
     reviews: [
       {
         id: "r1",
@@ -263,7 +264,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-03-12",
-        comment: "Excellent quality for wholesale orders. Been buying for 4 years. Consistent leather quality and on-time dispatch every time.",
+        comment:
+          "Excellent quality for wholesale orders. Been buying for 4 years. Consistent leather quality and on-time dispatch every time.",
         verified: true,
         helpful: 47,
       },
@@ -274,7 +276,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-02-28",
-        comment: "MOQ of 12 pairs is great for small retailers like us. Quality matches the price point perfectly. Will reorder.",
+        comment:
+          "MOQ of 12 pairs is great for small retailers like us. Quality matches the price point perfectly. Will reorder.",
         verified: true,
         helpful: 31,
       },
@@ -285,7 +288,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 4,
         date: "2026-01-15",
-        comment: "Authentic Charsadda quality. Customers love the natural leather smell. Lead time was 12 days as promised.",
+        comment:
+          "Authentic Charsadda quality. Customers love the natural leather smell. Lead time was 12 days as promised.",
         verified: true,
         helpful: 22,
       },
@@ -332,11 +336,11 @@ export const PRODUCTS: Product[] = [
     specifications: {
       "Upper Material": "Full-grain cow leather",
       "Sole Material": "Polyurethane (PU)",
-      "Closure": "Lace-up",
+      Closure: "Lace-up",
       "Toe Style": "Cap toe with brogue detailing",
       "Heel Height": "3 cm",
-      "Origin": "Lahore, Punjab, Pakistan",
-      "Standard": "ISO 9001 QC",
+      Origin: "Lahore, Punjab, Pakistan",
+      Standard: "ISO 9001 QC",
     },
     shippingInfo: "Shipped in cartons of 12 pairs. Nationwide TCS/Leopards delivery 3–5 days.",
     reviews: [
@@ -347,7 +351,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-04-01",
-        comment: "Ordered 300 pairs for a corporate client. Quality is impeccable and delivery was on time. Will definitely reorder.",
+        comment:
+          "Ordered 300 pairs for a corporate client. Quality is impeccable and delivery was on time. Will definitely reorder.",
         verified: true,
         helpful: 38,
       },
@@ -358,7 +363,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 4,
         date: "2026-03-18",
-        comment: "Good quality leather. The PU sole is very durable. Customers are happy with the look and feel.",
+        comment:
+          "Good quality leather. The PU sole is very durable. Customers are happy with the look and feel.",
         verified: true,
         helpful: 19,
       },
@@ -408,9 +414,9 @@ export const PRODUCTS: Product[] = [
     specifications: {
       "Upper Material": "Engineered knit mesh",
       "Sole Material": "EVA foam",
-      "Closure": "Lace-up",
-      "Weight": "~220g per pair",
-      "Origin": "Sialkot, Punjab, Pakistan",
+      Closure: "Lace-up",
+      Weight: "~220g per pair",
+      Origin: "Sialkot, Punjab, Pakistan",
     },
     shippingInfo: "Shipped in cartons of 12 pairs. Express delivery available.",
     reviews: [
@@ -421,7 +427,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-04-10",
-        comment: "Fast moving product! My customers love the white color. Reordered 3 times already this season.",
+        comment:
+          "Fast moving product! My customers love the white color. Reordered 3 times already this season.",
         verified: true,
         helpful: 54,
       },
@@ -462,12 +469,13 @@ export const PRODUCTS: Product[] = [
     productionCapacity: "8,000 pairs/month",
     customization: ["Custom branding", "Sole color", "Embossed logo"],
     inStock: true,
-    description: "Slip-on loafer with soft suede upper and moc-toe stitching. Comfortable all-day wear. Trending in urban markets.",
+    description:
+      "Slip-on loafer with soft suede upper and moc-toe stitching. Comfortable all-day wear. Trending in urban markets.",
     specifications: {
       "Upper Material": "Cow suede",
       "Sole Material": "TPR",
-      "Closure": "Slip-on",
-      "Origin": "Lahore, Pakistan",
+      Closure: "Slip-on",
+      Origin: "Lahore, Pakistan",
     },
     shippingInfo: "Cartons of 12. Nationwide delivery.",
     reviews: [
@@ -478,7 +486,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 4,
         date: "2026-03-05",
-        comment: "Good quality suede. The navy color is very popular with my customers. Packaging is neat.",
+        comment:
+          "Good quality suede. The navy color is very popular with my customers. Packaging is neat.",
         verified: true,
         helpful: 15,
       },
@@ -519,13 +528,14 @@ export const PRODUCTS: Product[] = [
     customization: ["Custom heel height", "Brand embossing", "Color matching", "Premium packaging"],
     inStock: true,
     newArrival: true,
-    description: "Premium chelsea boot crafted from full-grain leather. Elastic side gussets for easy on/off. Year-round seller in cold northern regions and corporate gifting orders.",
+    description:
+      "Premium chelsea boot crafted from full-grain leather. Elastic side gussets for easy on/off. Year-round seller in cold northern regions and corporate gifting orders.",
     specifications: {
       "Upper Material": "Full-grain cow leather",
       "Sole Material": "Crepe rubber",
       "Heel Height": "4 cm",
       "Boot Height": "22 cm",
-      "Origin": "Lahore, Pakistan",
+      Origin: "Lahore, Pakistan",
     },
     shippingInfo: "Cartons of 12 pairs. Handled freight for bulk orders.",
     reviews: [],
@@ -565,12 +575,13 @@ export const PRODUCTS: Product[] = [
     customization: ["Custom branding", "Custom colors"],
     inStock: true,
     bestseller: true,
-    description: "Comfortable everyday leather sandal with adjustable strap. Perfect for summer retail season. Consistent reorder product across Karachi and Lahore retailers.",
+    description:
+      "Comfortable everyday leather sandal with adjustable strap. Perfect for summer retail season. Consistent reorder product across Karachi and Lahore retailers.",
     specifications: {
       "Upper Material": "Genuine leather",
       "Sole Material": "PU",
-      "Closure": "Buckle strap",
-      "Origin": "Karachi, Pakistan",
+      Closure: "Buckle strap",
+      Origin: "Karachi, Pakistan",
     },
     shippingInfo: "Cartons of 12. Nationwide freight.",
     reviews: [
@@ -581,7 +592,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-04-15",
-        comment: "Summer bestseller for us. Tan color moves fastest. Quality is very consistent batch after batch.",
+        comment:
+          "Summer bestseller for us. Tan color moves fastest. Quality is very consistent batch after batch.",
         verified: true,
         helpful: 33,
       },
@@ -625,12 +637,13 @@ export const PRODUCTS: Product[] = [
     inStock: true,
     featured: true,
     bestseller: true,
-    description: "Traditional Multani khussa with tilla hand embroidery. Cushioned footbed. Wedding-season bestseller. Ships to boutiques and wedding stores across Pakistan.",
+    description:
+      "Traditional Multani khussa with tilla hand embroidery. Cushioned footbed. Wedding-season bestseller. Ships to boutiques and wedding stores across Pakistan.",
     specifications: {
       "Upper Material": "Velvet with hand tilla embroidery",
       "Sole Material": "Genuine leather",
-      "Closure": "Slip-on",
-      "Origin": "Multan, Punjab, Pakistan",
+      Closure: "Slip-on",
+      Origin: "Multan, Punjab, Pakistan",
     },
     shippingInfo: "Cartons of 12 pairs. Wedding season orders prioritized.",
     reviews: [
@@ -641,7 +654,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-04-05",
-        comment: "Our khussa line launched with these and they sold out in 2 weeks! The embroidery quality is stunning.",
+        comment:
+          "Our khussa line launched with these and they sold out in 2 weeks! The embroidery quality is stunning.",
         verified: true,
         helpful: 62,
       },
@@ -652,7 +666,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-03-20",
-        comment: "Perfect for bridal collections. Maroon and gold colors are the most popular. Fast delivery too.",
+        comment:
+          "Perfect for bridal collections. Maroon and gold colors are the most popular. Fast delivery too.",
         verified: true,
         helpful: 41,
       },
@@ -670,7 +685,7 @@ export const PRODUCTS: Product[] = [
     gender: "women",
     image: catHeels,
     images: [catHeels, catKhussa, catHeels],
-    material: "PU leather · TPR sole · 2.5\" heel",
+    material: 'PU leather · TPR sole · 2.5" heel',
     soleType: "TPR",
     colorVariants: [
       { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 2800 },
@@ -695,12 +710,13 @@ export const PRODUCTS: Product[] = [
     customization: ["Custom heel height", "Custom color", "Branded insole"],
     inStock: true,
     trending: true,
-    description: "Comfortable block heel for formal and evening wear. Padded insole and non-slip TPR sole. Popular with women's fashion boutiques and party wear stores.",
+    description:
+      "Comfortable block heel for formal and evening wear. Padded insole and non-slip TPR sole. Popular with women's fashion boutiques and party wear stores.",
     specifications: {
       "Upper Material": "PU leather",
       "Sole Material": "TPR",
       "Heel Height": "6.5 cm block",
-      "Origin": "Lahore, Pakistan",
+      Origin: "Lahore, Pakistan",
     },
     shippingInfo: "Cartons of 12 pairs. Delicate packaging with tissue paper.",
     reviews: [
@@ -711,7 +727,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 4,
         date: "2026-04-08",
-        comment: "Good block heel quality. Nude and black are our top sellers. Comfortable enough for evening wear.",
+        comment:
+          "Good block heel quality. Nude and black are our top sellers. Comfortable enough for evening wear.",
         verified: true,
         helpful: 28,
       },
@@ -753,12 +770,13 @@ export const PRODUCTS: Product[] = [
     customization: ["Custom colors", "Branded strap"],
     inStock: true,
     trending: true,
-    description: "Lightweight flat sandal with cushioned footbed. High-volume summer product. Excellent for street markets, online sellers, and fashion retail chains.",
+    description:
+      "Lightweight flat sandal with cushioned footbed. High-volume summer product. Excellent for street markets, online sellers, and fashion retail chains.",
     specifications: {
       "Upper Material": "PU",
       "Sole Material": "TPR",
-      "Closure": "Slip-on",
-      "Origin": "Lahore, Pakistan",
+      Closure: "Slip-on",
+      Origin: "Lahore, Pakistan",
     },
     shippingInfo: "Cartons of 12. Nationwide.",
     reviews: [
@@ -769,7 +787,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-03-28",
-        comment: "Best value for money in women's sandals. All 4 colors sell equally well. Will reorder 1000 pairs.",
+        comment:
+          "Best value for money in women's sandals. All 4 colors sell equally well. Will reorder 1000 pairs.",
         verified: true,
         helpful: 44,
       },
@@ -789,9 +808,7 @@ export const PRODUCTS: Product[] = [
     images: [catKids, catKids, catFormal],
     material: "Synthetic leather · PU sole",
     soleType: "PU",
-    colorVariants: [
-      { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 6800 },
-    ],
+    colorVariants: [{ name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 6800 }],
     colors: ["Black"],
     sizes: ["6", "7", "8", "9", "10", "11", "12"],
     moq: 12,
@@ -808,13 +825,14 @@ export const PRODUCTS: Product[] = [
     customization: ["School logo emboss", "Custom size range", "Institutional bulk pricing"],
     inStock: true,
     bestseller: true,
-    description: "Durable school shoe with reinforced toe cap and easy-clean upper. Back-to-school volume favorite. Institutional pricing for schools and government supply contracts.",
+    description:
+      "Durable school shoe with reinforced toe cap and easy-clean upper. Back-to-school volume favorite. Institutional pricing for schools and government supply contracts.",
     specifications: {
       "Upper Material": "Synthetic leather",
       "Sole Material": "PU",
-      "Closure": "Lace-up with reinforced eyelets",
-      "Toe": "Reinforced toe cap",
-      "Origin": "Sialkot, Pakistan",
+      Closure: "Lace-up with reinforced eyelets",
+      Toe: "Reinforced toe cap",
+      Origin: "Sialkot, Pakistan",
     },
     shippingInfo: "Cartons of 12 pairs. Bulk container packing available.",
     reviews: [
@@ -825,7 +843,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-02-10",
-        comment: "Supply to 12 schools in our area. Quality is consistent every batch. Institutional pricing is very competitive.",
+        comment:
+          "Supply to 12 schools in our area. Quality is consistent every batch. Institutional pricing is very competitive.",
         verified: true,
         helpful: 35,
       },
@@ -867,12 +886,13 @@ export const PRODUCTS: Product[] = [
     customization: ["Bow decorations", "Color customization", "School logo"],
     inStock: true,
     newArrival: true,
-    description: "Classic mary-jane with elastic strap. Comfortable for all-day school wear. Pink color is the fastest-moving SKU in girls' category.",
+    description:
+      "Classic mary-jane with elastic strap. Comfortable for all-day school wear. Pink color is the fastest-moving SKU in girls' category.",
     specifications: {
       "Upper Material": "PU leather",
       "Sole Material": "TPR",
-      "Closure": "Elastic strap with buckle",
-      "Origin": "Lahore, Pakistan",
+      Closure: "Elastic strap with buckle",
+      Origin: "Lahore, Pakistan",
     },
     shippingInfo: "Cartons of 12 pairs.",
     reviews: [],
@@ -910,13 +930,14 @@ export const PRODUCTS: Product[] = [
     productionCapacity: "4,000 pairs/month",
     customization: ["Custom safety rating", "Company logo", "Custom color"],
     inStock: true,
-    description: "ANSI-compliant steel toe safety boot. Anti-slip, oil-resistant sole. Popular with factories, construction companies, and industrial buyers across Pakistan.",
+    description:
+      "ANSI-compliant steel toe safety boot. Anti-slip, oil-resistant sole. Popular with factories, construction companies, and industrial buyers across Pakistan.",
     specifications: {
       "Upper Material": "Nubuck leather",
       "Sole Material": "Anti-slip rubber",
       "Toe Protection": "200J steel toe cap",
-      "Standard": "EN ISO 20345",
-      "Origin": "Sialkot, Pakistan",
+      Standard: "EN ISO 20345",
+      Origin: "Sialkot, Pakistan",
     },
     shippingInfo: "Cartons of 12 pairs. Industrial freight available.",
     reviews: [
@@ -927,7 +948,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-01-20",
-        comment: "Procured 500 pairs for our factory workers. Quality exceeds expectation. Steel toe is solid and the rubber sole is anti-slip as claimed.",
+        comment:
+          "Procured 500 pairs for our factory workers. Quality exceeds expectation. Steel toe is solid and the rubber sole is anti-slip as claimed.",
         verified: true,
         helpful: 42,
       },
@@ -970,13 +992,14 @@ export const PRODUCTS: Product[] = [
     inStock: true,
     trending: true,
     newArrival: true,
-    description: "High-performance running shoe with Phylon midsole cushioning. Breathable mesh upper and durable rubber outsole. Popular with sports equipment retailers and gym chains.",
+    description:
+      "High-performance running shoe with Phylon midsole cushioning. Breathable mesh upper and durable rubber outsole. Popular with sports equipment retailers and gym chains.",
     specifications: {
       "Upper Material": "Breathable mesh",
-      "Midsole": "Phylon foam",
-      "Outsole": "Carbon rubber",
-      "Weight": "~280g per pair",
-      "Origin": "Sialkot, Pakistan",
+      Midsole: "Phylon foam",
+      Outsole: "Carbon rubber",
+      Weight: "~280g per pair",
+      Origin: "Sialkot, Pakistan",
     },
     shippingInfo: "Cartons of 12 pairs. Express delivery available.",
     reviews: [
@@ -987,7 +1010,8 @@ export const PRODUCTS: Product[] = [
         country: "Pakistan",
         rating: 5,
         date: "2026-04-02",
-        comment: "Great quality at wholesale prices. Blue/White is our best seller for cricket season. Very good feedback from our customers.",
+        comment:
+          "Great quality at wholesale prices. Blue/White is our best seller for cricket season. Very good feedback from our customers.",
         verified: true,
         helpful: 29,
       },
@@ -998,13 +1022,16 @@ export const PRODUCTS: Product[] = [
 
 export const getProduct = (slug: string) => PRODUCTS.find((p) => p.slug === slug);
 export const relatedProducts = (p: Product, n = 4) =>
-  PRODUCTS.filter((x) => x.slug !== p.slug && (x.gender === p.gender || x.categorySlug === p.categorySlug)).slice(0, n);
+  PRODUCTS.filter(
+    (x) => x.slug !== p.slug && (x.gender === p.gender || x.categorySlug === p.categorySlug),
+  ).slice(0, n);
 export const featuredProducts = PRODUCTS.filter((p) => p.featured);
 export const bestSellers = PRODUCTS.filter((p) => p.bestseller);
 export const trendingProducts = PRODUCTS.filter((p) => p.trending);
 export const newArrivals = PRODUCTS.filter((p) => p.newArrival);
 export const getCategory = (slug: string) => CATEGORIES.find((c) => c.slug === slug);
-export const getProductsByCategory = (slug: string) => PRODUCTS.filter((p) => p.categorySlug === slug);
+export const getProductsByCategory = (slug: string) =>
+  PRODUCTS.filter((p) => p.categorySlug === slug);
 
 // Backward compatibility
 export const CATEGORIES_COMPAT = CATEGORIES;

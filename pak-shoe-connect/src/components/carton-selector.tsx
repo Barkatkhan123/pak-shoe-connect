@@ -59,7 +59,10 @@ export function CartonSelector({
       {/* MOQ Note */}
       <div className="rounded-lg bg-primary/5 border border-primary/15 p-2.5 text-xs text-primary font-medium flex items-center gap-2">
         <Package className="h-4 w-4 shrink-0" />
-        <span>Each carton contains 12 pairs of a single color. Order quantity must be in multiples of 12.</span>
+        <span>
+          Each carton contains 12 pairs of a single color. Order quantity must be in multiples of
+          12.
+        </span>
       </div>
 
       {/* Stepper controls */}
@@ -74,7 +77,9 @@ export function CartonSelector({
 
         <div className="flex-1 rounded-lg border border-border bg-background py-2 text-center">
           <span className="font-mono text-xl font-bold text-foreground">{cartonCount}</span>
-          <span className="text-xs text-muted-foreground ml-2">carton{cartonCount > 1 ? "s" : ""} (@ 12 pairs/ctn)</span>
+          <span className="text-xs text-muted-foreground ml-2">
+            carton{cartonCount > 1 ? "s" : ""} (@ 12 pairs/ctn)
+          </span>
         </div>
 
         <button
@@ -108,7 +113,9 @@ export function CartonSelector({
       <div className="rounded-lg bg-muted/40 p-3 space-y-1.5 text-xs">
         <div className="flex justify-between">
           <span className="text-muted-foreground">Unit Wholesale Rate:</span>
-          <span className="font-bold font-mono text-foreground">PKR {unitPrice.toLocaleString()} / pair</span>
+          <span className="font-bold font-mono text-foreground">
+            PKR {unitPrice.toLocaleString()} / pair
+          </span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Subtotal ({totalPairs} pairs):</span>

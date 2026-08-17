@@ -16,7 +16,7 @@ async function runSimulation() {
 
   // ── Step 1: Wholesale Price Evaluation ──
   console.log("📊 [STEP 1] Buyer evaluates wholesale bulk pricing for 500 pairs...");
-  
+
   // Create sample in-memory product data for testing simulation
   const dummyProduct = {
     id: "prod-sim-001",
@@ -26,10 +26,38 @@ async function runSimulation() {
     moq: 24,
     cartonQty: 24,
     bulkPriceTiers: [
-      { id: "t1", productId: "prod-sim-001", minQty: 24, maxQty: 49, unitPrice: 1850.0, tierLabel: "Starter Wholesale" },
-      { id: "t2", productId: "prod-sim-001", minQty: 50, maxQty: 199, unitPrice: 1650.0, tierLabel: "Dealer Batch" },
-      { id: "t3", productId: "prod-sim-001", minQty: 200, maxQty: 499, unitPrice: 1450.0, tierLabel: "Wholesale Master" },
-      { id: "t4", productId: "prod-sim-001", minQty: 500, maxQty: null, unitPrice: 1299.0, tierLabel: "Container Bulk" },
+      {
+        id: "t1",
+        productId: "prod-sim-001",
+        minQty: 24,
+        maxQty: 49,
+        unitPrice: 1850.0,
+        tierLabel: "Starter Wholesale",
+      },
+      {
+        id: "t2",
+        productId: "prod-sim-001",
+        minQty: 50,
+        maxQty: 199,
+        unitPrice: 1650.0,
+        tierLabel: "Dealer Batch",
+      },
+      {
+        id: "t3",
+        productId: "prod-sim-001",
+        minQty: 200,
+        maxQty: 499,
+        unitPrice: 1450.0,
+        tierLabel: "Wholesale Master",
+      },
+      {
+        id: "t4",
+        productId: "prod-sim-001",
+        minQty: 500,
+        maxQty: null,
+        unitPrice: 1299.0,
+        tierLabel: "Container Bulk",
+      },
     ],
   };
 
@@ -45,10 +73,16 @@ async function runSimulation() {
 
   console.log(`  ✓ Active Tier: ${pricing.activeTier.tierLabel}`);
   console.log(`  ✓ Unit Wholesale Price: PKR ${pricing.unitPrice.toLocaleString()}`);
-  console.log(`  ✓ Ordered Quantity: ${pricing.orderedPairs} pairs (${pricing.cartonsCount} Master Cartons)`);
+  console.log(
+    `  ✓ Ordered Quantity: ${pricing.orderedPairs} pairs (${pricing.cartonsCount} Master Cartons)`,
+  );
   console.log(`  ✓ Subtotal: PKR ${pricing.subtotal.toLocaleString()}`);
-  console.log(`  ✓ Estimated Freight to ${pricing.logistics.destinationCity}: PKR ${pricing.logistics.totalEstimatedFreight.toLocaleString()}`);
-  console.log(`  ✓ Estimated Retail Margin: ${pricing.retailComparison.retailProfitMarginPercentage}% (Buyer saves PKR ${pricing.retailComparison.totalBuyerSavings.toLocaleString()})`);
+  console.log(
+    `  ✓ Estimated Freight to ${pricing.logistics.destinationCity}: PKR ${pricing.logistics.totalEstimatedFreight.toLocaleString()}`,
+  );
+  console.log(
+    `  ✓ Estimated Retail Margin: ${pricing.retailComparison.retailProfitMarginPercentage}% (Buyer saves PKR ${pricing.retailComparison.totalBuyerSavings.toLocaleString()})`,
+  );
 
   // ── Step 2: Buyer submits an RFQ ──
   console.log("\n📝 [STEP 2] Buyer submits Request for Quotation (RFQ) with Custom Branding...");
@@ -59,24 +93,26 @@ async function runSimulation() {
   const originalAuditCreate = prisma.auditLog.create;
   prisma.auditLog.create = async () => ({}) as any;
 
-  prisma.rfq.create = async (args: any) => ({
-    id: "rfq-sim-8812",
-    rfqNumber: "RFQ-PK-2026-8812",
-    buyerId,
-    status: "SUBMITTED",
-    targetQuantity: args.data.targetQuantity,
-    customBranding: args.data.customBranding,
-    notes: args.data.notes,
-    createdAt: new Date(),
-    expiresAt: new Date(Date.now() + 7 * 86400000),
-    items: args.data.items.create,
-  }) as any;
+  prisma.rfq.create = async (args: any) =>
+    ({
+      id: "rfq-sim-8812",
+      rfqNumber: "RFQ-PK-2026-8812",
+      buyerId,
+      status: "SUBMITTED",
+      targetQuantity: args.data.targetQuantity,
+      customBranding: args.data.customBranding,
+      notes: args.data.notes,
+      createdAt: new Date(),
+      expiresAt: new Date(Date.now() + 7 * 86400000),
+      items: args.data.items.create,
+    }) as any;
 
   const rfq = await RfqService.createRfq({
     buyerId,
     targetQuantity: 3000,
     customBranding: true,
-    notes: "Requires custom embossed gold-foil branding on heel pad and luxury master carton packaging.",
+    notes:
+      "Requires custom embossed gold-foil branding on heel pad and luxury master carton packaging.",
     items: [
       {
         productId,
@@ -94,20 +130,22 @@ async function runSimulation() {
 
   // ── Step 3: Supplier submits formal quotation ──
   console.log("\n🏭 [STEP 3] Sialkot Master Footwear Factory reviews RFQ & submits quotation...");
-  
-  prisma.rfq.findUnique = async () => ({
-    id: "rfq-sim-8812",
-    buyerId,
-    status: "SUBMITTED",
-  }) as any;
 
-  prisma.rfq.update = async (args: any) => ({
-    id: "rfq-sim-8812",
-    rfqNumber: "RFQ-PK-2026-8812",
-    status: args.data.status,
-    quotedUnitPrice: args.data.quotedUnitPrice,
-    quotedLeadTime: args.data.quotedLeadTime,
-  }) as any;
+  prisma.rfq.findUnique = async () =>
+    ({
+      id: "rfq-sim-8812",
+      buyerId,
+      status: "SUBMITTED",
+    }) as any;
+
+  prisma.rfq.update = async (args: any) =>
+    ({
+      id: "rfq-sim-8812",
+      rfqNumber: "RFQ-PK-2026-8812",
+      status: args.data.status,
+      quotedUnitPrice: args.data.quotedUnitPrice,
+      quotedLeadTime: args.data.quotedLeadTime,
+    }) as any;
 
   const quotedRfq = await RfqService.submitSupplierQuote({
     rfqId: "rfq-sim-8812",
@@ -122,18 +160,19 @@ async function runSimulation() {
 
   // ── Step 4: Buyer accepts quotation ──
   console.log("\n🤝 [STEP 4] Buyer accepts the formal quote...");
-  prisma.rfq.findUnique = async () => ({
-    id: "rfq-sim-8812",
-    buyerId,
-    status: "SUPPLIER_QUOTED",
-  }) as any;
+  prisma.rfq.findUnique = async () =>
+    ({
+      id: "rfq-sim-8812",
+      buyerId,
+      status: "SUPPLIER_QUOTED",
+    }) as any;
 
   const acceptedRfq = await RfqService.acceptQuote("rfq-sim-8812", buyerId);
   console.log(`  ✓ Status Transitioned: SUPPLIER_QUOTED ➔ ${acceptedRfq.status}`);
 
   // ── Step 5: Order Creation & 3-State Stock Reservation ──
   console.log("\n🔒 [STEP 5] Order Created & 3-State Inventory Reservation Lock Triggered...");
-  
+
   let variantState = {
     sku: "SHR-PSH-001-BLK-42",
     availableStock: 1000,
@@ -141,7 +180,9 @@ async function runSimulation() {
     soldStock: 0,
   };
 
-  console.log(`  Initial SKU State (${variantState.sku}): Available = ${variantState.availableStock}, Reserved = ${variantState.reservedStock}, Sold = ${variantState.soldStock}`);
+  console.log(
+    `  Initial SKU State (${variantState.sku}): Available = ${variantState.availableStock}, Reserved = ${variantState.reservedStock}, Sold = ${variantState.soldStock}`,
+  );
 
   prisma.$transaction = async (cb: any) => {
     const txMock = {
@@ -199,13 +240,21 @@ async function runSimulation() {
   });
 
   console.log(`  ✓ Generated Order Number: ${order.orderNumber}`);
-  console.log(`  ✓ Total Order Amount (Inc. Karachi Freight): PKR ${order.totalAmount.toLocaleString()}`);
-  console.log(`  ✓ 60-Minute Stock Lock Active until: ${order.reservationExpiresAt.toLocaleTimeString()}`);
-  console.log(`  ✓ SKU State Post-Order (${variantState.sku}): Available = ${variantState.availableStock}, Reserved = ${variantState.reservedStock}, Sold = ${variantState.soldStock}`);
+  console.log(
+    `  ✓ Total Order Amount (Inc. Karachi Freight): PKR ${order.totalAmount.toLocaleString()}`,
+  );
+  console.log(
+    `  ✓ 60-Minute Stock Lock Active until: ${order.reservationExpiresAt.toLocaleTimeString()}`,
+  );
+  console.log(
+    `  ✓ SKU State Post-Order (${variantState.sku}): Available = ${variantState.availableStock}, Reserved = ${variantState.reservedStock}, Sold = ${variantState.soldStock}`,
+  );
 
   // ── Step 6: Escrow Payment & Final Stock Conversion ──
-  console.log("\n💰 [STEP 6] Buyer pays via 1Link PayFast -> Escrow Ledger Funded & Stock Marked SOLD...");
-  
+  console.log(
+    "\n💰 [STEP 6] Buyer pays via 1Link PayFast -> Escrow Ledger Funded & Stock Marked SOLD...",
+  );
+
   prisma.$transaction = async (cb: any) => {
     const txMock = {
       order: {
@@ -264,7 +313,9 @@ async function runSimulation() {
 
   console.log(`  ✓ Order Status: ${escrowOrder.status}`);
   console.log(`  ✓ Escrow State: ${escrowOrder.escrowStatus}`);
-  console.log(`  ✓ Final SKU State (${variantState.sku}): Available = ${variantState.availableStock}, Reserved = ${variantState.reservedStock}, Sold = ${variantState.soldStock}`);
+  console.log(
+    `  ✓ Final SKU State (${variantState.sku}): Available = ${variantState.availableStock}, Reserved = ${variantState.reservedStock}, Sold = ${variantState.soldStock}`,
+  );
 
   console.log("\n=======================================================");
   console.log("🎉  ALL END-TO-END BUSINESS FLOW CHECKS PASSED 100%!  🎉");

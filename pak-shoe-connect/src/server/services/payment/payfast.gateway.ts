@@ -76,7 +76,11 @@ export class PayFastGateway implements PaymentGateway {
     };
   }
 
-  async refundPayment(transactionId: string, amount?: number, reason?: string): Promise<RefundResult> {
+  async refundPayment(
+    transactionId: string,
+    amount?: number,
+    reason?: string,
+  ): Promise<RefundResult> {
     const refundTxId = `PF-REF-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     return {
       success: true,
@@ -92,17 +96,18 @@ export class PayFastGateway implements PaymentGateway {
     };
   }
 
-  verifyWebhookSignature(signature: string, payload: Record<string, any> | string, secret?: string): boolean {
+  verifyWebhookSignature(
+    signature: string,
+    payload: Record<string, any> | string,
+    secret?: string,
+  ): boolean {
     const key = secret || this.securedKey;
     const bodyStr = typeof payload === "string" ? payload : JSON.stringify(payload);
     const expected = crypto.createHmac("sha256", key).update(bodyStr).digest("hex");
 
     // MED-01: Timing-safe comparison
     try {
-      return crypto.timingSafeEqual(
-        Buffer.from(signature, "hex"),
-        Buffer.from(expected, "hex")
-      );
+      return crypto.timingSafeEqual(Buffer.from(signature, "hex"), Buffer.from(expected, "hex"));
     } catch {
       return false;
     }

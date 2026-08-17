@@ -40,18 +40,21 @@ export class PaymentIntentService {
     }
   }
 
-  private static mapIntentFromDb(row: {
-    id: string;
-    orderId: string;
-    provider: SupportedPaymentProvider;
-    providerTxId: string | null;
-    amount: { toNumber?: () => number } | number;
-    currency: string;
-    status: PaymentStatus;
-    rawResponse: unknown;
-    createdAt: Date;
-    updatedAt: Date;
-  }, orderNumber: string): PaymentIntent {
+  private static mapIntentFromDb(
+    row: {
+      id: string;
+      orderId: string;
+      provider: SupportedPaymentProvider;
+      providerTxId: string | null;
+      amount: { toNumber?: () => number } | number;
+      currency: string;
+      status: PaymentStatus;
+      rawResponse: unknown;
+      createdAt: Date;
+      updatedAt: Date;
+    },
+    orderNumber: string,
+  ): PaymentIntent {
     const raw = (row.rawResponse || {}) as Record<string, unknown>;
     return {
       id: row.id,
@@ -156,7 +159,10 @@ export class PaymentIntentService {
     return this.mapIntentFromDb(row as any, orderNumber);
   }
 
-  static async updateStatus(intentId: string, status: PaymentIntent["status"]): Promise<PaymentIntent> {
+  static async updateStatus(
+    intentId: string,
+    status: PaymentIntent["status"],
+  ): Promise<PaymentIntent> {
     if (this._testStore.has(intentId)) {
       const intent = this._testStore.get(intentId);
       if (!intent) {

@@ -45,7 +45,15 @@ describe("Production Release Verification Flows", () => {
   });
 
   it("Flow 7 & 8: Essential routes are defined and properly structured", () => {
-    const essentialRoutes = ["/", "/products", "/checkout", "/auth", "/contact", "/about", "/bulk-order"];
+    const essentialRoutes = [
+      "/",
+      "/products",
+      "/checkout",
+      "/auth",
+      "/contact",
+      "/about",
+      "/bulk-order",
+    ];
     expect(essentialRoutes.length).toBe(7);
     essentialRoutes.forEach((route) => {
       expect(route.startsWith("/")).toBe(true);

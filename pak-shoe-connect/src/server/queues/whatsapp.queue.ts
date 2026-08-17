@@ -5,17 +5,22 @@ const isVercel = !!process.env.VERCEL;
 
 // Safe Redis connection initializer (gracefully falls back if Redis is not locally active in dev/test)
 // On Vercel serverless, skip entirely — TCP sockets are not viable
-export const redisConnection = isVercel ? null : new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
-  maxRetriesPerRequest: null,
-  lazyConnect: true,
-  enableOfflineQueue: true,
-  retryStrategy(times) {
-    if (process.env.NODE_ENV === "test" || (!process.env.REDIS_URL && process.env.NODE_ENV !== "production")) {
-      return null; // Stop retrying in tests/dev when Redis is offline
-    }
-    return Math.min(times * 50, 2000);
-  },
-});
+export const redisConnection = isVercel
+  ? null
+  : new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
+      maxRetriesPerRequest: null,
+      lazyConnect: true,
+      enableOfflineQueue: true,
+      retryStrategy(times) {
+        if (
+          process.env.NODE_ENV === "test" ||
+          (!process.env.REDIS_URL && process.env.NODE_ENV !== "production")
+        ) {
+          return null; // Stop retrying in tests/dev when Redis is offline
+        }
+        return Math.min(times * 50, 2000);
+      },
+    });
 
 if (redisConnection) {
   redisConnection.on("error", () => {
@@ -44,18 +49,21 @@ export interface WhatsAppJobData {
 }
 
 // On Vercel, BullMQ queue is not created — background workers run on a separate host
-export const whatsappQueue = (isVercel || !redisConnection) ? null : new Queue<WhatsAppJobData>("whatsapp-notifications", {
-  connection: redisConnection,
-  defaultJobOptions: {
-    attempts: 3,
-    backoff: {
-      type: "exponential",
-      delay: 5000,
-    },
-    removeOnComplete: 100,
-    removeOnFail: 500,
-  },
-});
+export const whatsappQueue =
+  isVercel || !redisConnection
+    ? null
+    : new Queue<WhatsAppJobData>("whatsapp-notifications", {
+        connection: redisConnection,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: {
+            type: "exponential",
+            delay: 5000,
+          },
+          removeOnComplete: 100,
+          removeOnFail: 500,
+        },
+      });
 
 /**
  * Helper to dispatch WhatsApp job into background queue with fail-safe logging.
@@ -64,17 +72,22 @@ export const whatsappQueue = (isVercel || !redisConnection) ? null : new Queue<W
 export async function enqueueWhatsAppNotification(data: WhatsAppJobData) {
   try {
     if (isVercel || process.env.NODE_ENV === "test") {
-      console.log(`ℹ️ [WhatsApp ${isVercel ? "Serverless" : "Sim Dev"}] To: ${data.recipientPhone} | Template: ${data.templateType}`);
+      console.log(
+        `ℹ️ [WhatsApp ${isVercel ? "Serverless" : "Sim Dev"}] To: ${data.recipientPhone} | Template: ${data.templateType}`,
+      );
       return;
     }
     await whatsappQueue!.add(data.templateType, data);
-    console.log(`📨 [WhatsApp Queue] Job enqueued for ${data.recipientPhone} (${data.templateType})`);
+    console.log(
+      `📨 [WhatsApp Queue] Job enqueued for ${data.recipientPhone} (${data.templateType})`,
+    );
   } catch (error) {
     if (process.env.NODE_ENV === "production") {
       console.error("🔴 Failed to enqueue WhatsApp job:", error);
       throw error;
     }
-    console.log(`ℹ️ [WhatsApp Sim Dev] To: ${data.recipientPhone} | Template: ${data.templateType}`);
+    console.log(
+      `ℹ️ [WhatsApp Sim Dev] To: ${data.recipientPhone} | Template: ${data.templateType}`,
+    );
   }
 }
-

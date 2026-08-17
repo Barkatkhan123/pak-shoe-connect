@@ -25,8 +25,13 @@ export interface RequestContext {
   method: string;
 }
 
-export function createRequestContext(path: string, method: string, headers: Record<string, string> = {}): RequestContext {
-  const correlationId = headers["x-correlation-id"] || headers["X-Correlation-Id"] || generateCorrelationId();
+export function createRequestContext(
+  path: string,
+  method: string,
+  headers: Record<string, string> = {},
+): RequestContext {
+  const correlationId =
+    headers["x-correlation-id"] || headers["X-Correlation-Id"] || generateCorrelationId();
   return {
     correlationId,
     startedAt: Date.now(),

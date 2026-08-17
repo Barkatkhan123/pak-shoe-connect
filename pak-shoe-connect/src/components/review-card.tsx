@@ -13,15 +13,15 @@ export function ReviewCard({ review }: Props) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPreviewImage(null);
+      if (e.key === "Escape") setPreviewImage(null);
     };
-    if (previewImage) window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    if (previewImage) window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [previewImage]);
 
   const handleVote = () => {
     if (voted) return;
-    setHelpful(h => h + 1);
+    setHelpful((h) => h + 1);
     setVoted(true);
   };
 
@@ -32,7 +32,10 @@ export function ReviewCard({ review }: Props) {
           <div className="flex items-center gap-1.5">
             <span className="font-semibold text-foreground">{review.reviewer}</span>
             {review.verified && (
-              <span className="flex items-center gap-1 rounded-full bg-emerald-deep/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-deep" title="Verified Wholesale Buyer">
+              <span
+                className="flex items-center gap-1 rounded-full bg-emerald-deep/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-deep"
+                title="Verified Wholesale Buyer"
+              >
                 <ShieldCheck className="h-3 w-3" />
                 Verified
               </span>
@@ -52,26 +55,28 @@ export function ReviewCard({ review }: Props) {
             ))}
           </div>
           <div className="mt-1 text-[10px] text-muted-foreground">
-            {new Date(review.date).toLocaleDateString("en-PK", { year: 'numeric', month: 'short', day: 'numeric' })}
+            {new Date(review.date).toLocaleDateString("en-PK", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })}
           </div>
         </div>
       </div>
 
-      <p className="mt-4 text-sm text-foreground/90 leading-relaxed">
-        "{review.comment}"
-      </p>
+      <p className="mt-4 text-sm text-foreground/90 leading-relaxed">"{review.comment}"</p>
 
       {(review as any).images && (review as any).images.length > 0 && (
         <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
           {(review as any).images.map((img: string, i: number) => (
-            <button 
-              key={i} 
-              onClick={() => setPreviewImage(img)} 
+            <button
+              key={i}
+              onClick={() => setPreviewImage(img)}
               className="shrink-0 focus:outline-none focus:ring-2 focus:ring-primary rounded-md"
             >
-              <img 
-                src={img} 
-                alt={`Review image ${i+1}`} 
+              <img
+                src={img}
+                alt={`Review image ${i + 1}`}
                 className="h-16 w-16 rounded-md object-cover border border-border"
               />
             </button>
@@ -80,7 +85,7 @@ export function ReviewCard({ review }: Props) {
       )}
 
       <div className="mt-4 flex items-center gap-4 border-t border-border pt-3">
-        <button 
+        <button
           onClick={handleVote}
           disabled={voted}
           className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
@@ -93,19 +98,19 @@ export function ReviewCard({ review }: Props) {
       </div>
 
       {previewImage && (
-        <div 
+        <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
           onClick={() => setPreviewImage(null)}
         >
-          <button 
+          <button
             className="absolute right-4 top-4 text-white hover:text-gray-300 focus:outline-none"
             onClick={() => setPreviewImage(null)}
           >
             Close
           </button>
-          <img 
-            src={previewImage} 
-            alt="Full size review" 
+          <img
+            src={previewImage}
+            alt="Full size review"
             className="max-h-[90vh] max-w-full rounded-lg object-contain shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           />

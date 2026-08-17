@@ -18,7 +18,12 @@ import {
   CreditCard,
   RefreshCcw,
 } from "lucide-react";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@/components/ui/accordion";
 import { ProductGallery } from "@/components/product/product-gallery";
 import { PriceTiers } from "@/components/product/price-tiers";
 import { SizeQuantityMatrix } from "@/components/product/size-quantity-matrix";
@@ -95,9 +100,7 @@ function ProductDetail() {
   const category = CATEGORIES.find((c) => c.slug === product.categorySlug);
 
   /* State */
-  const [selectedColor, setSelectedColor] = useState(
-    product.colorVariants[0]?.name ?? "",
-  );
+  const [selectedColor, setSelectedColor] = useState(product.colorVariants[0]?.name ?? "");
   const [matrixTotals, setMatrixTotals] = useState({
     totalPairs: 0,
     totalAmount: 0,
@@ -122,7 +125,7 @@ function ProductDetail() {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        toast.success('Link copied to clipboard!');
+        toast.success("Link copied to clipboard!");
       }
     } catch {
       // User cancelled share
@@ -132,19 +135,12 @@ function ProductDetail() {
   /* Derived */
   const avgRating =
     product.reviews.length > 0
-      ? (
-          product.reviews.reduce((s, r) => s + r.rating, 0) /
-          product.reviews.length
-        ).toFixed(1)
+      ? (product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length).toFixed(1)
       : "0";
 
   /* Handlers */
   const handleSelectionChange = useCallback(
-    (totals: {
-      totalPairs: number;
-      totalAmount: number;
-      quantities: Record<string, number>;
-    }) => {
+    (totals: { totalPairs: number; totalAmount: number; quantities: Record<string, number> }) => {
       setMatrixTotals(totals);
     },
     [],
@@ -172,8 +168,7 @@ function ProductDetail() {
     offers: {
       "@type": "AggregateOffer",
       priceCurrency: "PKR",
-      lowPrice:
-        product.priceTiers[product.priceTiers.length - 1].pricePerPair,
+      lowPrice: product.priceTiers[product.priceTiers.length - 1].pricePerPair,
       highPrice: product.priceTiers[0].pricePerPair,
       offerCount: product.priceTiers.length,
     },
@@ -189,9 +184,10 @@ function ProductDetail() {
   };
 
   const selectedColorIndex = product.colorVariants.findIndex((c) => c.name === selectedColor);
-  const selectedColorImage = (selectedColorIndex >= 0 && product.images[selectedColorIndex])
-    ? product.images[selectedColorIndex]
-    : product.images[0];
+  const selectedColorImage =
+    selectedColorIndex >= 0 && product.images[selectedColorIndex]
+      ? product.images[selectedColorIndex]
+      : product.images[0];
 
   return (
     <SiteLayout>
@@ -238,24 +234,21 @@ function ProductDetail() {
 
             {/* Actions */}
             <div className="flex items-center gap-3 shrink-0">
-              <button onClick={handleShare} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Share</span>
               </button>
               <button
                 onClick={() => toggleItem(product)}
                 className={`flex items-center gap-1.5 text-sm transition-colors ${
-                  wishlisted
-                    ? "text-rose-500"
-                    : "text-muted-foreground hover:text-rose-500"
+                  wishlisted ? "text-rose-500" : "text-muted-foreground hover:text-rose-500"
                 }`}
               >
-                <Heart
-                  className={`h-4 w-4 ${wishlisted ? "fill-current" : ""}`}
-                />
-                <span className="hidden sm:inline">
-                  {wishlisted ? "Saved" : "Save"}
-                </span>
+                <Heart className={`h-4 w-4 ${wishlisted ? "fill-current" : ""}`} />
+                <span className="hidden sm:inline">{wishlisted ? "Saved" : "Save"}</span>
               </button>
             </div>
           </div>
@@ -285,15 +278,11 @@ function ProductDetail() {
                       <Star
                         key={i}
                         className={`h-4 w-4 ${
-                          i < Math.round(Number(avgRating))
-                            ? "fill-gold text-gold"
-                            : "text-muted"
+                          i < Math.round(Number(avgRating)) ? "fill-gold text-gold" : "text-muted"
                         }`}
                       />
                     ))}
-                    <span className="font-semibold text-foreground ml-1">
-                      {avgRating}
-                    </span>
+                    <span className="font-semibold text-foreground ml-1">{avgRating}</span>
                   </div>
                   <span className="text-border">|</span>
                   <a
@@ -310,9 +299,7 @@ function ProductDetail() {
                     sold
                   </span>
                   <span className="text-border">|</span>
-                  <span className="text-muted-foreground">
-                    &lt; 2h response rate
-                  </span>
+                  <span className="text-muted-foreground">&lt; 2h response rate</span>
                 </div>
               </div>
 
@@ -320,10 +307,7 @@ function ProductDetail() {
               <MOQInfoCard variant="short" />
 
               {/* Price Tiers */}
-              <PriceTiers
-                tiers={product.priceTiers}
-                selectedQuantity={matrixTotals.totalPairs}
-              />
+              <PriceTiers tiers={product.priceTiers} selectedQuantity={matrixTotals.totalPairs} />
 
               {/* Variant Selectors */}
               <div className="flex flex-col gap-6">
@@ -346,9 +330,7 @@ function ProductDetail() {
 
               {/* Key Attributes */}
               <div>
-                <h3 className="font-semibold text-foreground text-sm mb-3">
-                  Key Attributes
-                </h3>
+                <h3 className="font-semibold text-foreground text-sm mb-3">Key Attributes</h3>
                 <div className="bg-muted/40 rounded-xl p-4 grid grid-cols-2 gap-y-4 text-sm">
                   {[
                     {
@@ -359,10 +341,17 @@ function ProductDetail() {
                       label: "Sole",
                       value: product.soleType,
                     },
-                    { label: "Gender", value: product.gender.charAt(0).toUpperCase() + product.gender.slice(1) },
+                    {
+                      label: "Gender",
+                      value: product.gender.charAt(0).toUpperCase() + product.gender.slice(1),
+                    },
                     {
                       label: "Place of origin",
-                      value: <span className="text-emerald">{product.specifications?.["Origin"] || "Rawalpindi & Lahore, Pakistan"}</span>,
+                      value: (
+                        <span className="text-emerald">
+                          {product.specifications?.["Origin"] || "Rawalpindi & Lahore, Pakistan"}
+                        </span>
+                      ),
                     },
                     { label: "Packaging", value: "12 pairs / carton (Single color)" },
                     { label: "Minimum Order", value: "12 pairs (1 carton)" },
@@ -385,13 +374,23 @@ function ProductDetail() {
 
               {/* Shipping estimator row */}
               <div className="flex flex-wrap items-center gap-3 text-sm border-t border-border pt-6">
-                <span className="text-muted-foreground">Ship to <button className="font-medium hover:underline text-foreground">Lahore ▾</button></span>
+                <span className="text-muted-foreground">
+                  Ship to{" "}
+                  <button className="font-medium hover:underline text-foreground">Lahore ▾</button>
+                </span>
                 <span className="text-border">|</span>
-                <span className="text-muted-foreground">Lead time: <span className="font-medium text-foreground">{product.leadTimeDays}d</span></span>
+                <span className="text-muted-foreground">
+                  Lead time:{" "}
+                  <span className="font-medium text-foreground">{product.leadTimeDays}d</span>
+                </span>
                 <span className="text-border">|</span>
-                <span className="text-muted-foreground">Freight: <span className="font-medium text-foreground">Estimate</span></span>
+                <span className="text-muted-foreground">
+                  Freight: <span className="font-medium text-foreground">Estimate</span>
+                </span>
                 <span className="text-border">|</span>
-                <span className="text-muted-foreground">Logistics: <span className="font-medium text-foreground">TCS / Leopards</span></span>
+                <span className="text-muted-foreground">
+                  Logistics: <span className="font-medium text-foreground">TCS / Leopards</span>
+                </span>
               </div>
             </div>
 
@@ -424,12 +423,10 @@ function ProductDetail() {
                 <div className="flex gap-3 items-start rounded-xl bg-primary/5 border border-primary/10 p-4 mb-8">
                   <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
                   <p className="text-sm text-muted-foreground">
-                    <strong className="text-foreground">
-                      Wholesale Notice:
-                    </strong>{" "}
-                    This product is shipped directly from our manufacturing
-                    facilities in Rawalpindi & Lahore. Prices exclude shipping. For custom
-                    packaging or OEM branding, mention in your inquiry.
+                    <strong className="text-foreground">Wholesale Notice:</strong> This product is
+                    shipped directly from our manufacturing facilities in Rawalpindi & Lahore.
+                    Prices exclude shipping. For custom packaging or OEM branding, mention in your
+                    inquiry.
                   </p>
                 </div>
 
@@ -448,28 +445,20 @@ function ProductDetail() {
                     </h4>
                     <ul className="space-y-2 text-sm text-muted-foreground">
                       <li>
-                        <strong className="text-foreground">
-                          Production Capacity:
-                        </strong>{" "}
+                        <strong className="text-foreground">Production Capacity:</strong>{" "}
                         {product.productionCapacity}
                       </li>
                       <li>
-                        <strong className="text-foreground">
-                          Lead Time:
-                        </strong>{" "}
+                        <strong className="text-foreground">Lead Time:</strong>{" "}
                         {product.leadTimeDays} days for regular orders
                       </li>
                       <li>
-                        <strong className="text-foreground">
-                          Packaging:
-                        </strong>{" "}
-                        Custom printed boxes available
+                        <strong className="text-foreground">Packaging:</strong> Custom printed boxes
+                        available
                       </li>
                       <li>
-                        <strong className="text-foreground">
-                          Quality Control:
-                        </strong>{" "}
-                        100% inspection before shipment
+                        <strong className="text-foreground">Quality Control:</strong> 100%
+                        inspection before shipment
                       </li>
                     </ul>
                   </div>
@@ -529,20 +518,30 @@ function ProductDetail() {
                   <h2 className="font-display text-xl font-semibold text-foreground mb-6">
                     Company Profile
                   </h2>
-                  
+
                   {/* Banner Image */}
                   <div className="relative w-full h-48 sm:h-64 rounded-xl overflow-hidden mb-8">
-                    <img src="https://images.unsplash.com/photo-1604066867775-43f48e3957d8?w=1200&q=80" alt="Factory Floor" className="w-full h-full object-cover" />
+                    <img
+                      src="https://images.unsplash.com/photo-1604066867775-43f48e3957d8?w=1200&q=80"
+                      alt="Factory Floor"
+                      className="w-full h-full object-cover"
+                    />
                     <div className="absolute inset-0 hero-overlay-premium flex flex-col justify-end p-6">
-                      <h3 className="font-display text-2xl font-bold text-white mb-1">Anamon Footwear Pvt. Ltd.</h3>
-                      <p className="text-white/80 text-sm">Premium Leather Manufacturing · Established 1998</p>
+                      <h3 className="font-display text-2xl font-bold text-white mb-1">
+                        Anamon Footwear Pvt. Ltd.
+                      </h3>
+                      <p className="text-white/80 text-sm">
+                        Premium Leather Manufacturing · Established 1998
+                      </p>
                     </div>
                   </div>
 
                   {/* Factory Stats Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                     <div className="p-4 rounded-xl bg-muted/30 border border-border/50 text-center">
-                      <div className="font-display text-xl font-bold text-foreground">15,000 m²</div>
+                      <div className="font-display text-xl font-bold text-foreground">
+                        15,000 m²
+                      </div>
                       <div className="text-xs text-muted-foreground mt-1">Floor Area</div>
                     </div>
                     <div className="p-4 rounded-xl bg-muted/30 border border-border/50 text-center">
@@ -554,7 +553,9 @@ function ProductDetail() {
                       <div className="text-xs text-muted-foreground mt-1">Annual Output</div>
                     </div>
                     <div className="p-4 rounded-xl bg-muted/30 border border-border/50 text-center">
-                      <div className="font-display text-xl font-bold text-foreground">ME, EU, PK</div>
+                      <div className="font-display text-xl font-bold text-foreground">
+                        ME, EU, PK
+                      </div>
                       <div className="text-xs text-muted-foreground mt-1">Main Markets</div>
                     </div>
                   </div>
@@ -566,10 +567,17 @@ function ProductDetail() {
                       "https://images.unsplash.com/photo-1596558450255-7c0b7be9d56a?w=400&q=80",
                       "https://images.unsplash.com/photo-1596558450268-9c2752494916?w=400&q=80",
                       "https://images.unsplash.com/photo-1610260485609-b6a695d7eb80?w=400&q=80",
-                      "https://images.unsplash.com/photo-1604066867775-43f48e3957d8?w=400&q=80"
+                      "https://images.unsplash.com/photo-1604066867775-43f48e3957d8?w=400&q=80",
                     ].map((img, i) => (
-                      <div key={i} className="w-48 h-32 shrink-0 rounded-lg overflow-hidden snap-start">
-                        <img src={img} alt={`Production step ${i+1}`} className="w-full h-full object-cover" />
+                      <div
+                        key={i}
+                        className="w-48 h-32 shrink-0 rounded-lg overflow-hidden snap-start"
+                      >
+                        <img
+                          src={img}
+                          alt={`Production step ${i + 1}`}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                     ))}
                   </div>
@@ -625,16 +633,10 @@ function ProductDetail() {
 
                         <div className="mt-6 space-y-2">
                           {[5, 4, 3, 2, 1].map((rating) => {
-                            const count = product.reviews.filter(
-                              (r) => r.rating === rating,
-                            ).length;
-                            const percent =
-                              (count / product.reviews.length) * 100;
+                            const count = product.reviews.filter((r) => r.rating === rating).length;
+                            const percent = (count / product.reviews.length) * 100;
                             return (
-                              <div
-                                key={rating}
-                                className="flex items-center gap-2 text-sm"
-                              >
+                              <div key={rating} className="flex items-center gap-2 text-sm">
                                 <span className="w-3 text-muted-foreground font-medium">
                                   {rating}
                                 </span>
@@ -666,7 +668,7 @@ function ProductDetail() {
                           All ({product.reviews.length})
                         </button>
                         {[5, 4, 3, 2, 1].map((star) => {
-                          const count = product.reviews.filter(r => r.rating === star).length;
+                          const count = product.reviews.filter((r) => r.rating === star).length;
                           return (
                             <button
                               key={star}
@@ -679,7 +681,10 @@ function ProductDetail() {
                         })}
                       </div>
 
-                      {(reviewFilter ? product.reviews.filter(r => r.rating === reviewFilter) : product.reviews).map((r) => (
+                      {(reviewFilter
+                        ? product.reviews.filter((r) => r.rating === reviewFilter)
+                        : product.reviews
+                      ).map((r) => (
                         <ReviewCard key={r.id} review={r} />
                       ))}
                     </div>
@@ -702,30 +707,20 @@ function ProductDetail() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
                   <div className="text-center p-5 rounded-xl bg-muted/30 border border-border/50">
                     <Package2 className="w-8 h-8 mx-auto text-primary mb-2" />
-                    <div className="font-semibold text-foreground text-lg">
-                      {product.moq}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      Minimum Order
-                    </div>
+                    <div className="font-semibold text-foreground text-lg">{product.moq}</div>
+                    <div className="text-xs text-muted-foreground">Minimum Order</div>
                   </div>
                   <div className="text-center p-5 rounded-xl bg-muted/30 border border-border/50">
                     <Truck className="w-8 h-8 mx-auto text-primary mb-2" />
                     <div className="font-semibold text-foreground text-lg">
                       {product.leadTimeDays}d
                     </div>
-                    <div className="text-xs text-muted-foreground">
-                      Lead Time
-                    </div>
+                    <div className="text-xs text-muted-foreground">Lead Time</div>
                   </div>
                   <div className="text-center p-5 rounded-xl bg-muted/30 border border-border/50">
                     <ShieldCheck className="w-8 h-8 mx-auto text-emerald mb-2" />
-                    <div className="font-semibold text-foreground text-lg">
-                      100%
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      QC Inspection
-                    </div>
+                    <div className="font-semibold text-foreground text-lg">100%</div>
+                    <div className="text-xs text-muted-foreground">QC Inspection</div>
                   </div>
                 </div>
 
@@ -764,22 +759,34 @@ function ProductDetail() {
                     <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                       <CreditCard className="w-5 h-5 text-muted-foreground" /> Payment Methods
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-3">T/T, L/C, Western Union, MoneyGram, Secure Escrow.</p>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      T/T, L/C, Western Union, MoneyGram, Secure Escrow.
+                    </p>
                     <div className="flex gap-2">
-                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">VISA</div>
-                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">MasterCard</div>
-                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">T/T</div>
-                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">L/C</div>
+                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">
+                        VISA
+                      </div>
+                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">
+                        MasterCard
+                      </div>
+                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">
+                        T/T
+                      </div>
+                      <div className="px-3 py-1 bg-muted rounded border border-border text-xs font-bold">
+                        L/C
+                      </div>
                     </div>
                   </div>
-                  
+
                   {/* Returns Policy */}
                   <div>
                     <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
                       <RefreshCcw className="w-5 h-5 text-muted-foreground" /> Returns &amp; Refunds
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      If the product is not dispatched on time or does not meet the agreed quality standards, you are eligible for a refund. Claim must be filed within 7 days of delivery.
+                      If the product is not dispatched on time or does not meet the agreed quality
+                      standards, you are eligible for a refund. Claim must be filed within 7 days of
+                      delivery.
                     </p>
                   </div>
                 </div>
@@ -833,32 +840,22 @@ function ProductDetail() {
                 {/* Buyer Protection */}
                 <div className="rounded-2xl bg-card border border-border premium-shadow p-5">
                   <h4 className="font-semibold text-foreground text-sm flex items-center gap-2 mb-4">
-                    <ShieldCheck className="w-4 h-4 text-emerald" /> Buyer
-                    Protection
+                    <ShieldCheck className="w-4 h-4 text-emerald" /> Buyer Protection
                   </h4>
                   <div className="space-y-3 text-sm text-muted-foreground">
                     <div className="flex gap-2">
-                      <span className="text-emerald font-bold shrink-0">
-                        ✓
-                      </span>
+                      <span className="text-emerald font-bold shrink-0">✓</span>
                       <span>
-                        Full refund if product is not dispatched in{" "}
-                        {product.leadTimeDays} days.
+                        Full refund if product is not dispatched in {product.leadTimeDays} days.
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <span className="text-emerald font-bold shrink-0">
-                        ✓
-                      </span>
+                      <span className="text-emerald font-bold shrink-0">✓</span>
                       <span>Secure payments via Escrow service.</span>
                     </div>
                     <div className="flex gap-2">
-                      <span className="text-emerald font-bold shrink-0">
-                        ✓
-                      </span>
-                      <span>
-                        Free quality inspection before shipment.
-                      </span>
+                      <span className="text-emerald font-bold shrink-0">✓</span>
+                      <span>Free quality inspection before shipment.</span>
                     </div>
                   </div>
                 </div>
@@ -870,33 +867,23 @@ function ProductDetail() {
                       <div className="font-bold text-foreground text-lg">
                         {product.stats.ordersCompleted}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Orders
-                      </div>
+                      <div className="text-xs text-muted-foreground">Orders</div>
                     </div>
                     <div>
                       <div className="font-bold text-foreground text-lg">
                         {product.stats.activeBuyers}
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Active Buyers
-                      </div>
+                      <div className="text-xs text-muted-foreground">Active Buyers</div>
                     </div>
                     <div>
                       <div className="font-bold text-foreground text-lg">
                         {product.stats.repeatPurchasePct}%
                       </div>
-                      <div className="text-xs text-muted-foreground">
-                        Repeat Rate
-                      </div>
+                      <div className="text-xs text-muted-foreground">Repeat Rate</div>
                     </div>
                     <div>
-                      <div className="font-bold text-emerald text-lg">
-                        A+
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        Supplier Grade
-                      </div>
+                      <div className="font-bold text-emerald text-lg">A+</div>
+                      <div className="text-xs text-muted-foreground">Supplier Grade</div>
                     </div>
                   </div>
                 </div>
@@ -905,10 +892,7 @@ function ProductDetail() {
           </div>
 
           {/* ────── Recommendations ────── */}
-          <RecommendationRow
-            title="You May Also Like"
-            products={related}
-          />
+          <RecommendationRow title="You May Also Like" products={related} />
         </div>
 
         {/* ━━━━━━ Sticky Mobile Bottom Bar ━━━━━━ */}

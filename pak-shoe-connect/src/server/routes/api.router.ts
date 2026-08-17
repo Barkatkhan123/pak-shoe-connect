@@ -19,7 +19,7 @@ export async function handleApiRequest(
   method: string,
   body: any = {},
   queryParams: Record<string, string> = {},
-  headers: Record<string, string> = {}
+  headers: Record<string, string> = {},
 ): Promise<ApiResponse> {
   try {
     const reqHeaders = { ...headers };

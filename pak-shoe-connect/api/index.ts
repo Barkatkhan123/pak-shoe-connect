@@ -60,6 +60,8 @@ export default async function handler(req: any, res: any) {
     console.error("Vercel Serverless Function Error:", err);
     res.statusCode = 500;
     res.setHeader("Content-Type", "application/json");
-    res.end(JSON.stringify({ error: "Internal Server Error", message: err?.message || String(err) }));
+    res.end(
+      JSON.stringify({ error: "Internal Server Error", message: err?.message || String(err) }),
+    );
   }
 }

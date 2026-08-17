@@ -43,7 +43,7 @@ const NULL_PRICING: PricingCalculation = {
 
 export function usePricingCalculator(
   product: EnterpriseProduct | null | undefined,
-  quantity: number
+  quantity: number,
 ): PricingCalculation {
   return useMemo(() => {
     if (!product) return NULL_PRICING;
@@ -70,8 +70,10 @@ export function usePricingCalculator(
     const subtotal = validQty * unitPrice;
     const retailTotal = validQty * retailPrice;
     const totalSavings = Math.max(0, retailTotal - subtotal);
-    const savingsPercentage = retailPrice > 0 ? Math.round(((retailPrice - unitPrice) / retailPrice) * 100) : 0;
-    const profitMarginPercentage = unitPrice > 0 ? Math.round(((retailPrice - unitPrice) / unitPrice) * 100) : 0;
+    const savingsPercentage =
+      retailPrice > 0 ? Math.round(((retailPrice - unitPrice) / retailPrice) * 100) : 0;
+    const profitMarginPercentage =
+      unitPrice > 0 ? Math.round(((retailPrice - unitPrice) / unitPrice) * 100) : 0;
 
     const cartonsCount = Math.ceil(validQty / cartonQty);
 

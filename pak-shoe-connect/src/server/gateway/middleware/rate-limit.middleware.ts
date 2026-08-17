@@ -23,21 +23,15 @@ interface RateWindow {
   resetAt: number;
 }
 
-type RateLimitTier =
-  | "auth"
-  | "payments"
-  | "rfq"
-  | "search"
-  | "uploads"
-  | "general";
+type RateLimitTier = "auth" | "payments" | "rfq" | "search" | "uploads" | "general";
 
 const LIMITS: Record<RateLimitTier, { max: number; windowMs: number }> = {
-  auth:     { max: 10,  windowMs: 15 * 60 * 1000 },  // 10 / 15 min
-  payments: { max: 20,  windowMs: 60 * 1000 },         // 20 / min
-  rfq:      { max: 30,  windowMs: 60 * 1000 },         // 30 / min
-  search:   { max: 60,  windowMs: 60 * 1000 },         // 60 / min
-  uploads:  { max: 10,  windowMs: 60 * 1000 },         // 10 / min
-  general:  { max: 120, windowMs: 60 * 1000 },         // 120 / min
+  auth: { max: 10, windowMs: 15 * 60 * 1000 }, // 10 / 15 min
+  payments: { max: 20, windowMs: 60 * 1000 }, // 20 / min
+  rfq: { max: 30, windowMs: 60 * 1000 }, // 30 / min
+  search: { max: 60, windowMs: 60 * 1000 }, // 60 / min
+  uploads: { max: 10, windowMs: 60 * 1000 }, // 10 / min
+  general: { max: 120, windowMs: 60 * 1000 }, // 120 / min
 };
 
 const store = new Map<string, RateWindow>();

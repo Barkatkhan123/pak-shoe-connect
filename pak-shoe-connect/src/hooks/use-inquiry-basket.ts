@@ -67,7 +67,12 @@ function saveLocalBasket(items: InquiryItem[]) {
   window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
 }
 
-export function savePendingAction(action: Omit<PendingBasketAction, "version" | "type" | "createdAt" | "expiresAt" | "idempotencyKey"> & { idempotencyKey?: string }): PendingBasketAction {
+export function savePendingAction(
+  action: Omit<
+    PendingBasketAction,
+    "version" | "type" | "createdAt" | "expiresAt" | "idempotencyKey"
+  > & { idempotencyKey?: string },
+): PendingBasketAction {
   const now = Date.now();
   const fullAction: PendingBasketAction = {
     ...action,
@@ -75,7 +80,8 @@ export function savePendingAction(action: Omit<PendingBasketAction, "version" | 
     type: "ADD_TO_BASKET",
     createdAt: now,
     expiresAt: now + PENDING_TTL_MS,
-    idempotencyKey: action.idempotencyKey || `pending_${now}_${Math.random().toString(36).slice(2, 9)}`,
+    idempotencyKey:
+      action.idempotencyKey || `pending_${now}_${Math.random().toString(36).slice(2, 9)}`,
   };
   if (typeof window !== "undefined") {
     localStorage.setItem(PENDING_ACTION_KEY, JSON.stringify(fullAction));
@@ -90,7 +96,7 @@ export function getPendingAction(): PendingBasketAction | null {
     const raw = localStorage.getItem(PENDING_ACTION_KEY);
     if (!raw) return null;
     const parsed: PendingBasketAction = JSON.parse(raw);
-    
+
     // Safeguard 1: Validate Version & Expiration (TTL: 60 mins)
     if (parsed.version !== 1 || !parsed.expiresAt || Date.now() > parsed.expiresAt) {
       localStorage.removeItem(PENDING_ACTION_KEY);
@@ -147,7 +153,12 @@ export function useInquiryBasket() {
           tierName: i.tierName,
         }));
         saveLocalBasket(items);
-        return { items, totalPairs: res.data.totalPairs, totalCartons: res.data.totalCartons, subtotal: res.data.subtotal };
+        return {
+          items,
+          totalPairs: res.data.totalPairs,
+          totalCartons: res.data.totalCartons,
+          subtotal: res.data.subtotal,
+        };
       }
       return { items: loadLocalBasket(), totalPairs: 0, totalCartons: 0, subtotal: 0 };
     },
@@ -157,7 +168,9 @@ export function useInquiryBasket() {
 
   // Effective items (guarantee SSR hydration match)
   const items: InquiryItem[] = mounted
-    ? (isAuthenticated && serverBasket?.items ? serverBasket.items : localItems)
+    ? isAuthenticated && serverBasket?.items
+      ? serverBasket.items
+      : localItems
     : [];
 
   // Sync across tabs/instances via storage events
@@ -181,7 +194,13 @@ export function useInquiryBasket() {
   const addMutation = useMutation({
     mutationFn: async (payload: {
       product: Product;
-      options?: { color?: string; size?: string; qty?: number; cartonCount?: number; tierName?: string };
+      options?: {
+        color?: string;
+        size?: string;
+        qty?: number;
+        cartonCount?: number;
+        tierName?: string;
+      };
       idempotencyKey?: string;
     }) => {
       const { product, options, idempotencyKey } = payload;
@@ -219,11 +238,13 @@ export function useInquiryBasket() {
       const unitPrice = product.priceTiers?.[0]?.pricePerPair ?? 1000;
 
       const current = loadLocalBasket();
-      const existing = current.find((i) => i.slug === product.slug && i.color === color && i.size === size);
+      const existing = current.find(
+        (i) => i.slug === product.slug && i.color === color && i.size === size,
+      );
       let updated: InquiryItem[];
       if (existing) {
         updated = current.map((i) =>
-          i === existing ? { ...i, requestedQty: i.requestedQty + requestedQty } : i
+          i === existing ? { ...i, requestedQty: i.requestedQty + requestedQty } : i,
         );
       } else {
         updated = [
@@ -236,7 +257,9 @@ export function useInquiryBasket() {
             moq: product.moq || 12,
             cartonQty: product.cartonQty || 12,
             requestedQty,
-            cartonCount: options?.cartonCount ?? Math.max(1, Math.ceil(requestedQty / (product.cartonQty || 12))),
+            cartonCount:
+              options?.cartonCount ??
+              Math.max(1, Math.ceil(requestedQty / (product.cartonQty || 12))),
             color,
             size,
             priceLabel: product.priceLabel ?? `PKR ${unitPrice}/pair`,
@@ -260,7 +283,16 @@ export function useInquiryBasket() {
 
   // 3. User-facing addItem handler (Enforces Authentication Check)
   const addItem = useCallback(
-    async (product: Product, options?: { color?: string; size?: string; qty?: number; cartonCount?: number; tierName?: string }) => {
+    async (
+      product: Product,
+      options?: {
+        color?: string;
+        size?: string;
+        qty?: number;
+        cartonCount?: number;
+        tierName?: string;
+      },
+    ) => {
       // Prevent double-click creation
       if (isAdding || addMutation.isPending) return;
 
@@ -292,11 +324,13 @@ export function useInquiryBasket() {
 
         // 2. Add to local guest basket so product shows up immediately in the cart
         const current = loadLocalBasket();
-        const existing = current.find((i) => i.slug === product.slug && i.color === color && i.size === size);
+        const existing = current.find(
+          (i) => i.slug === product.slug && i.color === color && i.size === size,
+        );
         let updated: InquiryItem[];
         if (existing) {
           updated = current.map((i) =>
-            i === existing ? { ...i, requestedQty: i.requestedQty + requestedQty } : i
+            i === existing ? { ...i, requestedQty: i.requestedQty + requestedQty } : i,
           );
         } else {
           updated = [
@@ -332,9 +366,10 @@ export function useInquiryBasket() {
               hasPendingItem: true,
               productSlug: product.slug,
               title: "Sign in to your Basket",
-              description: "Sign in or create your wholesale buyer account to add items to your inquiry basket and request factory bulk quotes.",
+              description:
+                "Sign in or create your wholesale buyer account to add items to your inquiry basket and request factory bulk quotes.",
             },
-          })
+          }),
         );
         return;
       }
@@ -350,7 +385,7 @@ export function useInquiryBasket() {
         setIsAdding(false);
       }
     },
-    [isAuthenticated, user, isAdding, addMutation]
+    [isAuthenticated, user, isAdding, addMutation],
   );
 
   // 4. Safeguard 2: Atomic Auto-Resumption on Auth State Change
@@ -370,36 +405,44 @@ export function useInquiryBasket() {
         if (pending) {
           // Reconstruct or lookup product definition from catalog
           const catalogProduct = PRODUCTS.find((p) => p.slug === pending.slug);
-          const resolvedProduct: Product = catalogProduct || ({
-            slug: pending.slug,
-            name: pending.name,
-            sku: pending.sku,
-            image: pending.image,
-            images: [pending.image],
-            moq: pending.moq,
-            cartonQty: pending.cartonQty,
-            nameUrdu: "",
-            categorySlug: "",
-            gender: "unisex",
-            material: "Leather",
-            soleType: "PU / Rubber",
-            colorVariants: [],
-            colors: [pending.color],
-            sizes: [pending.size],
-            priceLabel: pending.priceLabel,
-            priceTiers: [{ moq: pending.moq, pricePerPair: pending.price, label: pending.tierName || "Standard Tier" }],
-            description: "",
-            newArrival: false,
-            bestseller: false,
-            featured: false,
-            trending: false,
-            inStock: true,
-            leadTimeDays: "3-5 days",
-            productionCapacity: "10,000 pairs/month",
-            customization: [],
-            specifications: {},
-            reviews: [],
-          } as unknown as Product);
+          const resolvedProduct: Product =
+            catalogProduct ||
+            ({
+              slug: pending.slug,
+              name: pending.name,
+              sku: pending.sku,
+              image: pending.image,
+              images: [pending.image],
+              moq: pending.moq,
+              cartonQty: pending.cartonQty,
+              nameUrdu: "",
+              categorySlug: "",
+              gender: "unisex",
+              material: "Leather",
+              soleType: "PU / Rubber",
+              colorVariants: [],
+              colors: [pending.color],
+              sizes: [pending.size],
+              priceLabel: pending.priceLabel,
+              priceTiers: [
+                {
+                  moq: pending.moq,
+                  pricePerPair: pending.price,
+                  label: pending.tierName || "Standard Tier",
+                },
+              ],
+              description: "",
+              newArrival: false,
+              bestseller: false,
+              featured: false,
+              trending: false,
+              inStock: true,
+              leadTimeDays: "3-5 days",
+              productionCapacity: "10,000 pairs/month",
+              customization: [],
+              specifications: {},
+              reviews: [],
+            } as unknown as Product);
 
           // Execute server mutation with idempotency key
           await addMutation.mutateAsync({
@@ -414,9 +457,12 @@ export function useInquiryBasket() {
             idempotencyKey: pending.idempotencyKey,
           });
 
-          toast.success(`Welcome back! Added ${pending.requestedQty} pairs of ${pending.name} to your basket.`, {
-            description: `Color: ${pending.color} • Size: ${pending.size}`,
-          });
+          toast.success(
+            `Welcome back! Added ${pending.requestedQty} pairs of ${pending.name} to your basket.`,
+            {
+              description: `Color: ${pending.color} • Size: ${pending.size}`,
+            },
+          );
         }
       } catch (err: any) {
         console.error("[useInquiryBasket] Auto-resumption error:", err);
@@ -449,7 +495,7 @@ export function useInquiryBasket() {
         return next;
       });
     },
-    [isAuthenticated, queryClient, queryKey]
+    [isAuthenticated, queryClient, queryKey],
   );
 
   // 6. Update Qty mutation
@@ -467,7 +513,7 @@ export function useInquiryBasket() {
         return next;
       });
     },
-    [isAuthenticated, queryClient, queryKey]
+    [isAuthenticated, queryClient, queryKey],
   );
 
   // 7. Clear Basket mutation
@@ -483,10 +529,7 @@ export function useInquiryBasket() {
   }, [isAuthenticated, queryClient, queryKey]);
 
   // 8. Helper checkers
-  const isInBasket = useCallback(
-    (slug: string) => items.some((i) => i.slug === slug),
-    [items]
-  );
+  const isInBasket = useCallback((slug: string) => items.some((i) => i.slug === slug), [items]);
 
   const totalItems = items.reduce((sum, i) => sum + i.requestedQty, 0);
 

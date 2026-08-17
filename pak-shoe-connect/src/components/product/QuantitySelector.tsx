@@ -7,11 +7,7 @@ interface QuantitySelectorProps {
   pricing: PricingCalculation;
 }
 
-export function QuantitySelector({
-  quantity,
-  onQuantityChange,
-  pricing,
-}: QuantitySelectorProps) {
+export function QuantitySelector({ quantity, onQuantityChange, pricing }: QuantitySelectorProps) {
   const { moq, cartonsCount, subtotal, unitPrice, currency, isMoqMet } = pricing;
   const cartonStep = 12;
 
@@ -40,13 +36,24 @@ export function QuantitySelector({
           <span className="flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
             <Package className="h-4 w-4" /> Wholesale Packing Specifications
           </span>
-          <span className="text-[10px] bg-primary/10 px-2 py-0.5 rounded font-mono">1 Carton = 12 Pairs</span>
+          <span className="text-[10px] bg-primary/10 px-2 py-0.5 rounded font-mono">
+            1 Carton = 12 Pairs
+          </span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-muted-foreground">
-          <div><strong className="text-foreground">Minimum Order:</strong> 12 pairs (1 carton)</div>
-          <div><strong className="text-foreground">Packing:</strong> 12 pairs per carton</div>
-          <div><strong className="text-foreground">Order Quantity:</strong> Multiples of 12 pairs only</div>
-          <div><strong className="text-foreground">Color:</strong> Single color per carton (all 12 pairs same color)</div>
+          <div>
+            <strong className="text-foreground">Minimum Order:</strong> 12 pairs (1 carton)
+          </div>
+          <div>
+            <strong className="text-foreground">Packing:</strong> 12 pairs per carton
+          </div>
+          <div>
+            <strong className="text-foreground">Order Quantity:</strong> Multiples of 12 pairs only
+          </div>
+          <div>
+            <strong className="text-foreground">Color:</strong> Single color per carton (all 12
+            pairs same color)
+          </div>
         </div>
       </div>
 
@@ -129,7 +136,9 @@ export function QuantitySelector({
       {/* Live Subtotal Summary Strip */}
       <div className="flex items-center justify-between rounded-xl bg-white dark:bg-neutral-900/80 p-3 shadow-sm border border-border/60">
         <div>
-          <span className="block text-[11px] text-muted-foreground">Estimated Wholesale Subtotal</span>
+          <span className="block text-[11px] text-muted-foreground">
+            Estimated Wholesale Subtotal
+          </span>
           <span className="text-base md:text-lg font-black text-foreground">
             {currency} {subtotal.toLocaleString()}
           </span>

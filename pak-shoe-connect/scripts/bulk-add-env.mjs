@@ -1,7 +1,8 @@
 import { spawnSync } from "child_process";
 
 const envs = {
-  DATABASE_URL: "postgresql://postgres:postgres@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1",
+  DATABASE_URL:
+    "postgresql://postgres:postgres@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1",
   SUPABASE_PUBLISHABLE_KEY: "sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy",
   VITE_SUPABASE_URL: "https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud",
   VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy",
@@ -17,11 +18,15 @@ const envs = {
 
 for (const [key, val] of Object.entries(envs)) {
   console.log(`Adding ${key}...`);
-  const res = spawnSync("npx.cmd", ["vercel", "env", "add", key, "production,preview", "--value", val, "--yes", "--force"], {
-    encoding: "utf-8",
-    stdio: "pipe",
-    shell: true,
-  });
+  const res = spawnSync(
+    "npx.cmd",
+    ["vercel", "env", "add", key, "production,preview", "--value", val, "--yes", "--force"],
+    {
+      encoding: "utf-8",
+      stdio: "pipe",
+      shell: true,
+    },
+  );
   if (res.error) {
     console.error(`Error adding ${key}:`, res.error.message);
   } else {

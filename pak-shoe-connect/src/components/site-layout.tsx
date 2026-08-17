@@ -32,14 +32,14 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
         style={{ scaleX, transformOrigin: "left" }}
         className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#1B4332] to-[#C9A84C] z-[110] pointer-events-none"
       />
-      
+
       <SiteHeader />
-      
+
       {/* Main content with bottom padding clearance for floating WhatsApp button */}
       <main className="flex-1 w-full max-w-full pb-20 md:pb-8">{children}</main>
-      
+
       <SiteFooter />
-      
+
       {/* Global Auth Modal */}
       <AuthModal
         isOpen={authModalOpen}
@@ -50,10 +50,10 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       />
 
       {/* Global WhatsApp FAB (Mobile-safe, non-obstructing) */}
-      <a 
-        href={SITE.whatsappHref} 
-        target="_blank" 
-        rel="noopener noreferrer" 
+      <a
+        href={SITE.whatsappHref}
+        target="_blank"
+        rel="noopener noreferrer"
         className="whatsapp-fab"
         aria-label="Chat with Sales Team on WhatsApp"
       >

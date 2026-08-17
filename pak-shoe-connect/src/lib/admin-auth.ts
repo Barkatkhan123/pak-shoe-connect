@@ -130,7 +130,7 @@ export const adminSecurityEngine = {
     if (typeof window !== "undefined") {
       localStorage.setItem(
         ACTIVE_OTP_KEY,
-        JSON.stringify({ email: email.toLowerCase(), otp: randomOtp, expiresAt })
+        JSON.stringify({ email: email.toLowerCase(), otp: randomOtp, expiresAt }),
       );
     }
 
@@ -190,7 +190,8 @@ export const adminSecurityEngine = {
   },
 
   recordFailedAttempt(): { count: number; isLocked: boolean; lockMinutesRemaining: number } {
-    if (typeof window === "undefined") return { count: 1, isLocked: false, lockMinutesRemaining: 0 };
+    if (typeof window === "undefined")
+      return { count: 1, isLocked: false, lockMinutesRemaining: 0 };
     const current = this.getFailedAttempts();
     const newCount = current.count + 1;
     let lockedUntil = null;
@@ -217,7 +218,10 @@ export const adminSecurityEngine = {
   /**
    * 3. Server & DB Role Verification (Database-Controlled RBAC)
    */
-  async verifyServerAuthorization(email: string, password?: string): Promise<{ authorized: boolean; role: AdminRole; reason?: string }> {
+  async verifyServerAuthorization(
+    email: string,
+    password?: string,
+  ): Promise<{ authorized: boolean; role: AdminRole; reason?: string }> {
     const normalizedEmail = email.trim().toLowerCase();
 
     if (normalizedEmail !== MASTER_ADMIN_EMAIL.toLowerCase()) {
@@ -278,10 +282,14 @@ export const adminSecurityEngine = {
       }
 
       // Ensure default fallback properties to prevent runtime exceptions
-      session.permissions = session.permissions && Array.isArray(session.permissions) ? session.permissions : MASTER_ADMIN_PERMISSIONS;
+      session.permissions =
+        session.permissions && Array.isArray(session.permissions)
+          ? session.permissions
+          : MASTER_ADMIN_PERMISSIONS;
       session.role = session.role || "MASTER_ADMIN";
-      session.accessTokenExpiresAt = session.accessTokenExpiresAt || (Date.now() + 15 * 60 * 1000);
-      session.refreshTokenExpiresAt = session.refreshTokenExpiresAt || (Date.now() + 30 * 24 * 60 * 60 * 1000);
+      session.accessTokenExpiresAt = session.accessTokenExpiresAt || Date.now() + 15 * 60 * 1000;
+      session.refreshTokenExpiresAt =
+        session.refreshTokenExpiresAt || Date.now() + 30 * 24 * 60 * 60 * 1000;
 
       // Silent Refresh Token Rotation if 15m access token expired but 30d refresh token valid
       if (Date.now() > session.accessTokenExpiresAt) {
@@ -310,7 +318,9 @@ export const adminSecurityEngine = {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
     }
 
-    console.info(`[Security Engine] Rotated access token & CSRF double-submit token for ${existingSession.email}`);
+    console.info(
+      `[Security Engine] Rotated access token & CSRF double-submit token for ${existingSession.email}`,
+    );
     return updated;
   },
 
@@ -437,33 +447,42 @@ export const adminSecurityEngine = {
     return this.getAuditLogsFromCache();
   },
 
-  logActivity(entry: Omit<AuditLogEntry, "id" | "requestId" | "timestamp" | "userAgent"> & { userAgent?: string }) {
+  logActivity(
+    entry: Omit<AuditLogEntry, "id" | "requestId" | "timestamp" | "userAgent"> & {
+      userAgent?: string;
+    },
+  ) {
     const newLog: AuditLogEntry = {
       id: `LOG-${Math.floor(1000 + Math.random() * 9000)}`,
       requestId: `REQ-${Math.floor(100000 + Math.random() * 900000)}-Z`,
       timestamp: new Date().toISOString(),
-      userAgent: entry.userAgent || (typeof navigator !== "undefined" ? navigator.userAgent : "Anamon Engine"),
+      userAgent:
+        entry.userAgent ||
+        (typeof navigator !== "undefined" ? navigator.userAgent : "Anamon Engine"),
       ...entry,
     };
 
     // 1. Write to Supabase (fire-and-forget — do not await to stay non-blocking)
-    supabase.from("admin_audit_logs").insert({
-      id: newLog.id,
-      request_id: newLog.requestId,
-      timestamp: newLog.timestamp,
-      admin_email: newLog.adminEmail,
-      role: newLog.role,
-      action: newLog.action,
-      target: newLog.target,
-      ip_address: newLog.ipAddress || null,
-      user_agent: newLog.userAgent || null,
-      status: newLog.status,
-      details: newLog.details || null,
-    }).then(({ error }) => {
-      if (error) {
-        console.warn("[AdminAuth] Supabase audit log insert failed:", error.message);
-      }
-    });
+    supabase
+      .from("admin_audit_logs")
+      .insert({
+        id: newLog.id,
+        request_id: newLog.requestId,
+        timestamp: newLog.timestamp,
+        admin_email: newLog.adminEmail,
+        role: newLog.role,
+        action: newLog.action,
+        target: newLog.target,
+        ip_address: newLog.ipAddress || null,
+        user_agent: newLog.userAgent || null,
+        status: newLog.status,
+        details: newLog.details || null,
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.warn("[AdminAuth] Supabase audit log insert failed:", error.message);
+        }
+      });
 
     // 2. Mirror to localStorage cache for instant reads & offline support
     const cached = this.getAuditLogsFromCache();
@@ -476,7 +495,11 @@ export const adminSecurityEngine = {
   /**
    * 6. File Upload Security & MIME Type Sanitizer
    */
-  validateFileUpload(fileName: string, fileSizeBytes: number, mimeType: string): { valid: boolean; reason?: string; sanitizedName?: string } {
+  validateFileUpload(
+    fileName: string,
+    fileSizeBytes: number,
+    mimeType: string,
+  ): { valid: boolean; reason?: string; sanitizedName?: string } {
     const allowedMimeTypes = [
       "image/jpeg",
       "image/jpg",

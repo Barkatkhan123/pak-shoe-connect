@@ -2,7 +2,16 @@ import { useState, useRef, MouseEvent, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Product } from "@/data/products";
 import { cn } from "@/lib/utils";
-import { Play, ShieldCheck, Image as ImageIcon, ZoomIn, ChevronLeft, ChevronRight, X, Maximize2 } from "lucide-react";
+import {
+  Play,
+  ShieldCheck,
+  Image as ImageIcon,
+  ZoomIn,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Maximize2,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProductGalleryProps {
@@ -102,7 +111,7 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
               "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all cursor-pointer",
               activeMedia === "photo"
                 ? "bg-background text-foreground shadow-xs"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
           >
             <ImageIcon className="h-3.5 w-3.5" />
@@ -116,7 +125,7 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
                 "flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all cursor-pointer",
                 activeMedia === "video"
                   ? "bg-amber-500 text-black shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               <Play className="h-3.5 w-3.5 fill-current" />
@@ -125,9 +134,7 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
           )}
         </div>
 
-        <span className="text-xs text-muted-foreground font-mono">
-          SKU: {product.sku}
-        </span>
+        <span className="text-xs text-muted-foreground font-mono">SKU: {product.sku}</span>
       </div>
 
       {/* Main Gallery Area */}
@@ -145,11 +152,15 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
                   "relative w-16 h-16 rounded-xl overflow-hidden border-2 transition-all cursor-pointer",
                   isSelected
                     ? "border-primary ring-2 ring-primary/30 ring-offset-1 scale-105 opacity-100"
-                    : "border-border/60 hover:border-border opacity-80 hover:opacity-100"
+                    : "border-border/60 hover:border-border opacity-80 hover:opacity-100",
                 )}
                 title={`View photo ${idx + 1} (click again to expand full screen)`}
               >
-                <img src={img} alt={`${product.name} photo ${idx + 1}`} className="w-full h-full object-cover" />
+                <img
+                  src={img}
+                  alt={`${product.name} photo ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
                 {isSelected && (
                   <div className="absolute inset-0 bg-primary/10 pointer-events-none" />
                 )}
@@ -164,13 +175,17 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
               onClick={() => setActiveMedia("video")}
               className={cn(
                 "relative w-16 h-16 rounded-xl overflow-hidden border-2 bg-neutral-950 text-white flex flex-col items-center justify-center gap-1 transition-all cursor-pointer group",
-                activeMedia === "video" ? "border-amber-500 ring-2 ring-amber-500/40" : "border-border/60 hover:border-amber-500/60 opacity-80 hover:opacity-100"
+                activeMedia === "video"
+                  ? "border-amber-500 ring-2 ring-amber-500/40"
+                  : "border-border/60 hover:border-amber-500/60 opacity-80 hover:opacity-100",
               )}
             >
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-black group-hover:scale-110 transition-transform">
                 <Play className="h-3.5 w-3.5 fill-current translate-x-0.5" />
               </div>
-              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400">Video</span>
+              <span className="text-[9px] font-bold uppercase tracking-wider text-amber-400">
+                Video
+              </span>
             </button>
           )}
         </div>
@@ -188,10 +203,14 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
                   "relative w-16 h-16 shrink-0 rounded-xl overflow-hidden border-2 cursor-pointer",
                   isSelected
                     ? "border-primary ring-2 ring-primary/30"
-                    : "border-border/60 opacity-80"
+                    : "border-border/60 opacity-80",
                 )}
               >
-                <img src={img} alt={`${product.name} photo ${idx + 1}`} className="w-full h-full object-cover" />
+                <img
+                  src={img}
+                  alt={`${product.name} photo ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                />
               </button>
             );
           })}
@@ -202,7 +221,7 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
               onClick={() => setActiveMedia("video")}
               className={cn(
                 "relative w-16 h-16 shrink-0 rounded-xl border-2 bg-neutral-950 text-white flex flex-col items-center justify-center gap-1 cursor-pointer",
-                activeMedia === "video" ? "border-amber-500" : "border-border/60"
+                activeMedia === "video" ? "border-amber-500" : "border-border/60",
               )}
             >
               <Play className="h-4 w-4 fill-amber-500 text-amber-500" />
@@ -307,82 +326,87 @@ export function ProductGallery({ product, selectedColorImage }: ProductGalleryPr
       </div>
 
       {/* ━━━━━━ Fullscreen Lightbox Modal Portal ━━━━━━ */}
-      {typeof document !== "undefined" && createPortal(
-        <AnimatePresence>
-          {isLightboxOpen && (
-            <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8">
-              {/* Backdrop */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsLightboxOpen(false)}
-                className="fixed inset-0 bg-black/95 backdrop-blur-xl"
-              />
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {isLightboxOpen && (
+              <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8">
+                {/* Backdrop */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="fixed inset-0 bg-black/95 backdrop-blur-xl"
+                />
 
-              {/* Close Button */}
-              <button
-                type="button"
-                onClick={() => setIsLightboxOpen(false)}
-                className="absolute top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all cursor-pointer"
-                aria-label="Close Lightbox"
-              >
-                <X className="h-6 w-6" />
-              </button>
-
-              {/* Main Lightbox Content */}
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="relative z-10 flex flex-col items-center justify-center max-w-5xl max-h-[85vh] w-full h-full select-none"
-              >
-                {activeMedia === "video" && hasVideo ? (
-                  <video
-                    src={product.video}
-                    controls
-                    autoPlay
-                    className="max-h-[75vh] max-w-full rounded-2xl shadow-2xl object-contain"
-                  />
-                ) : (
-                  <img
-                    src={currentImage}
-                    alt={product.name}
-                    className="max-h-[75vh] max-w-full rounded-2xl shadow-2xl object-contain border border-white/10"
-                  />
-                )}
-
-                {/* Lightbox Navigation Controls */}
+                {/* Close Button */}
                 <button
                   type="button"
-                  onClick={handlePrev}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
-                  aria-label="Previous"
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="absolute top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all cursor-pointer"
+                  aria-label="Close Lightbox"
                 >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
-                  aria-label="Next"
-                >
-                  <ChevronRight className="h-6 w-6" />
+                  <X className="h-6 w-6" />
                 </button>
 
-                {/* Lightbox Footer Bar */}
-                <div className="mt-4 flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15 text-white text-xs font-semibold">
-                  <span>{product.name}</span>
-                  <span className="opacity-50">•</span>
-                  <span>{activeMedia === "photo" ? `Photo ${activeIndex + 1} of ${displayImages.length}` : "HD Video"}</span>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+                {/* Main Lightbox Content */}
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative z-10 flex flex-col items-center justify-center max-w-5xl max-h-[85vh] w-full h-full select-none"
+                >
+                  {activeMedia === "video" && hasVideo ? (
+                    <video
+                      src={product.video}
+                      controls
+                      autoPlay
+                      className="max-h-[75vh] max-w-full rounded-2xl shadow-2xl object-contain"
+                    />
+                  ) : (
+                    <img
+                      src={currentImage}
+                      alt={product.name}
+                      className="max-h-[75vh] max-w-full rounded-2xl shadow-2xl object-contain border border-white/10"
+                    />
+                  )}
+
+                  {/* Lightbox Navigation Controls */}
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
+                    aria-label="Previous"
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
+                    aria-label="Next"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+
+                  {/* Lightbox Footer Bar */}
+                  <div className="mt-4 flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15 text-white text-xs font-semibold">
+                    <span>{product.name}</span>
+                    <span className="opacity-50">•</span>
+                    <span>
+                      {activeMedia === "photo"
+                        ? `Photo ${activeIndex + 1} of ${displayImages.length}`
+                        : "HD Video"}
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
     </div>
   );
 }

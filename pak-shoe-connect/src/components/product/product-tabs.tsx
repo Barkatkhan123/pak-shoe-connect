@@ -40,19 +40,23 @@ export function ProductTabs() {
   };
 
   return (
-    <div className={cn(
-      "w-full z-40 transition-all duration-300",
-      isSticky ? "sticky top-14 glass border-b border-border shadow-sm" : "relative border-b border-border bg-background"
-    )}>
+    <div
+      className={cn(
+        "w-full z-40 transition-all duration-300",
+        isSticky
+          ? "sticky top-14 glass border-b border-border shadow-sm"
+          : "relative border-b border-border bg-background",
+      )}
+    >
       <div className="max-w-[1440px] mx-auto px-6 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-8 min-w-max">
-          {TABS.map(tab => (
+          {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => scrollToSection(tab.id)}
               className={cn(
                 "relative py-4 text-sm font-medium transition-colors hover:text-primary whitespace-nowrap",
-                activeTab === tab.id ? "text-primary" : "text-muted-foreground"
+                activeTab === tab.id ? "text-primary" : "text-muted-foreground",
               )}
             >
               {tab.label}

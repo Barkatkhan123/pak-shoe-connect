@@ -51,29 +51,56 @@ function Dashboard() {
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-primary">Buyer dashboard</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Buyer dashboard
+            </p>
             <h1 className="mt-1 font-display text-3xl font-semibold md:text-4xl">
               Welcome{profile?.business_name ? `, ${profile.business_name}` : ""}
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">{email}</p>
           </div>
-          <button onClick={signOut} className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted">
+          <button
+            onClick={signOut}
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
+          >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
         </div>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Action to="/products" icon={<Package className="h-5 w-5" />} title="Browse Products" desc="Explore full wholesale catalog" />
-          <Action to="/bulk-order" icon={<ShoppingBag className="h-5 w-5" />} title="Bulk Order" desc="Place a new bulk order" />
-          <Action to="/catalog" icon={<FileText className="h-5 w-5" />} title="Catalog PDF" desc="Download the latest catalog" />
-          <Ext href={SITE.whatsappHref} icon={<MessageCircle className="h-5 w-5" />} title="Contact Sales" desc={`WhatsApp ${SITE.phone}`} />
+          <Action
+            to="/products"
+            icon={<Package className="h-5 w-5" />}
+            title="Browse Products"
+            desc="Explore full wholesale catalog"
+          />
+          <Action
+            to="/bulk-order"
+            icon={<ShoppingBag className="h-5 w-5" />}
+            title="Bulk Order"
+            desc="Place a new bulk order"
+          />
+          <Action
+            to="/catalog"
+            icon={<FileText className="h-5 w-5" />}
+            title="Catalog PDF"
+            desc="Download the latest catalog"
+          />
+          <Ext
+            href={SITE.whatsappHref}
+            icon={<MessageCircle className="h-5 w-5" />}
+            title="Contact Sales"
+            desc={`WhatsApp ${SITE.phone}`}
+          />
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-3">
           <div className="rounded-2xl border border-border bg-card p-6 md:col-span-2">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold">Business profile</h2>
-              <Link to="/profile" className="text-sm text-primary hover:underline">Edit</Link>
+              <Link to="/profile" className="text-sm text-primary hover:underline">
+                Edit
+              </Link>
             </div>
             {profile ? (
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
@@ -100,20 +127,56 @@ function Dashboard() {
   );
 }
 
-function Action({ to, icon, title, desc }: { to: string; icon: React.ReactNode; title: string; desc: string }) {
+function Action({
+  to,
+  icon,
+  title,
+  desc,
+}: {
+  to: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
   return (
-    <Link to={to} className="group rounded-2xl border border-border bg-card p-5 hover:border-primary hover:shadow-sm">
-      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">{icon}</div>
-      <h3 className="mt-3 font-display text-base font-semibold group-hover:text-primary">{title}</h3>
+    <Link
+      to={to}
+      className="group rounded-2xl border border-border bg-card p-5 hover:border-primary hover:shadow-sm"
+    >
+      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
+        {icon}
+      </div>
+      <h3 className="mt-3 font-display text-base font-semibold group-hover:text-primary">
+        {title}
+      </h3>
       <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
     </Link>
   );
 }
-function Ext({ href, icon, title, desc }: { href: string; icon: React.ReactNode; title: string; desc: string }) {
+function Ext({
+  href,
+  icon,
+  title,
+  desc,
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
   return (
-    <a href={href} target="_blank" rel="noreferrer" className="group rounded-2xl border border-border bg-card p-5 hover:border-primary hover:shadow-sm">
-      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">{icon}</div>
-      <h3 className="mt-3 font-display text-base font-semibold group-hover:text-primary">{title}</h3>
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="group rounded-2xl border border-border bg-card p-5 hover:border-primary hover:shadow-sm"
+    >
+      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
+        {icon}
+      </div>
+      <h3 className="mt-3 font-display text-base font-semibold group-hover:text-primary">
+        {title}
+      </h3>
       <p className="mt-1 text-xs text-muted-foreground">{desc}</p>
     </a>
   );

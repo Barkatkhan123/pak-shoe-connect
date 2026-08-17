@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import { ArrowRight, ArrowLeft, CheckCircle2, Factory, Package, Building, ShoppingCart, Truck } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowLeft,
+  CheckCircle2,
+  Factory,
+  Package,
+  Building,
+  ShoppingCart,
+  Truck,
+} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageHero, SiteLayout } from "@/components/site-layout";
 import { Button } from "@/components/ui/button";
@@ -26,7 +35,7 @@ export const Route = createFileRoute("/bulk-order")({
 const formVariants = {
   hidden: { opacity: 0, x: 20 },
   visible: { opacity: 1, x: 0 },
-  exit: { opacity: 0, x: -20 }
+  exit: { opacity: 0, x: -20 },
 };
 
 function BulkOrder() {
@@ -44,7 +53,7 @@ function BulkOrder() {
     company: "",
     phone: "",
     email: "",
-    requirements: ""
+    requirements: "",
   });
 
   const nextStep = () => setStep((s) => s + 1);
@@ -56,7 +65,7 @@ function BulkOrder() {
   };
 
   const updateForm = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   return (
@@ -68,7 +77,7 @@ function BulkOrder() {
       />
       <section className="mx-auto max-w-3xl px-4 py-14">
         {submitted ? (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             className="rounded-2xl border border-emerald/30 bg-cream p-12 text-center premium-shadow"
@@ -78,9 +87,10 @@ function BulkOrder() {
             </div>
             <h2 className="font-display text-3xl font-semibold">Quotation Requested</h2>
             <p className="mt-3 text-muted-foreground max-w-md mx-auto">
-              We received your bulk order request. Your dedicated account manager will respond via WhatsApp or Email within 1-2 business hours with pricing and lead times.
+              We received your bulk order request. Your dedicated account manager will respond via
+              WhatsApp or Email within 1-2 business hours with pricing and lead times.
             </p>
-            <Button className="mt-8" onClick={() => window.location.href = "/products"}>
+            <Button className="mt-8" onClick={() => (window.location.href = "/products")}>
               Return to Catalog
             </Button>
           </motion.div>
@@ -90,10 +100,12 @@ function BulkOrder() {
             <div className="mb-8">
               <div className="flex justify-between text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 <span>Step {step} of 3</span>
-                <span>{step === 1 ? "Business Profile" : step === 2 ? "Order Details" : "Contact Info"}</span>
+                <span>
+                  {step === 1 ? "Business Profile" : step === 2 ? "Order Details" : "Contact Info"}
+                </span>
               </div>
               <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                <motion.div 
+                <motion.div
                   className="h-full bg-primary"
                   initial={{ width: "33%" }}
                   animate={{ width: `${(step / 3) * 100}%` }}
@@ -115,7 +127,9 @@ function BulkOrder() {
                     className="space-y-6"
                   >
                     <div>
-                      <h3 className="font-display text-xl font-semibold mb-4">What type of business are you?</h3>
+                      <h3 className="font-display text-xl font-semibold mb-4">
+                        What type of business are you?
+                      </h3>
                       <div className="grid grid-cols-2 gap-4">
                         {[
                           { id: "Retailer", icon: ShoppingCart },
@@ -128,8 +142,8 @@ function BulkOrder() {
                             type="button"
                             onClick={() => updateForm("businessType", type.id)}
                             className={`flex flex-col items-center justify-center p-6 rounded-xl border-2 transition ${
-                              formData.businessType === type.id 
-                                ? "border-primary bg-primary/5 text-primary" 
+                              formData.businessType === type.id
+                                ? "border-primary bg-primary/5 text-primary"
                                 : "border-border bg-background hover:border-primary/40 hover:bg-muted"
                             }`}
                           >
@@ -140,9 +154,9 @@ function BulkOrder() {
                       </div>
                     </div>
                     <div className="flex justify-end pt-4">
-                      <Button 
-                        type="button" 
-                        onClick={nextStep} 
+                      <Button
+                        type="button"
+                        onClick={nextStep}
                         disabled={!formData.businessType}
                         className="gap-2"
                       >
@@ -162,25 +176,29 @@ function BulkOrder() {
                     transition={{ duration: 0.3 }}
                     className="space-y-6"
                   >
-                    <h3 className="font-display text-xl font-semibold mb-4">Order Specifications</h3>
-                    
+                    <h3 className="font-display text-xl font-semibold mb-4">
+                      Order Specifications
+                    </h3>
+
                     <Field label="Product SKU (Optional)">
-                      <input 
-                        value={formData.sku} 
-                        onChange={e => updateForm("sku", e.target.value)}
-                        placeholder="e.g. ANM-PSH-101" 
-                        className={inp} 
+                      <input
+                        value={formData.sku}
+                        onChange={(e) => updateForm("sku", e.target.value)}
+                        placeholder="e.g. ANM-PSH-101"
+                        className={inp}
                       />
                     </Field>
-                    
+
                     <Field label="Estimated Quantity" required>
-                      <select 
-                        required 
+                      <select
+                        required
                         value={formData.quantity}
-                        onChange={e => updateForm("quantity", e.target.value)}
+                        onChange={(e) => updateForm("quantity", e.target.value)}
                         className={inp}
                       >
-                        <option value="" disabled>Select volume tier...</option>
+                        <option value="" disabled>
+                          Select volume tier...
+                        </option>
                         <option value="50-100">50 - 100 pairs (Minimum)</option>
                         <option value="100-500">100 - 500 pairs</option>
                         <option value="500-1000">500 - 1,000 pairs</option>
@@ -189,9 +207,9 @@ function BulkOrder() {
                     </Field>
 
                     <Field label="Private Label / Custom Branding?">
-                      <select 
+                      <select
                         value={formData.branding}
-                        onChange={e => updateForm("branding", e.target.value)}
+                        onChange={(e) => updateForm("branding", e.target.value)}
                         className={inp}
                       >
                         <option value="No">No, standard Anamom packaging</option>
@@ -201,12 +219,12 @@ function BulkOrder() {
                     </Field>
 
                     <Field label="Additional Requirements">
-                      <textarea 
-                        rows={3} 
+                      <textarea
+                        rows={3}
                         value={formData.requirements}
-                        onChange={e => updateForm("requirements", e.target.value)}
-                        placeholder="Specific colors, sizes, target price, or delivery deadlines..." 
-                        className={inp} 
+                        onChange={(e) => updateForm("requirements", e.target.value)}
+                        placeholder="Specific colors, sizes, target price, or delivery deadlines..."
+                        className={inp}
                       />
                     </Field>
 
@@ -214,9 +232,9 @@ function BulkOrder() {
                       <Button type="button" variant="outline" onClick={prevStep} className="gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back
                       </Button>
-                      <Button 
-                        type="button" 
-                        onClick={nextStep} 
+                      <Button
+                        type="button"
+                        onClick={nextStep}
                         disabled={!formData.quantity}
                         className="gap-2"
                       >
@@ -237,21 +255,44 @@ function BulkOrder() {
                     className="space-y-6"
                   >
                     <h3 className="font-display text-xl font-semibold mb-4">Contact Details</h3>
-                    
+
                     <Row>
                       <Field label="Company / Shop Name" required>
-                        <input required value={formData.company} onChange={e => updateForm("company", e.target.value)} className={inp} />
+                        <input
+                          required
+                          value={formData.company}
+                          onChange={(e) => updateForm("company", e.target.value)}
+                          className={inp}
+                        />
                       </Field>
                       <Field label="Your Full Name" required>
-                        <input required value={formData.name} onChange={e => updateForm("name", e.target.value)} className={inp} />
+                        <input
+                          required
+                          value={formData.name}
+                          onChange={(e) => updateForm("name", e.target.value)}
+                          className={inp}
+                        />
                       </Field>
                     </Row>
                     <Row>
                       <Field label="Phone / WhatsApp" required>
-                        <input required type="tel" value={formData.phone} onChange={e => updateForm("phone", e.target.value)} placeholder="0300 1234567" className={inp} />
+                        <input
+                          required
+                          type="tel"
+                          value={formData.phone}
+                          onChange={(e) => updateForm("phone", e.target.value)}
+                          placeholder="0300 1234567"
+                          className={inp}
+                        />
                       </Field>
                       <Field label="Email Address">
-                        <input type="email" value={formData.email} onChange={e => updateForm("email", e.target.value)} placeholder="you@company.com" className={inp} />
+                        <input
+                          type="email"
+                          value={formData.email}
+                          onChange={(e) => updateForm("email", e.target.value)}
+                          placeholder="you@company.com"
+                          className={inp}
+                        />
                       </Field>
                     </Row>
 
@@ -259,8 +300,8 @@ function BulkOrder() {
                       <Button type="button" variant="outline" onClick={prevStep} className="gap-2">
                         <ArrowLeft className="h-4 w-4" /> Back
                       </Button>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         disabled={!formData.company || !formData.name || !formData.phone}
                         className="gap-2 bg-emerald text-white hover:bg-emerald-deep"
                       >
@@ -278,13 +319,23 @@ function BulkOrder() {
   );
 }
 
-const inp = "w-full rounded-md border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow";
+const inp =
+  "w-full rounded-md border border-input bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow";
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}{required && <span className="text-destructive"> *</span>}
+        {label}
+        {required && <span className="text-destructive"> *</span>}
       </span>
       {children}
     </label>

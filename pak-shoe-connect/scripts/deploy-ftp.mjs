@@ -12,7 +12,7 @@ async function deploy() {
 
   try {
     console.log(`📡 Connecting to Hostinger FTP (${FTP_HOST}:${FTP_PORT})...`);
-    
+
     // Try FTPS explicit TLS first
     try {
       await client.access({
@@ -46,7 +46,7 @@ async function deploy() {
     console.log("🎉 SUCCESS: All frontend files uploaded to Hostinger public_html!");
     const list = await client.list();
     console.log("\n📋 Remote public_html contents:");
-    list.forEach(item => console.log(` - ${item.name} (${item.size} bytes)`));
+    list.forEach((item) => console.log(` - ${item.name} (${item.size} bytes)`));
   } catch (err) {
     console.error("🔴 FTP Deployment Error:", err);
   } finally {

@@ -124,41 +124,82 @@ function AuthPage() {
             <div>
               <p className="font-bold text-foreground">Pending Selection Saved</p>
               <p className="text-muted-foreground mt-0.5">
-                {pendingItem.requestedQty} pairs of <strong>{pendingItem.name}</strong> ({pendingItem.color}, {pendingItem.size}) will be automatically added to your basket upon sign in.
+                {pendingItem.requestedQty} pairs of <strong>{pendingItem.name}</strong> (
+                {pendingItem.color}, {pendingItem.size}) will be automatically added to your basket
+                upon sign in.
               </p>
             </div>
           </div>
         )}
 
         {mode === "signin" ? (
-          <form onSubmit={handleSignIn} className="space-y-4 rounded-2xl border border-border bg-card p-6">
-            <Field label="Email"><input name="email" type="email" required className={inp} /></Field>
+          <form
+            onSubmit={handleSignIn}
+            className="space-y-4 rounded-2xl border border-border bg-card p-6"
+          >
+            <Field label="Email">
+              <input name="email" type="email" required className={inp} />
+            </Field>
             <Field label="Password">
               <div className="relative">
-                <input name="password" type={showPassword ? 'text' : 'password'} required className={inp} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  className={inp}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </Field>
-            <button disabled={busy} className={btn}>{busy ? "Signing in…" : "Sign in"}</button>
+            <button disabled={busy} className={btn}>
+              {busy ? "Signing in…" : "Sign in"}
+            </button>
             <p className="text-center text-xs text-muted-foreground">
               New buyer?{" "}
-              <button type="button" onClick={() => setMode("signup")} className="text-primary hover:underline">
+              <button
+                type="button"
+                onClick={() => setMode("signup")}
+                className="text-primary hover:underline"
+              >
                 Create an account
               </button>
             </p>
           </form>
         ) : (
-          <form onSubmit={handleSignUp} className="space-y-4 rounded-2xl border border-border bg-card p-6">
-            <Field label="Business name" required><input name="business_name" required className={inp} /></Field>
-            <Field label="Owner name" required><input name="owner_name" required className={inp} /></Field>
+          <form
+            onSubmit={handleSignUp}
+            className="space-y-4 rounded-2xl border border-border bg-card p-6"
+          >
+            <Field label="Business name" required>
+              <input name="business_name" required className={inp} />
+            </Field>
+            <Field label="Owner name" required>
+              <input name="owner_name" required className={inp} />
+            </Field>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Email" required><input name="email" type="email" required className={inp} /></Field>
-              <Field label="Phone / WhatsApp" required><input name="phone" type="tel" required placeholder="+92 3XX XXXXXXX" className={inp} /></Field>
+              <Field label="Email" required>
+                <input name="email" type="email" required className={inp} />
+              </Field>
+              <Field label="Phone / WhatsApp" required>
+                <input
+                  name="phone"
+                  type="tel"
+                  required
+                  placeholder="+92 3XX XXXXXXX"
+                  className={inp}
+                />
+              </Field>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="City"><input name="city" className={inp} /></Field>
+              <Field label="City">
+                <input name="city" className={inp} />
+              </Field>
               <Field label="Business type">
                 <select name="business_type" defaultValue="" className={inp}>
                   <option value="">Select…</option>
@@ -169,19 +210,36 @@ function AuthPage() {
                 </select>
               </Field>
             </div>
-            <Field label="Shop address"><textarea name="address" rows={2} className={inp} /></Field>
+            <Field label="Shop address">
+              <textarea name="address" rows={2} className={inp} />
+            </Field>
             <Field label="Password" required>
               <div className="relative">
-                <input name="password" type={showPassword ? 'text' : 'password'} required minLength={6} className={inp} />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={6}
+                  className={inp}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </Field>
-            <button disabled={busy} className={btn}>{busy ? "Creating…" : "Create account"}</button>
+            <button disabled={busy} className={btn}>
+              {busy ? "Creating…" : "Create account"}
+            </button>
             <p className="text-center text-xs text-muted-foreground">
               By signing up, you agree to our{" "}
-              <Link to="/contact" className="text-primary hover:underline">terms</Link>.
+              <Link to="/contact" className="text-primary hover:underline">
+                terms
+              </Link>
+              .
             </p>
           </form>
         )}
@@ -190,14 +248,25 @@ function AuthPage() {
   );
 }
 
-const inp = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring";
-const btn = "w-full rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-emerald-deep disabled:opacity-60";
+const inp =
+  "w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring";
+const btn =
+  "w-full rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-emerald-deep disabled:opacity-60";
 
-function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
+function Field({
+  label,
+  required,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}{required && <span className="text-destructive"> *</span>}
+        {label}
+        {required && <span className="text-destructive"> *</span>}
       </span>
       {children}
     </label>

@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Eye, EyeOff, Lock, ShoppingBag, ShieldCheck, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
@@ -107,9 +113,10 @@ export function AuthModal({
             {title || (hasPendingItem ? "Sign in to Add to Basket" : "Sign in to continue")}
           </DialogTitle>
           <DialogDescription className="text-center text-xs sm:text-sm text-muted-foreground">
-            {description || (hasPendingItem
-              ? "Your selected product, quantity, color, and size options have been saved. Sign in to automatically add this to your inquiry basket."
-              : "Access wholesale pricing and add items to your B2B inquiry basket.")}
+            {description ||
+              (hasPendingItem
+                ? "Your selected product, quantity, color, and size options have been saved. Sign in to automatically add this to your inquiry basket."
+                : "Access wholesale pricing and add items to your B2B inquiry basket.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -273,7 +280,11 @@ export function AuthModal({
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  {showPassword ? (
+                    <EyeOff className="h-3.5 w-3.5" />
+                  ) : (
+                    <Eye className="h-3.5 w-3.5" />
+                  )}
                 </button>
               </div>
             </div>

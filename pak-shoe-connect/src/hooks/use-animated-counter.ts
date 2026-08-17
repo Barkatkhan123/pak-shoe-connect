@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export function useAnimatedCounter(
-  target: number,
-  duration = 2000,
-  delay = 0
-) {
+export function useAnimatedCounter(target: number, duration = 2000, delay = 0) {
   const [count, setCount] = useState(0);
   const [started, setStarted] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
@@ -18,7 +14,7 @@ export function useAnimatedCounter(
           setStarted(true);
         }
       },
-      { threshold: 0.3 }
+      { threshold: 0.3 },
     );
     observer.observe(ref.current);
     return () => observer.disconnect();

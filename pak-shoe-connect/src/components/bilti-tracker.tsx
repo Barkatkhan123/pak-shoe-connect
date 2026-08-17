@@ -1,5 +1,14 @@
 import React from "react";
-import { CheckCircle2, Circle, Clock, Truck, ShieldCheck, FileText, MapPin, Package } from "lucide-react";
+import {
+  CheckCircle2,
+  Circle,
+  Clock,
+  Truck,
+  ShieldCheck,
+  FileText,
+  MapPin,
+  Package,
+} from "lucide-react";
 import { formatPKR } from "@/lib/site";
 
 export interface TimelineItem {
@@ -34,7 +43,9 @@ export function BiltiTracker({ data }: BiltiTrackerProps) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-mono text-sm font-bold text-muted-foreground">{data.orderNumber}</span>
+            <span className="font-mono text-sm font-bold text-muted-foreground">
+              {data.orderNumber}
+            </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 border border-emerald-500/20">
               <Truck className="h-3.5 w-3.5" /> {data.status}
             </span>
@@ -44,7 +55,8 @@ export function BiltiTracker({ data }: BiltiTrackerProps) {
           </h2>
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
             <MapPin className="h-3.5 w-3.5 text-primary" />
-            <span>{data.originCity}</span> ➔ <strong className="text-foreground">{data.destinationCity}</strong>
+            <span>{data.originCity}</span> ➔{" "}
+            <strong className="text-foreground">{data.destinationCity}</strong>
           </div>
         </div>
 
@@ -59,13 +71,19 @@ export function BiltiTracker({ data }: BiltiTrackerProps) {
       <div className="grid grid-cols-3 gap-4 text-center">
         <div className="rounded-xl bg-muted/30 p-3">
           <div className="text-xs text-muted-foreground">Consignment Volume</div>
-          <div className="text-lg font-bold font-mono text-foreground mt-0.5">{data.totalPairs} Pairs</div>
-          <div className="text-[10px] text-muted-foreground">{data.totalCartons} Master Cartons</div>
+          <div className="text-lg font-bold font-mono text-foreground mt-0.5">
+            {data.totalPairs} Pairs
+          </div>
+          <div className="text-[10px] text-muted-foreground">
+            {data.totalCartons} Master Cartons
+          </div>
         </div>
 
         <div className="rounded-xl bg-muted/30 p-3">
           <div className="text-xs text-muted-foreground">Protected Escrow</div>
-          <div className="text-lg font-bold font-mono text-primary mt-0.5">{formatPKR(data.totalAmount)}</div>
+          <div className="text-lg font-bold font-mono text-primary mt-0.5">
+            {formatPKR(data.totalAmount)}
+          </div>
           <div className="text-[10px] text-emerald-600 font-medium">100% Held in Trust</div>
         </div>
 
@@ -99,7 +117,9 @@ export function BiltiTracker({ data }: BiltiTrackerProps) {
 
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                  <span className={`text-sm font-bold ${item.completed ? "text-foreground" : "text-muted-foreground"}`}>
+                  <span
+                    className={`text-sm font-bold ${item.completed ? "text-foreground" : "text-muted-foreground"}`}
+                  >
                     {item.title}
                   </span>
                   {item.timestamp && (
@@ -120,9 +140,12 @@ export function BiltiTracker({ data }: BiltiTrackerProps) {
         <div className="flex items-center gap-3">
           <ShieldCheck className="h-8 w-8 text-emerald-600 shrink-0" />
           <div>
-            <div className="font-bold text-sm text-foreground">Buyer Protection & Escrow Guarantee</div>
+            <div className="font-bold text-sm text-foreground">
+              Buyer Protection & Escrow Guarantee
+            </div>
             <p className="text-xs text-muted-foreground">
-              Funds are only released to the manufacturer after you receive the Bilti cargo and confirm carton quality.
+              Funds are only released to the manufacturer after you receive the Bilti cargo and
+              confirm carton quality.
             </p>
           </div>
         </div>

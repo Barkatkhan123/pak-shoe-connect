@@ -20,10 +20,38 @@ describe("Step 6: Buyer Marketplace UI & Cart/Tracking Ordering Engine", () => {
       moq: 24,
       cartonQty: 24,
       bulkPriceTiers: [
-        { id: "t1", productId: TEST_PRODUCT_ID, minQty: 24, maxQty: 49, unitPrice: 1850.0, tierLabel: "Starter Wholesale" },
-        { id: "t2", productId: TEST_PRODUCT_ID, minQty: 50, maxQty: 199, unitPrice: 1650.0, tierLabel: "Dealer Batch" },
-        { id: "t3", productId: TEST_PRODUCT_ID, minQty: 200, maxQty: 499, unitPrice: 1450.0, tierLabel: "Wholesale Master" },
-        { id: "t4", productId: TEST_PRODUCT_ID, minQty: 500, maxQty: null, unitPrice: 1299.0, tierLabel: "Container Bulk" },
+        {
+          id: "t1",
+          productId: TEST_PRODUCT_ID,
+          minQty: 24,
+          maxQty: 49,
+          unitPrice: 1850.0,
+          tierLabel: "Starter Wholesale",
+        },
+        {
+          id: "t2",
+          productId: TEST_PRODUCT_ID,
+          minQty: 50,
+          maxQty: 199,
+          unitPrice: 1650.0,
+          tierLabel: "Dealer Batch",
+        },
+        {
+          id: "t3",
+          productId: TEST_PRODUCT_ID,
+          minQty: 200,
+          maxQty: 499,
+          unitPrice: 1450.0,
+          tierLabel: "Wholesale Master",
+        },
+        {
+          id: "t4",
+          productId: TEST_PRODUCT_ID,
+          minQty: 500,
+          maxQty: null,
+          unitPrice: 1299.0,
+          tierLabel: "Container Bulk",
+        },
       ],
     } as any);
 
@@ -68,8 +96,22 @@ describe("Step 6: Buyer Marketplace UI & Cart/Tracking Ordering Engine", () => {
       moq: 24,
       cartonQty: 24,
       bulkPriceTiers: [
-        { id: "t1", productId: TEST_PRODUCT_ID, minQty: 24, maxQty: 49, unitPrice: 1850.0, tierLabel: "Starter Wholesale" },
-        { id: "t2", productId: TEST_PRODUCT_ID, minQty: 50, maxQty: 199, unitPrice: 1650.0, tierLabel: "Dealer Batch" },
+        {
+          id: "t1",
+          productId: TEST_PRODUCT_ID,
+          minQty: 24,
+          maxQty: 49,
+          unitPrice: 1850.0,
+          tierLabel: "Starter Wholesale",
+        },
+        {
+          id: "t2",
+          productId: TEST_PRODUCT_ID,
+          minQty: 50,
+          maxQty: 199,
+          unitPrice: 1650.0,
+          tierLabel: "Dealer Batch",
+        },
       ],
     } as any);
 
@@ -82,10 +124,7 @@ describe("Step 6: Buyer Marketplace UI & Cart/Tracking Ordering Engine", () => {
     expect(cartRes.data.success).toBe(true);
     expect(cartRes.data.pairs).toBe(100);
 
-    const trackingRes = await handleApiRequest(
-      "/api/v1/orders/tracking/ORD-PK-2026-9901",
-      "GET"
-    );
+    const trackingRes = await handleApiRequest("/api/v1/orders/tracking/ORD-PK-2026-9901", "GET");
 
     expect(trackingRes.status).toBe(200);
     expect(trackingRes.data.tracking.biltiNumber).toBeDefined();

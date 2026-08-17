@@ -26,7 +26,7 @@ describe("Security Regression & Data Leakage Tests", () => {
         factoryName: "Apex Footwear Ltd",
         city: "Lahore",
       },
-      items: []
+      items: [],
     } as any);
 
     const res = await handleApiRequest(
@@ -34,17 +34,17 @@ describe("Security Regression & Data Leakage Tests", () => {
       "GET",
       {},
       {},
-      { "x-correlation-id": "test-correlation-uuid" }
+      { "x-correlation-id": "test-correlation-uuid" },
     );
 
     expect(res.status).toBe(200);
     const bodyStr = JSON.stringify(res.data);
-    
+
     // Ensure no password hashes leak in payload
     expect(bodyStr).not.toContain("passwordHash");
     expect(bodyStr).not.toContain("password");
     expect(bodyStr).not.toContain("hashedPassword");
-    
+
     // Check that we got the allowed public tracking details
     expect(res.data.tracking.orderNumber).toBe("ORD-PK-2026-1002");
     expect(res.data.tracking.destinationCity).toBe("Lahore");
@@ -73,8 +73,8 @@ describe("Security Regression & Data Leakage Tests", () => {
         factoryName: "Apex Footwear Ltd",
         city: "Lahore",
         ntnTaxNumber: "NTN-881122-9", // SENSITIVE
-        productionCapacity: 60000,     // SENSITIVE
-        rfqQuota: 45,                  // SENSITIVE
+        productionCapacity: 60000, // SENSITIVE
+        rfqQuota: 45, // SENSITIVE
         verificationStatus: "VERIFIED",
         responseRate: 98,
         avgReplyTime: 2,
@@ -88,7 +88,7 @@ describe("Security Regression & Data Leakage Tests", () => {
       "GET",
       {},
       {},
-      { "x-correlation-id": "test-correlation-uuid" }
+      { "x-correlation-id": "test-correlation-uuid" },
     );
 
     expect(res.status).toBe(200);
@@ -102,7 +102,7 @@ describe("Security Regression & Data Leakage Tests", () => {
     expect(supplierData.ntnTaxNumber).toBeUndefined();
     expect(supplierData.productionCapacity).toBeUndefined();
     expect(supplierData.rfqQuota).toBeUndefined();
-    
+
     const bodyStr = JSON.stringify(res.data);
     expect(bodyStr).not.toContain("NTN-881122-9");
   });
@@ -113,7 +113,7 @@ describe("Security Regression & Data Leakage Tests", () => {
     const prismaError = new Error("Record not found");
     (prismaError as any).code = "P2025";
     (prismaError as any).constructor = { name: "PrismaClientKnownRequestError" };
-    
+
     vi.spyOn(prisma.product, "findFirst").mockRejectedValueOnce(prismaError);
 
     const res = await handleApiRequest(
@@ -121,7 +121,7 @@ describe("Security Regression & Data Leakage Tests", () => {
       "GET",
       {},
       {},
-      { "x-correlation-id": "err-correlation-uuid" }
+      { "x-correlation-id": "err-correlation-uuid" },
     );
 
     // Should return 404 instead of 500 or throwing

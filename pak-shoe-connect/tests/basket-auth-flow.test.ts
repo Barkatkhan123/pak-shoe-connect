@@ -156,7 +156,7 @@ describe("Basket Authentication Flow & Server Security", () => {
           size: "EU 41",
         },
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       expect(res.status).toBe(200);
@@ -183,7 +183,7 @@ describe("Basket Authentication Flow & Server Security", () => {
           size: "EU 42",
         },
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       // Second addition: 24 more pairs of same color & size
@@ -197,7 +197,7 @@ describe("Basket Authentication Flow & Server Security", () => {
           size: "EU 42",
         },
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       expect(res2.status).toBe(200);
@@ -223,7 +223,7 @@ describe("Basket Authentication Flow & Server Security", () => {
           idempotencyKey,
         },
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       // Rapid duplicate call with same idempotency key
@@ -238,7 +238,7 @@ describe("Basket Authentication Flow & Server Security", () => {
           idempotencyKey,
         },
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       expect(res1.status).toBe(200);
@@ -256,7 +256,7 @@ describe("Basket Authentication Flow & Server Security", () => {
           quantityPairs: 24,
         },
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       expect(res.status).toBe(400);
@@ -293,7 +293,7 @@ describe("Basket Authentication Flow & Server Security", () => {
         "GET",
         {},
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
       expect(preCheck.body.data.items.length).toBe(0);
 
@@ -313,7 +313,7 @@ describe("Basket Authentication Flow & Server Security", () => {
           idempotencyKey: pendingToRestore!.idempotencyKey,
         },
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       expect(mutationRes.status).toBe(200);
@@ -333,7 +333,7 @@ describe("Basket Authentication Flow & Server Security", () => {
         "GET",
         {},
         {},
-        { authorization: `Bearer ${VALID_BUYER_TOKEN}` }
+        { authorization: `Bearer ${VALID_BUYER_TOKEN}` },
       );
 
       const items = basketRes.body.data.items;

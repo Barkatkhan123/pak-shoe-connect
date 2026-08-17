@@ -75,7 +75,9 @@ export function registerGracefulShutdown(): void {
     // Close database & queue connections
     try {
       await prisma.$disconnect();
-      const { redisConnection, whatsappQueue } = await import("../queues/whatsapp.queue").catch(() => ({} as any));
+      const { redisConnection, whatsappQueue } = await import("../queues/whatsapp.queue").catch(
+        () => ({}) as any,
+      );
       if (whatsappQueue?.close) await whatsappQueue.close().catch(() => {});
       if (redisConnection?.quit) await redisConnection.quit().catch(() => {});
       console.info(

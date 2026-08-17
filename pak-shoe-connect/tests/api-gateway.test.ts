@@ -33,19 +33,35 @@ describe("Zero Trust API Gateway", () => {
 
   it("should reject protected routes when user role is unauthorized (RBAC)", async () => {
     const buyerToken = signToken({ sub: "user-123", role: "BUYER" });
-    const res = await apiGateway("/api/v1/admin/finance/revenue", "GET", {}, {}, {
-      authorization: `Bearer ${buyerToken}`,
-    });
+    const res = await apiGateway(
+      "/api/v1/admin/finance/revenue",
+      "GET",
+      {},
+      {},
+      {
+        authorization: `Bearer ${buyerToken}`,
+      },
+    );
     expect(res.status).toBe(403);
     expect(res.body.success).toBe(false);
     expect(res.body.code).toBe("FORBIDDEN");
   });
 
   it("should allow authorized supplier to access supplier wallet and return sanitized DTO", async () => {
-    const supplierToken = signToken({ sub: "supp-user-456", role: "SUPPLIER", supplierId: "SUPP-001" });
-    const res = await apiGateway("/api/v1/supplier/wallet", "GET", {}, {}, {
-      authorization: `Bearer ${supplierToken}`,
+    const supplierToken = signToken({
+      sub: "supp-user-456",
+      role: "SUPPLIER",
+      supplierId: "SUPP-001",
     });
+    const res = await apiGateway(
+      "/api/v1/supplier/wallet",
+      "GET",
+      {},
+      {},
+      {
+        authorization: `Bearer ${supplierToken}`,
+      },
+    );
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
     expect(res.body.data.availableBalance).toContain("PKR");
@@ -58,9 +74,15 @@ describe("Zero Trust API Gateway", () => {
 
   it("should normalize 404 errors for non-existent routes without exposing available routes", async () => {
     const validToken = signToken({ sub: "user-123", role: "BUYER" });
-    const res = await apiGateway("/api/v1/internal/secret-service", "GET", {}, {}, {
-      authorization: `Bearer ${validToken}`,
-    });
+    const res = await apiGateway(
+      "/api/v1/internal/secret-service",
+      "GET",
+      {},
+      {},
+      {
+        authorization: `Bearer ${validToken}`,
+      },
+    );
     expect(res.status).toBe(404);
     expect(res.body.success).toBe(false);
     expect(res.body.code).toBe("NOT_FOUND");
@@ -73,10 +95,17 @@ describe("Zero Trust API Gateway", () => {
     // Send 11 rapid requests (limit is 10)
     let lastRes;
     for (let i = 0; i < 11; i++) {
-      lastRes = await apiGateway("/api/v1/auth/login", "POST", {
-        phone: "+923001234567",
-        password: "invalidpassword",
-      }, {}, {}, clientIp);
+      lastRes = await apiGateway(
+        "/api/v1/auth/login",
+        "POST",
+        {
+          phone: "+923001234567",
+          password: "invalidpassword",
+        },
+        {},
+        {},
+        clientIp,
+      );
     }
     expect(lastRes?.status).toBe(429);
     expect(lastRes?.body.code).toBe("RATE_LIMITED");

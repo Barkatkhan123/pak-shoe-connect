@@ -1,24 +1,91 @@
 import React, { useState, useEffect } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 import {
-  LayoutDashboard, Package, Tag, Building2, Users, ShoppingBag, FileText,
-  Boxes, CreditCard, ShieldCheck, Truck, Star, AlertTriangle, Ticket,
-  BarChart3, Settings, Activity, ShieldAlert, CheckCircle2,
-  Plus, RefreshCw, Eye, EyeOff, Lock, ArrowUpRight, Search, Clock, Key,
-  LogOut, Shield, Mail, CheckCircle, Smartphone, Terminal, History, Fingerprint,
-  Download, Send, LifeBuoy, Wifi, WifiOff, Zap, Globe, Database, Server,
-  AlertCircle, ToggleLeft, ToggleRight, Banknote, Scale, MessageSquareWarning,
-  HeartPulse, SlidersHorizontal, X, Trash2, PackageCheck, Phone, MapPin, Calendar, Edit3
+  LayoutDashboard,
+  Package,
+  Tag,
+  Building2,
+  Users,
+  ShoppingBag,
+  FileText,
+  Boxes,
+  CreditCard,
+  ShieldCheck,
+  Truck,
+  Star,
+  AlertTriangle,
+  Ticket,
+  BarChart3,
+  Settings,
+  Activity,
+  ShieldAlert,
+  CheckCircle2,
+  Plus,
+  RefreshCw,
+  Eye,
+  EyeOff,
+  Lock,
+  ArrowUpRight,
+  Search,
+  Clock,
+  Key,
+  LogOut,
+  Shield,
+  Mail,
+  CheckCircle,
+  Smartphone,
+  Terminal,
+  History,
+  Fingerprint,
+  Download,
+  Send,
+  LifeBuoy,
+  Wifi,
+  WifiOff,
+  Zap,
+  Globe,
+  Database,
+  Server,
+  AlertCircle,
+  ToggleLeft,
+  ToggleRight,
+  Banknote,
+  Scale,
+  MessageSquareWarning,
+  HeartPulse,
+  SlidersHorizontal,
+  X,
+  Trash2,
+  PackageCheck,
+  Phone,
+  MapPin,
+  Calendar,
+  Edit3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
 import { PRODUCTS, Product } from "@/data/products";
 import { AdminProductTable } from "@/components/admin/admin-product-table";
@@ -28,7 +95,7 @@ import {
   MASTER_ADMIN_EMAIL,
   AdminUserSession,
   AuditLogEntry,
-  EMERGENCY_RECOVERY_CODES
+  EMERGENCY_RECOVERY_CODES,
 } from "@/lib/admin-auth";
 import { apiClient } from "@/lib/api-client";
 
@@ -90,10 +157,38 @@ const INITIAL_SUPPLIERS = [
 ];
 
 const MOCK_ORDERS = [
-  { id: "ORD-9821", buyer: "Karachi Leather Hub", amount: "PKR 148,000", items: "96 pairs (8 ctns)", biltiNo: "KHI-BLT-4091", status: "DISPATCHED" },
-  { id: "ORD-9822", buyer: "Multan Footwear Traders", amount: "PKR 88,800", items: "48 pairs (4 ctns)", biltiNo: "MLT-BLT-1029", status: "PROCESSING" },
-  { id: "ORD-9823", buyer: "Peshawar Shoe Mart", amount: "PKR 222,000", items: "144 pairs (12 ctns)", biltiNo: "PSH-BLT-8812", status: "DELIVERED" },
-  { id: "ORD-9824", buyer: "Quetta Traders Syndicate", amount: "PKR 310,000", items: "240 pairs (20 ctns)", biltiNo: "QTA-BLT-7719", status: "PROCESSING" },
+  {
+    id: "ORD-9821",
+    buyer: "Karachi Leather Hub",
+    amount: "PKR 148,000",
+    items: "96 pairs (8 ctns)",
+    biltiNo: "KHI-BLT-4091",
+    status: "DISPATCHED",
+  },
+  {
+    id: "ORD-9822",
+    buyer: "Multan Footwear Traders",
+    amount: "PKR 88,800",
+    items: "48 pairs (4 ctns)",
+    biltiNo: "MLT-BLT-1029",
+    status: "PROCESSING",
+  },
+  {
+    id: "ORD-9823",
+    buyer: "Peshawar Shoe Mart",
+    amount: "PKR 222,000",
+    items: "144 pairs (12 ctns)",
+    biltiNo: "PSH-BLT-8812",
+    status: "DELIVERED",
+  },
+  {
+    id: "ORD-9824",
+    buyer: "Quetta Traders Syndicate",
+    amount: "PKR 310,000",
+    items: "240 pairs (20 ctns)",
+    biltiNo: "QTA-BLT-7719",
+    status: "PROCESSING",
+  },
 ];
 
 export interface ProductSample {
@@ -109,7 +204,8 @@ export interface ProductSample {
   trackingNo: string;
   sampleFee: number;
   paymentStatus: "PAID" | "PENDING_FEE" | "WAIVED_VIP";
-  status: "REQUESTED" | "PREPARING" | "DISPATCHED" | "DELIVERED" | "CONVERTED_TO_BULK" | "CANCELLED";
+  status:
+    "REQUESTED" | "PREPARING" | "DISPATCHED" | "DELIVERED" | "CONVERTED_TO_BULK" | "CANCELLED";
   requestedDate: string;
   notes?: string;
 }
@@ -187,27 +283,132 @@ const INITIAL_SAMPLES: ProductSample[] = [
 
 // ── Mock data for Payments / Escrow tab ──
 const MOCK_ESCROW_TRANSACTIONS = [
-  { id: "ESC-4401", orderId: "ORD-9821", buyer: "Karachi Leather Hub", supplier: "Sialkot Master Syndicate", amount: "PKR 148,000", held: "PKR 4,440", status: "HELD", date: "2026-08-10" },
-  { id: "ESC-4402", orderId: "ORD-9822", buyer: "Multan Footwear Traders", supplier: "Lahore Footwear Craftsmen", amount: "PKR 88,800", held: "PKR 2,664", status: "RELEASED", date: "2026-08-09" },
-  { id: "ESC-4403", orderId: "ORD-9823", buyer: "Peshawar Shoe Mart", supplier: "Sialkot Master Syndicate", amount: "PKR 222,000", held: "PKR 6,660", status: "HELD", date: "2026-08-11" },
-  { id: "ESC-4404", orderId: "ORD-9819", buyer: "Faisalabad Retail Chain", supplier: "Lahore Footwear Craftsmen", amount: "PKR 310,000", held: "PKR 9,300", status: "IN_DISPUTE", date: "2026-08-07" },
+  {
+    id: "ESC-4401",
+    orderId: "ORD-9821",
+    buyer: "Karachi Leather Hub",
+    supplier: "Sialkot Master Syndicate",
+    amount: "PKR 148,000",
+    held: "PKR 4,440",
+    status: "HELD",
+    date: "2026-08-10",
+  },
+  {
+    id: "ESC-4402",
+    orderId: "ORD-9822",
+    buyer: "Multan Footwear Traders",
+    supplier: "Lahore Footwear Craftsmen",
+    amount: "PKR 88,800",
+    held: "PKR 2,664",
+    status: "RELEASED",
+    date: "2026-08-09",
+  },
+  {
+    id: "ESC-4403",
+    orderId: "ORD-9823",
+    buyer: "Peshawar Shoe Mart",
+    supplier: "Sialkot Master Syndicate",
+    amount: "PKR 222,000",
+    held: "PKR 6,660",
+    status: "HELD",
+    date: "2026-08-11",
+  },
+  {
+    id: "ESC-4404",
+    orderId: "ORD-9819",
+    buyer: "Faisalabad Retail Chain",
+    supplier: "Lahore Footwear Craftsmen",
+    amount: "PKR 310,000",
+    held: "PKR 9,300",
+    status: "IN_DISPUTE",
+    date: "2026-08-07",
+  },
 ];
 
 // ── Mock data for Disputes tab ──
 const INITIAL_DISPUTES = [
-  { id: "DIS-1101", orderId: "ORD-9819", buyer: "Faisalabad Retail Chain", supplier: "Lahore Footwear Craftsmen", amount: "PKR 310,000", reason: "Wrong color delivered (Brown instead of Black)", status: "OPEN", opened: "2026-08-08" },
-  { id: "DIS-1102", orderId: "ORD-9810", buyer: "Rawalpindi Wholesale", supplier: "Sialkot Master Syndicate", amount: "PKR 74,400", reason: "Quality below agreed specification — sole delamination", status: "IN_REVIEW", opened: "2026-08-04" },
-  { id: "DIS-1103", orderId: "ORD-9805", buyer: "Quetta Footwear Hub", supplier: "Lahore Footwear Craftsmen", amount: "PKR 192,000", reason: "Late delivery — 12 days beyond agreed lead time", status: "RESOLVED", opened: "2026-07-28" },
+  {
+    id: "DIS-1101",
+    orderId: "ORD-9819",
+    buyer: "Faisalabad Retail Chain",
+    supplier: "Lahore Footwear Craftsmen",
+    amount: "PKR 310,000",
+    reason: "Wrong color delivered (Brown instead of Black)",
+    status: "OPEN",
+    opened: "2026-08-08",
+  },
+  {
+    id: "DIS-1102",
+    orderId: "ORD-9810",
+    buyer: "Rawalpindi Wholesale",
+    supplier: "Sialkot Master Syndicate",
+    amount: "PKR 74,400",
+    reason: "Quality below agreed specification — sole delamination",
+    status: "IN_REVIEW",
+    opened: "2026-08-04",
+  },
+  {
+    id: "DIS-1103",
+    orderId: "ORD-9805",
+    buyer: "Quetta Footwear Hub",
+    supplier: "Lahore Footwear Craftsmen",
+    amount: "PKR 192,000",
+    reason: "Late delivery — 12 days beyond agreed lead time",
+    status: "RESOLVED",
+    opened: "2026-07-28",
+  },
 ];
 
 // ── Mock data for System Health tab ──
 const SYSTEM_SERVICES = [
-  { name: "API Gateway", status: "OPERATIONAL", latency: 42, uptime: "99.97%", lastChecked: "2 min ago", icon: Server },
-  { name: "Supabase Database", status: "OPERATIONAL", latency: 18, uptime: "99.99%", lastChecked: "1 min ago", icon: Database },
-  { name: "Payment Gateway", status: "DEGRADED", latency: 380, uptime: "98.21%", lastChecked: "3 min ago", icon: CreditCard },
-  { name: "CDN & Media", status: "OPERATIONAL", latency: 12, uptime: "100%", lastChecked: "1 min ago", icon: Globe },
-  { name: "Bilti Tracking", status: "OPERATIONAL", latency: 95, uptime: "99.80%", lastChecked: "5 min ago", icon: Truck },
-  { name: "Email Notifications", status: "OPERATIONAL", latency: 210, uptime: "99.65%", lastChecked: "4 min ago", icon: Mail },
+  {
+    name: "API Gateway",
+    status: "OPERATIONAL",
+    latency: 42,
+    uptime: "99.97%",
+    lastChecked: "2 min ago",
+    icon: Server,
+  },
+  {
+    name: "Supabase Database",
+    status: "OPERATIONAL",
+    latency: 18,
+    uptime: "99.99%",
+    lastChecked: "1 min ago",
+    icon: Database,
+  },
+  {
+    name: "Payment Gateway",
+    status: "DEGRADED",
+    latency: 380,
+    uptime: "98.21%",
+    lastChecked: "3 min ago",
+    icon: CreditCard,
+  },
+  {
+    name: "CDN & Media",
+    status: "OPERATIONAL",
+    latency: 12,
+    uptime: "100%",
+    lastChecked: "1 min ago",
+    icon: Globe,
+  },
+  {
+    name: "Bilti Tracking",
+    status: "OPERATIONAL",
+    latency: 95,
+    uptime: "99.80%",
+    lastChecked: "5 min ago",
+    icon: Truck,
+  },
+  {
+    name: "Email Notifications",
+    status: "OPERATIONAL",
+    latency: 210,
+    uptime: "99.65%",
+    lastChecked: "4 min ago",
+    icon: Mail,
+  },
 ];
 
 export function AdminDashboardPage() {
@@ -248,7 +449,9 @@ export function AdminDashboardPage() {
   const [newSampleCourier, setNewSampleCourier] = useState("TCS Express");
   const [newSampleTracking, setNewSampleTracking] = useState("");
   const [newSampleFee, setNewSampleFee] = useState(2500);
-  const [newSamplePayment, setNewSamplePayment] = useState<"PAID" | "PENDING_FEE" | "WAIVED_VIP">("PAID");
+  const [newSamplePayment, setNewSamplePayment] = useState<"PAID" | "PENDING_FEE" | "WAIVED_VIP">(
+    "PAID",
+  );
   const [newSampleNotes, setNewSampleNotes] = useState("");
 
   // Edit Tracking Modal state
@@ -267,7 +470,9 @@ export function AdminDashboardPage() {
   });
 
   // Production Auth & 2FA State
-  const [session, setSession] = useState<AdminUserSession | null>(() => adminSecurityEngine.getStoredSession());
+  const [session, setSession] = useState<AdminUserSession | null>(() =>
+    adminSecurityEngine.getStoredSession(),
+  );
   const [loginStep, setLoginStep] = useState<"CREDENTIALS" | "2FA_OTP" | "RECOVERY">("CREDENTIALS");
   const [emailInput, setEmailInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
@@ -310,7 +515,10 @@ export function AdminDashboardPage() {
     const normalizedEmail = emailInput.trim().toLowerCase();
     setEmailInput(normalizedEmail);
 
-    const authCheck = await adminSecurityEngine.verifyServerAuthorization(normalizedEmail, passwordInput);
+    const authCheck = await adminSecurityEngine.verifyServerAuthorization(
+      normalizedEmail,
+      passwordInput,
+    );
 
     if (!authCheck.authorized) {
       adminSecurityEngine.recordFailedAttempt();
@@ -385,22 +593,21 @@ export function AdminDashboardPage() {
     const logs = adminSecurityEngine.getAuditLogs();
     const rows = [
       "Log ID,Request ID,Timestamp,Admin Email,Role,Action,Target,IP,Status,Details",
-      ...logs.map(
-        (l) =>
-          // BUG-18 FIX: Use Blob + createObjectURL so commas, quotes, and
-          // Unicode characters (e.g. Urdu product names) don't corrupt the CSV.
-          [
-            l.id,
-            l.requestId,
-            l.timestamp,
-            l.adminEmail,
-            l.role,
-            `"${l.action.replace(/"/g, '""')}"`,
-            `"${l.target.replace(/"/g, '""')}"`,
-            l.ipAddress,
-            l.status,
-            `"${(l.details || "").replace(/"/g, '""')}"`,
-          ].join(",")
+      ...logs.map((l) =>
+        // BUG-18 FIX: Use Blob + createObjectURL so commas, quotes, and
+        // Unicode characters (e.g. Urdu product names) don't corrupt the CSV.
+        [
+          l.id,
+          l.requestId,
+          l.timestamp,
+          l.adminEmail,
+          l.role,
+          `"${l.action.replace(/"/g, '""')}"`,
+          `"${l.target.replace(/"/g, '""')}"`,
+          l.ipAddress,
+          l.status,
+          `"${(l.details || "").replace(/"/g, '""')}"`,
+        ].join(","),
       ),
     ].join("\n");
 
@@ -467,7 +674,7 @@ export function AdminDashboardPage() {
     }
 
     setProductsList((prev) =>
-      prev.map((p) => (p.slug === productSlug ? { ...p, inStock: !p.inStock } : p))
+      prev.map((p) => (p.slug === productSlug ? { ...p, inStock: !p.inStock } : p)),
     );
     setAuditLogs(adminSecurityEngine.getAuditLogs());
     toast.success("Stock status updated");
@@ -485,11 +692,17 @@ export function AdminDashboardPage() {
 
     if (isEdit) {
       setProductsList((prev) =>
-        prev.map((p) => (p.slug === productToEdit.slug ? ({ ...p, ...updatedFields } as Product) : p))
+        prev.map((p) =>
+          p.slug === productToEdit.slug ? ({ ...p, ...updatedFields } as Product) : p,
+        ),
       );
     } else {
       const newProd: Product = {
-        slug: updatedFields.slug || (updatedFields.sku ? updatedFields.sku.toLowerCase().replace(/[^a-z0-9]+/g, "-") : `prod-${Date.now()}`),
+        slug:
+          updatedFields.slug ||
+          (updatedFields.sku
+            ? updatedFields.sku.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+            : `prod-${Date.now()}`),
         sku: updatedFields.sku || `SHR-PROD-${Math.floor(100 + Math.random() * 900)}`,
         name: updatedFields.name || "New Wholesale Footwear",
         nameUrdu: updatedFields.nameUrdu || "",
@@ -497,9 +710,19 @@ export function AdminDashboardPage() {
         gender: updatedFields.gender || "men",
         material: updatedFields.material || "Full-grain genuine leather",
         soleType: updatedFields.soleType || "Rubber",
-        image: updatedFields.image || "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800",
-        images: updatedFields.images && updatedFields.images.length > 0 ? updatedFields.images : [updatedFields.image || "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800"],
-        video: updatedFields.video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+        image:
+          updatedFields.image ||
+          "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800",
+        images:
+          updatedFields.images && updatedFields.images.length > 0
+            ? updatedFields.images
+            : [
+                updatedFields.image ||
+                  "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800",
+              ],
+        video:
+          updatedFields.video ||
+          "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
         colorVariants: updatedFields.colorVariants || [
           { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 1000 },
           { name: "Tan", hex: "#C4906B", inStock: true, stockUnits: 800 },
@@ -523,12 +746,14 @@ export function AdminDashboardPage() {
         bestseller: !!updatedFields.bestseller,
         trending: !!updatedFields.trending,
         newArrival: !!updatedFields.newArrival,
-        description: updatedFields.description || "High quality footwear manufactured to Anamon wholesale standards.",
+        description:
+          updatedFields.description ||
+          "High quality footwear manufactured to Anamon wholesale standards.",
         specifications: updatedFields.specifications || {
           "Upper Material": updatedFields.material || "Genuine Leather",
           "Sole Material": updatedFields.soleType || "Rubber",
           "Minimum Order": `${updatedFields.moq || 12} pairs (1 carton)`,
-          "Packaging": "12 pairs per carton (Single color)",
+          Packaging: "12 pairs per carton (Single color)",
         },
         shippingInfo: "Shipped in standard cartons of 12 pairs. Single color per carton.",
         reviews: [],
@@ -560,9 +785,7 @@ export function AdminDashboardPage() {
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500 text-slate-950 font-black text-xl shadow-lg shadow-amber-500/20 mb-1">
               <Shield className="h-6 w-6 fill-current" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-100">
-              Anamon Admin Portal
-            </h1>
+            <h1 className="text-xl font-bold tracking-tight text-slate-100">Anamon Admin Portal</h1>
             <p className="text-xs text-slate-400">
               Sign in to access your administration workspace
             </p>
@@ -623,7 +846,11 @@ export function AdminDashboardPage() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                       >
-                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        {showPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -681,10 +908,13 @@ export function AdminDashboardPage() {
                       onClick={() => {
                         // BUG-01b FIX: Resend never leaks the OTP code in the toast.
                         adminSecurityEngine.generateDynamicOtp(emailInput || MASTER_ADMIN_EMAIL);
-                        toast.success(`Resent verification code to ${emailInput || MASTER_ADMIN_EMAIL}`, {
-                          description: "Check your authenticator app or registered email.",
-                          duration: 6000,
-                        });
+                        toast.success(
+                          `Resent verification code to ${emailInput || MASTER_ADMIN_EMAIL}`,
+                          {
+                            description: "Check your authenticator app or registered email.",
+                            duration: 6000,
+                          },
+                        );
                       }}
                       className="text-amber-400 hover:underline font-medium cursor-pointer"
                     >
@@ -698,9 +928,7 @@ export function AdminDashboardPage() {
                 <form onSubmit={handleRecoverySubmit} className="space-y-4">
                   <div className="text-center space-y-1">
                     <h2 className="text-sm font-bold text-slate-100">Emergency Recovery</h2>
-                    <p className="text-xs text-slate-400">
-                      Enter your backup recovery code
-                    </p>
+                    <p className="text-xs text-slate-400">Enter your backup recovery code</p>
                   </div>
 
                   <div className="space-y-1.5">
@@ -782,20 +1010,92 @@ export function AdminDashboardPage() {
       <div className="flex-1 flex overflow-hidden">
         <aside className="w-64 border-r border-slate-800 bg-slate-900/50 p-4 space-y-6 flex flex-col justify-between overflow-y-auto">
           <div className="space-y-1">
-            <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Core Modules</p>
+            <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+              Core Modules
+            </p>
 
-            <SidebarItem icon={Package} label="Product Management" id="products" active={activeTab} onClick={setActiveTab} badge={productsList.length} />
-            <SidebarItem icon={PackageCheck} label="Product Samples" id="samples" active={activeTab} onClick={setActiveTab} badge={samplesList.filter((s) => ["REQUESTED", "PREPARING"].includes(s.status)).length} />
-            <SidebarItem icon={LayoutDashboard} label="Overview & GMV" id="overview" active={activeTab} onClick={setActiveTab} />
-            <SidebarItem icon={Building2} label="Suppliers Queue" id="suppliers" active={activeTab} onClick={setActiveTab} badge={suppliers.filter((s) => s.status === "PENDING").length} />
-            <SidebarItem icon={ShoppingBag} label="Orders & Bilti" id="orders" active={activeTab} onClick={setActiveTab} badge={ordersList.length} />
-            <SidebarItem icon={CreditCard} label="Escrow & Payments" id="payments" active={activeTab} onClick={setActiveTab} />
-            <SidebarItem icon={ShieldAlert} label="Disputes Center" id="disputes" active={activeTab} onClick={setActiveTab} badge={disputes.filter((d) => d.status === "OPEN").length} />
+            <SidebarItem
+              icon={Package}
+              label="Product Management"
+              id="products"
+              active={activeTab}
+              onClick={setActiveTab}
+              badge={productsList.length}
+            />
+            <SidebarItem
+              icon={PackageCheck}
+              label="Product Samples"
+              id="samples"
+              active={activeTab}
+              onClick={setActiveTab}
+              badge={
+                samplesList.filter((s) => ["REQUESTED", "PREPARING"].includes(s.status)).length
+              }
+            />
+            <SidebarItem
+              icon={LayoutDashboard}
+              label="Overview & GMV"
+              id="overview"
+              active={activeTab}
+              onClick={setActiveTab}
+            />
+            <SidebarItem
+              icon={Building2}
+              label="Suppliers Queue"
+              id="suppliers"
+              active={activeTab}
+              onClick={setActiveTab}
+              badge={suppliers.filter((s) => s.status === "PENDING").length}
+            />
+            <SidebarItem
+              icon={ShoppingBag}
+              label="Orders & Bilti"
+              id="orders"
+              active={activeTab}
+              onClick={setActiveTab}
+              badge={ordersList.length}
+            />
+            <SidebarItem
+              icon={CreditCard}
+              label="Escrow & Payments"
+              id="payments"
+              active={activeTab}
+              onClick={setActiveTab}
+            />
+            <SidebarItem
+              icon={ShieldAlert}
+              label="Disputes Center"
+              id="disputes"
+              active={activeTab}
+              onClick={setActiveTab}
+              badge={disputes.filter((d) => d.status === "OPEN").length}
+            />
 
-            <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-2">Governance & Audit</p>
-            <SidebarItem icon={History} label="Audit Trail Logs" id="audit" active={activeTab} onClick={setActiveTab} badge={auditLogs.length} />
-            <SidebarItem icon={Activity} label="System Health" id="health" active={activeTab} onClick={setActiveTab} />
-            <SidebarItem icon={Settings} label="Platform Settings" id="settings" active={activeTab} onClick={setActiveTab} />
+            <p className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider mt-6 mb-2">
+              Governance & Audit
+            </p>
+            <SidebarItem
+              icon={History}
+              label="Audit Trail Logs"
+              id="audit"
+              active={activeTab}
+              onClick={setActiveTab}
+              badge={auditLogs.length}
+            />
+            <SidebarItem
+              icon={Activity}
+              label="System Health"
+              id="health"
+              active={activeTab}
+              onClick={setActiveTab}
+            />
+            <SidebarItem
+              icon={Settings}
+              label="Platform Settings"
+              id="settings"
+              active={activeTab}
+              onClick={setActiveTab}
+            />
           </div>
 
           <div className="p-3 bg-slate-900 rounded-lg border border-slate-800 space-y-2">
@@ -814,7 +1114,8 @@ export function AdminDashboardPage() {
                     Product Management & Catalog Operations
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Create, edit, delete, set volume prices, MOQ rules, color/size runs, and promotional badges
+                    Create, edit, delete, set volume prices, MOQ rules, color/size runs, and
+                    promotional badges
                   </p>
                 </div>
               </div>
@@ -834,26 +1135,63 @@ export function AdminDashboardPage() {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-100">Marketplace Executive Overview</h2>
-                  <p className="text-xs text-slate-400">Live transaction volume, platform commission, and operational queue KPIs</p>
+                  <h2 className="text-xl font-bold text-slate-100">
+                    Marketplace Executive Overview
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Live transaction volume, platform commission, and operational queue KPIs
+                  </p>
                 </div>
-                <Button size="sm" variant="outline" className="border-slate-800 gap-2" onClick={() => toast.info("Refreshing telemetry...")}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-slate-800 gap-2"
+                  onClick={() => toast.info("Refreshing telemetry...")}
+                >
                   <RefreshCw className="h-3.5 w-3.5" /> Refresh Telemetry
                 </Button>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <KpiCard title="Total Marketplace GMV" value="PKR 45,800,000" change="+18.4%" icon={BarChart3} color="amber" />
-                <KpiCard title="Platform Commission (3%)" value="PKR 1,374,000" change="+14.2%" icon={CreditCard} color="emerald" />
-                <KpiCard title="Active Catalog Items" value={`${productsList.length} Products`} change="Live in Catalog" icon={Package} color="amber" />
-                <KpiCard title="Verified Factories" value={`${suppliers.filter((s) => s.status === "VERIFIED").length} Active`} change="98% Uptime" icon={ShieldCheck} color="blue" />
+                <KpiCard
+                  title="Total Marketplace GMV"
+                  value="PKR 45,800,000"
+                  change="+18.4%"
+                  icon={BarChart3}
+                  color="amber"
+                />
+                <KpiCard
+                  title="Platform Commission (3%)"
+                  value="PKR 1,374,000"
+                  change="+14.2%"
+                  icon={CreditCard}
+                  color="emerald"
+                />
+                <KpiCard
+                  title="Active Catalog Items"
+                  value={`${productsList.length} Products`}
+                  change="Live in Catalog"
+                  icon={Package}
+                  color="amber"
+                />
+                <KpiCard
+                  title="Verified Factories"
+                  value={`${suppliers.filter((s) => s.status === "VERIFIED").length} Active`}
+                  change="98% Uptime"
+                  icon={ShieldCheck}
+                  color="blue"
+                />
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <Card className="lg:col-span-2 border-slate-800 bg-slate-900/50">
                   <CardHeader>
-                    <CardTitle className="text-base text-slate-100">GMV & Platform Revenue Trend (7 Days)</CardTitle>
-                    <CardDescription className="text-xs text-slate-400">Gross Merchandise Value vs 3% Platform Earnings</CardDescription>
+                    <CardTitle className="text-base text-slate-100">
+                      GMV & Platform Revenue Trend (7 Days)
+                    </CardTitle>
+                    <CardDescription className="text-xs text-slate-400">
+                      Gross Merchandise Value vs 3% Platform Earnings
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
@@ -861,9 +1199,20 @@ export function AdminDashboardPage() {
                         <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
                         <XAxis dataKey="day" stroke="#94a3b8" />
                         <YAxis stroke="#94a3b8" />
-                        <Tooltip contentStyle={{ backgroundColor: "#0f172a", borderColor: "#334155", color: "#f8fafc" }} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "#0f172a",
+                            borderColor: "#334155",
+                            color: "#f8fafc",
+                          }}
+                        />
                         <Bar dataKey="gmv" name="GMV (PKR)" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-                        <Bar dataKey="revenue" name="Revenue (PKR)" fill="#10b981" radius={[4, 4, 0, 0]} />
+                        <Bar
+                          dataKey="revenue"
+                          name="Revenue (PKR)"
+                          fill="#10b981"
+                          radius={[4, 4, 0, 0]}
+                        />
                       </BarChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -872,12 +1221,22 @@ export function AdminDashboardPage() {
                 <Card className="border-slate-800 bg-slate-900/50">
                   <CardHeader>
                     <CardTitle className="text-base text-slate-100">Category GMV Share</CardTitle>
-                    <CardDescription className="text-xs text-slate-400">Footwear volume distribution</CardDescription>
+                    <CardDescription className="text-xs text-slate-400">
+                      Footwear volume distribution
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="h-64 flex flex-col items-center justify-center">
                     <ResponsiveContainer width="100%" height="80%">
                       <PieChart>
-                        <Pie data={CATEGORY_SHARE_DATA} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} label>
+                        <Pie
+                          data={CATEGORY_SHARE_DATA}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={70}
+                          label
+                        >
                           {CATEGORY_SHARE_DATA.map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
@@ -903,7 +1262,8 @@ export function AdminDashboardPage() {
                     <Terminal className="h-5 w-5 text-amber-400" /> Immutable Audit Trail Logs
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Cryptographically append-only audit trail recording every admin operation with Request ID & User Agent
+                    Cryptographically append-only audit trail recording every admin operation with
+                    Request ID & User Agent
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -925,7 +1285,9 @@ export function AdminDashboardPage() {
                 <Table>
                   <TableHeader className="bg-slate-900 border-b border-slate-800">
                     <TableRow className="border-slate-800">
-                      <TableHead className="text-slate-400 text-xs">Request ID & Timestamp</TableHead>
+                      <TableHead className="text-slate-400 text-xs">
+                        Request ID & Timestamp
+                      </TableHead>
                       <TableHead className="text-slate-400 text-xs">Admin Email & Role</TableHead>
                       <TableHead className="text-slate-400 text-xs">Action Executed</TableHead>
                       <TableHead className="text-slate-400 text-xs">Target Resource</TableHead>
@@ -951,41 +1313,55 @@ export function AdminDashboardPage() {
                         </TableCell>
                       </TableRow>
                     ) : (
-                    auditLogs.map((log) => (
-                      <TableRow key={log.id} className="border-slate-800/60 hover:bg-slate-900/80">
-                        <TableCell>
-                          <div className="font-bold text-amber-400">{log.requestId}</div>
-                          <div className="text-[10px] text-slate-500">{new Date(log.timestamp).toLocaleString()}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-slate-200 font-bold">{log.adminEmail}</div>
-                          <Badge variant="outline" className="text-[9px] border-slate-800 bg-slate-950 text-slate-400">
-                            {log.role}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <span className="font-bold text-slate-100">{log.action}</span>
-                          {log.details && <span className="text-[10px] text-slate-400 block font-sans">{log.details}</span>}
-                        </TableCell>
-                        <TableCell className="text-slate-300">{log.target}</TableCell>
-                        <TableCell className="text-slate-400 text-[10px]">
-                          <div>{log.ipAddress}</div>
-                          <div className="text-[9px] text-slate-500 truncate max-w-[140px]">{log.userAgent}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {log.status === "SUCCESS" && (
-                            <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]">
-                              SUCCESS
+                      auditLogs.map((log) => (
+                        <TableRow
+                          key={log.id}
+                          className="border-slate-800/60 hover:bg-slate-900/80"
+                        >
+                          <TableCell>
+                            <div className="font-bold text-amber-400">{log.requestId}</div>
+                            <div className="text-[10px] text-slate-500">
+                              {new Date(log.timestamp).toLocaleString()}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-slate-200 font-bold">{log.adminEmail}</div>
+                            <Badge
+                              variant="outline"
+                              className="text-[9px] border-slate-800 bg-slate-950 text-slate-400"
+                            >
+                              {log.role}
                             </Badge>
-                          )}
-                          {log.status === "DENIED" && (
-                            <Badge className="bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]">
-                              DENIED
-                            </Badge>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                          <TableCell>
+                            <span className="font-bold text-slate-100">{log.action}</span>
+                            {log.details && (
+                              <span className="text-[10px] text-slate-400 block font-sans">
+                                {log.details}
+                              </span>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-slate-300">{log.target}</TableCell>
+                          <TableCell className="text-slate-400 text-[10px]">
+                            <div>{log.ipAddress}</div>
+                            <div className="text-[9px] text-slate-500 truncate max-w-[140px]">
+                              {log.userAgent}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {log.status === "SUCCESS" && (
+                              <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]">
+                                SUCCESS
+                              </Badge>
+                            )}
+                            {log.status === "DENIED" && (
+                              <Badge className="bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]">
+                                DENIED
+                              </Badge>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
                     )}
                   </TableBody>
                 </Table>
@@ -999,9 +1375,12 @@ export function AdminDashboardPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                    <Building2 className="h-5 w-5 text-amber-400" /> Supplier Syndicate & Factory Queue
+                    <Building2 className="h-5 w-5 text-amber-400" /> Supplier Syndicate & Factory
+                    Queue
                   </h2>
-                  <p className="text-xs text-slate-400">KYC verification, capacity monitoring, and factory syndicate management</p>
+                  <p className="text-xs text-slate-400">
+                    KYC verification, capacity monitoring, and factory syndicate management
+                  </p>
                 </div>
                 <Button
                   onClick={() => setIsAddSupplierOpen(true)}
@@ -1015,14 +1394,21 @@ export function AdminDashboardPage() {
               {isAddSupplierOpen && (
                 <Card className="border-amber-500/30 bg-slate-900/90 p-5 space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h3 className="text-sm font-bold text-slate-100">Register New Syndicate Manufacturer</h3>
-                    <button onClick={() => setIsAddSupplierOpen(false)} className="text-slate-400 hover:text-white">
+                    <h3 className="text-sm font-bold text-slate-100">
+                      Register New Syndicate Manufacturer
+                    </h3>
+                    <button
+                      onClick={() => setIsAddSupplierOpen(false)}
+                      className="text-slate-400 hover:text-white"
+                    >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Factory / Workshop Name</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Factory / Workshop Name
+                      </label>
                       <Input
                         value={newFactoryName}
                         onChange={(e) => setNewFactoryName(e.target.value)}
@@ -1031,7 +1417,9 @@ export function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Industrial City</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Industrial City
+                      </label>
                       <select
                         value={newFactoryCity}
                         onChange={(e) => setNewFactoryCity(e.target.value)}
@@ -1047,7 +1435,9 @@ export function AdminDashboardPage() {
                       </select>
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">NTN / STRN Number</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        NTN / STRN Number
+                      </label>
                       <Input
                         value={newFactoryNtn}
                         onChange={(e) => setNewFactoryNtn(e.target.value)}
@@ -1056,7 +1446,9 @@ export function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Monthly Capacity</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Monthly Capacity
+                      </label>
                       <Input
                         value={newFactoryCapacity}
                         onChange={(e) => setNewFactoryCapacity(e.target.value)}
@@ -1066,7 +1458,12 @@ export function AdminDashboardPage() {
                     </div>
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="outline" size="sm" onClick={() => setIsAddSupplierOpen(false)} className="text-xs border-slate-800">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsAddSupplierOpen(false)}
+                      className="text-xs border-slate-800"
+                    >
                       Cancel
                     </Button>
                     <Button
@@ -1103,7 +1500,10 @@ export function AdminDashboardPage() {
               <Card className="border-slate-800 bg-slate-900/50 p-6 overflow-hidden">
                 <div className="space-y-4">
                   {suppliers.map((s) => (
-                    <div key={s.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-slate-800 bg-slate-950 gap-4">
+                    <div
+                      key={s.id}
+                      className="flex flex-col md:flex-row md:items-center justify-between p-4 rounded-xl border border-slate-800 bg-slate-950 gap-4"
+                    >
                       <div>
                         <div className="flex items-center gap-2">
                           <div className="font-bold text-slate-100 text-sm">{s.factoryName}</div>
@@ -1112,24 +1512,31 @@ export function AdminDashboardPage() {
                           </span>
                         </div>
                         <div className="text-xs text-slate-400 mt-1">
-                          City: <span className="text-slate-200">{s.city}</span> • NTN: <span className="text-slate-200">{s.ntn}</span> • Capacity: <span className="text-slate-200">{s.capacity}</span> • Joined: <span className="text-slate-400">{s.joinedAt}</span>
+                          City: <span className="text-slate-200">{s.city}</span> • NTN:{" "}
+                          <span className="text-slate-200">{s.ntn}</span> • Capacity:{" "}
+                          <span className="text-slate-200">{s.capacity}</span> • Joined:{" "}
+                          <span className="text-slate-400">{s.joinedAt}</span>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 self-start md:self-auto flex-wrap">
-                        <Badge className={
-                          s.status === "VERIFIED"
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                            : s.status === "PENDING"
-                            ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                            : "bg-rose-500/10 text-rose-400 border-rose-500/30"
-                        }>
+                        <Badge
+                          className={
+                            s.status === "VERIFIED"
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                              : s.status === "PENDING"
+                                ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                                : "bg-rose-500/10 text-rose-400 border-rose-500/30"
+                          }
+                        >
                           {s.status}
                         </Badge>
                         {s.status !== "VERIFIED" && (
                           <Button
                             size="sm"
                             onClick={() => {
-                              setSuppliers((prev) => prev.map((x) => x.id === s.id ? { ...x, status: "VERIFIED" } : x));
+                              setSuppliers((prev) =>
+                                prev.map((x) => (x.id === s.id ? { ...x, status: "VERIFIED" } : x)),
+                              );
                               toast.success(`Factory ${s.factoryName} verified and approved`);
                             }}
                             className="h-7 text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
@@ -1142,7 +1549,9 @@ export function AdminDashboardPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => {
-                              setSuppliers((prev) => prev.map((x) => x.id === s.id ? { ...x, status: "REJECTED" } : x));
+                              setSuppliers((prev) =>
+                                prev.map((x) => (x.id === s.id ? { ...x, status: "REJECTED" } : x)),
+                              );
                               toast.error(`Factory ${s.factoryName} suspended`);
                             }}
                             className="h-7 text-[10px] border-slate-800 text-rose-400 hover:bg-rose-500/10"
@@ -1175,9 +1584,12 @@ export function AdminDashboardPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                    <ShoppingBag className="h-5 w-5 text-amber-400" /> Wholesale Orders & Bilti Logistics
+                    <ShoppingBag className="h-5 w-5 text-amber-400" /> Wholesale Orders & Bilti
+                    Logistics
                   </h2>
-                  <p className="text-xs text-slate-400">Order processing, carrier bilti consignment tracking, and dispatch status</p>
+                  <p className="text-xs text-slate-400">
+                    Order processing, carrier bilti consignment tracking, and dispatch status
+                  </p>
                 </div>
                 <Button
                   onClick={() => setIsAddOrderOpen(true)}
@@ -1191,14 +1603,21 @@ export function AdminDashboardPage() {
               {isAddOrderOpen && (
                 <Card className="border-amber-500/30 bg-slate-900/90 p-5 space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <h3 className="text-sm font-bold text-slate-100">Create Manual Wholesale Order</h3>
-                    <button onClick={() => setIsAddOrderOpen(false)} className="text-slate-400 hover:text-white">
+                    <h3 className="text-sm font-bold text-slate-100">
+                      Create Manual Wholesale Order
+                    </h3>
+                    <button
+                      onClick={() => setIsAddOrderOpen(false)}
+                      className="text-slate-400 hover:text-white"
+                    >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Buyer / Retailer Name</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Buyer / Retailer Name
+                      </label>
                       <Input
                         value={newOrderBuyer}
                         onChange={(e) => setNewOrderBuyer(e.target.value)}
@@ -1207,7 +1626,9 @@ export function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Quantity & Cartons</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Quantity & Cartons
+                      </label>
                       <Input
                         value={newOrderItems}
                         onChange={(e) => setNewOrderItems(e.target.value)}
@@ -1216,7 +1637,9 @@ export function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Order Amount</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Order Amount
+                      </label>
                       <Input
                         value={newOrderAmount}
                         onChange={(e) => setNewOrderAmount(e.target.value)}
@@ -1225,7 +1648,9 @@ export function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Bilti Consignment No.</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Bilti Consignment No.
+                      </label>
                       <Input
                         value={newOrderBilti}
                         onChange={(e) => setNewOrderBilti(e.target.value)}
@@ -1235,7 +1660,12 @@ export function AdminDashboardPage() {
                     </div>
                   </div>
                   <div className="flex justify-end gap-2 pt-2">
-                    <Button variant="outline" size="sm" onClick={() => setIsAddOrderOpen(false)} className="text-xs border-slate-800">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsAddOrderOpen(false)}
+                      className="text-xs border-slate-800"
+                    >
                       Cancel
                     </Button>
                     <Button
@@ -1250,7 +1680,9 @@ export function AdminDashboardPage() {
                           buyer: newOrderBuyer.trim(),
                           amount: newOrderAmount || "PKR 100,000",
                           items: newOrderItems || "48 pairs (4 ctns)",
-                          biltiNo: newOrderBilti.trim() || `PK-BLT-${Math.floor(1000 + Math.random() * 9000)}`,
+                          biltiNo:
+                            newOrderBilti.trim() ||
+                            `PK-BLT-${Math.floor(1000 + Math.random() * 9000)}`,
                           status: "PROCESSING",
                         };
                         setOrdersList((prev) => [newOrd, ...prev]);
@@ -1287,14 +1719,22 @@ export function AdminDashboardPage() {
                           <div className="font-mono text-[10px] text-slate-500">{ord.id}</div>
                         </TableCell>
                         <TableCell className="text-slate-300 text-xs">{ord.items}</TableCell>
-                        <TableCell className="text-amber-400 font-mono text-xs">{ord.biltiNo}</TableCell>
-                        <TableCell className="text-emerald-400 font-bold text-xs">{ord.amount}</TableCell>
+                        <TableCell className="text-amber-400 font-mono text-xs">
+                          {ord.biltiNo}
+                        </TableCell>
+                        <TableCell className="text-emerald-400 font-bold text-xs">
+                          {ord.amount}
+                        </TableCell>
                         <TableCell>
-                          <Badge className={
-                            ord.status === "DELIVERED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]" :
-                            ord.status === "DISPATCHED" ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]" :
-                            "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
-                          }>
+                          <Badge
+                            className={
+                              ord.status === "DELIVERED"
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                                : ord.status === "DISPATCHED"
+                                  ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]"
+                                  : "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
+                            }
+                          >
                             {ord.status}
                           </Badge>
                         </TableCell>
@@ -1304,7 +1744,11 @@ export function AdminDashboardPage() {
                               <Button
                                 size="sm"
                                 onClick={() => {
-                                  setOrdersList((prev) => prev.map((x) => x.id === ord.id ? { ...x, status: "DISPATCHED" } : x));
+                                  setOrdersList((prev) =>
+                                    prev.map((x) =>
+                                      x.id === ord.id ? { ...x, status: "DISPATCHED" } : x,
+                                    ),
+                                  );
                                   toast.success(`Order ${ord.id} marked as DISPATCHED`);
                                 }}
                                 className="h-6 text-[10px] bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/40 px-2"
@@ -1316,7 +1760,11 @@ export function AdminDashboardPage() {
                               <Button
                                 size="sm"
                                 onClick={() => {
-                                  setOrdersList((prev) => prev.map((x) => x.id === ord.id ? { ...x, status: "DELIVERED" } : x));
+                                  setOrdersList((prev) =>
+                                    prev.map((x) =>
+                                      x.id === ord.id ? { ...x, status: "DELIVERED" } : x,
+                                    ),
+                                  );
                                   toast.success(`Order ${ord.id} marked as DELIVERED`);
                                 }}
                                 className="h-6 text-[10px] bg-emerald-600/20 text-emerald-400 border border-emerald-600/30 hover:bg-emerald-600/40 px-2"
@@ -1353,15 +1801,35 @@ export function AdminDashboardPage() {
                   <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
                     <Banknote className="h-5 w-5 text-amber-400" /> Escrow & Payments Management
                   </h2>
-                  <p className="text-xs text-slate-400">Wholesale transaction escrow, fund releases and settlement requests</p>
+                  <p className="text-xs text-slate-400">
+                    Wholesale transaction escrow, fund releases and settlement requests
+                  </p>
                 </div>
               </div>
 
               {/* Escrow KPI Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <KpiCard title="Total Funds Held" value={`PKR ${escrowList.filter(e => e.status === "HELD").length * 50000 + 55000}`} change={`${escrowList.filter(e => e.status === "HELD").length} active holds`} icon={Shield} color="amber" />
-                <KpiCard title="Released This Month" value={`PKR ${escrowList.filter(e => e.status === "RELEASED").length * 88800}`} change={`${escrowList.filter(e => e.status === "RELEASED").length} transactions`} icon={CheckCircle2} color="emerald" />
-                <KpiCard title="In Dispute" value={`PKR ${escrowList.filter(e => e.status === "IN_DISPUTE").length * 310000}`} change={`${escrowList.filter(e => e.status === "IN_DISPUTE").length} dispute open`} icon={AlertTriangle} color="amber" />
+                <KpiCard
+                  title="Total Funds Held"
+                  value={`PKR ${escrowList.filter((e) => e.status === "HELD").length * 50000 + 55000}`}
+                  change={`${escrowList.filter((e) => e.status === "HELD").length} active holds`}
+                  icon={Shield}
+                  color="amber"
+                />
+                <KpiCard
+                  title="Released This Month"
+                  value={`PKR ${escrowList.filter((e) => e.status === "RELEASED").length * 88800}`}
+                  change={`${escrowList.filter((e) => e.status === "RELEASED").length} transactions`}
+                  icon={CheckCircle2}
+                  color="emerald"
+                />
+                <KpiCard
+                  title="In Dispute"
+                  value={`PKR ${escrowList.filter((e) => e.status === "IN_DISPUTE").length * 310000}`}
+                  change={`${escrowList.filter((e) => e.status === "IN_DISPUTE").length} dispute open`}
+                  icon={AlertTriangle}
+                  color="amber"
+                />
               </div>
 
               <Card className="border-slate-800 bg-slate-900/50 overflow-hidden">
@@ -1373,7 +1841,9 @@ export function AdminDashboardPage() {
                       <TableHead className="text-slate-400 text-xs">Order Amount</TableHead>
                       <TableHead className="text-slate-400 text-xs">Platform Fee Held</TableHead>
                       <TableHead className="text-slate-400 text-xs">Date</TableHead>
-                      <TableHead className="text-slate-400 text-xs text-right">Status & Action</TableHead>
+                      <TableHead className="text-slate-400 text-xs text-right">
+                        Status & Action
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-slate-800/60">
@@ -1382,24 +1852,40 @@ export function AdminDashboardPage() {
                         <TableCell className="font-mono text-amber-400 text-xs">{tx.id}</TableCell>
                         <TableCell>
                           <div className="text-xs font-bold text-slate-100">{tx.orderId}</div>
-                          <div className="text-[10px] text-slate-400">{tx.buyer} → {tx.supplier}</div>
+                          <div className="text-[10px] text-slate-400">
+                            {tx.buyer} → {tx.supplier}
+                          </div>
                         </TableCell>
-                        <TableCell className="text-emerald-400 font-bold text-xs font-mono">{tx.amount}</TableCell>
-                        <TableCell className="text-amber-400 text-xs font-mono">{tx.held}</TableCell>
+                        <TableCell className="text-emerald-400 font-bold text-xs font-mono">
+                          {tx.amount}
+                        </TableCell>
+                        <TableCell className="text-amber-400 text-xs font-mono">
+                          {tx.held}
+                        </TableCell>
                         <TableCell className="text-slate-400 text-xs">{tx.date}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Badge className={
-                              tx.status === "HELD" ? "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]" :
-                              tx.status === "RELEASED" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]" :
-                              "bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]"
-                            }>{tx.status}</Badge>
+                            <Badge
+                              className={
+                                tx.status === "HELD"
+                                  ? "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
+                                  : tx.status === "RELEASED"
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                                    : "bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]"
+                              }
+                            >
+                              {tx.status}
+                            </Badge>
                             {tx.status === "HELD" && (
                               <Button
                                 size="sm"
                                 className="h-7 text-[10px] bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 font-bold"
                                 onClick={() => {
-                                  setEscrowList((prev) => prev.map((x) => x.id === tx.id ? { ...x, status: "RELEASED" } : x));
+                                  setEscrowList((prev) =>
+                                    prev.map((x) =>
+                                      x.id === tx.id ? { ...x, status: "RELEASED" } : x,
+                                    ),
+                                  );
                                   toast.success(`Funds released to manufacturer for ${tx.id}`);
                                 }}
                               >
@@ -1411,7 +1897,11 @@ export function AdminDashboardPage() {
                                 size="sm"
                                 className="h-7 text-[10px] bg-rose-600 hover:bg-rose-700 text-white px-2.5 font-bold"
                                 onClick={() => {
-                                  setEscrowList((prev) => prev.map((x) => x.id === tx.id ? { ...x, status: "RELEASED" } : x));
+                                  setEscrowList((prev) =>
+                                    prev.map((x) =>
+                                      x.id === tx.id ? { ...x, status: "RELEASED" } : x,
+                                    ),
+                                  );
                                   toast.success(`Dispute settled: refunded to buyer for ${tx.id}`);
                                 }}
                               >
@@ -1434,16 +1924,37 @@ export function AdminDashboardPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
-                    <MessageSquareWarning className="h-5 w-5 text-rose-400" /> Disputes & Arbitration Queue
+                    <MessageSquareWarning className="h-5 w-5 text-rose-400" /> Disputes &
+                    Arbitration Queue
                   </h2>
-                  <p className="text-xs text-slate-400">Buyer-supplier dispute resolution and trade arbitration</p>
+                  <p className="text-xs text-slate-400">
+                    Buyer-supplier dispute resolution and trade arbitration
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <KpiCard title="Open Disputes" value={`${disputes.filter(d => d.status === "OPEN").length}`} change="Requires attention" icon={AlertCircle} color="amber" />
-                <KpiCard title="In Review" value={`${disputes.filter(d => d.status === "IN_REVIEW").length}`} change="Being investigated" icon={Scale} color="amber" />
-                <KpiCard title="Resolved" value={`${disputes.filter(d => d.status === "RESOLVED").length}`} change="This period" icon={CheckCircle2} color="emerald" />
+                <KpiCard
+                  title="Open Disputes"
+                  value={`${disputes.filter((d) => d.status === "OPEN").length}`}
+                  change="Requires attention"
+                  icon={AlertCircle}
+                  color="amber"
+                />
+                <KpiCard
+                  title="In Review"
+                  value={`${disputes.filter((d) => d.status === "IN_REVIEW").length}`}
+                  change="Being investigated"
+                  icon={Scale}
+                  color="amber"
+                />
+                <KpiCard
+                  title="Resolved"
+                  value={`${disputes.filter((d) => d.status === "RESOLVED").length}`}
+                  change="This period"
+                  icon={CheckCircle2}
+                  color="emerald"
+                />
               </div>
 
               <Card className="border-slate-800 bg-slate-900/50 overflow-hidden">
@@ -1469,31 +1980,58 @@ export function AdminDashboardPage() {
                           <div className="text-xs text-slate-200">{d.buyer}</div>
                           <div className="text-[10px] text-slate-500">vs {d.supplier}</div>
                         </TableCell>
-                        <TableCell className="text-rose-400 font-bold text-xs font-mono">{d.amount}</TableCell>
-                        <TableCell className="text-slate-300 text-xs max-w-[200px] truncate" title={d.reason}>{d.reason}</TableCell>
+                        <TableCell className="text-rose-400 font-bold text-xs font-mono">
+                          {d.amount}
+                        </TableCell>
+                        <TableCell
+                          className="text-slate-300 text-xs max-w-[200px] truncate"
+                          title={d.reason}
+                        >
+                          {d.reason}
+                        </TableCell>
                         <TableCell className="text-slate-400 text-xs">{d.opened}</TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            <Badge className={
-                              d.status === "OPEN" ? "bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]" :
-                              d.status === "IN_REVIEW" ? "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]" :
-                              "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
-                            }>{d.status}</Badge>
+                            <Badge
+                              className={
+                                d.status === "OPEN"
+                                  ? "bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]"
+                                  : d.status === "IN_REVIEW"
+                                    ? "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
+                                    : "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                              }
+                            >
+                              {d.status}
+                            </Badge>
                             {d.status !== "RESOLVED" && (
                               <>
-                                <Button size="sm" className="h-6 text-[10px] bg-emerald-600/20 text-emerald-400 border border-emerald-600/30 hover:bg-emerald-600/40 px-2"
+                                <Button
+                                  size="sm"
+                                  className="h-6 text-[10px] bg-emerald-600/20 text-emerald-400 border border-emerald-600/30 hover:bg-emerald-600/40 px-2"
                                   onClick={() => {
-                                    setDisputes(prev => prev.map(x => x.id === d.id ? { ...x, status: "RESOLVED" } : x));
+                                    setDisputes((prev) =>
+                                      prev.map((x) =>
+                                        x.id === d.id ? { ...x, status: "RESOLVED" } : x,
+                                      ),
+                                    );
                                     toast.success(`Dispute ${d.id} resolved`);
-                                  }}>
+                                  }}
+                                >
                                   Resolve
                                 </Button>
                                 {d.status === "OPEN" && (
-                                  <Button size="sm" className="h-6 text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/40 px-2"
+                                  <Button
+                                    size="sm"
+                                    className="h-6 text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/40 px-2"
                                     onClick={() => {
-                                      setDisputes(prev => prev.map(x => x.id === d.id ? { ...x, status: "IN_REVIEW" } : x));
+                                      setDisputes((prev) =>
+                                        prev.map((x) =>
+                                          x.id === d.id ? { ...x, status: "IN_REVIEW" } : x,
+                                        ),
+                                      );
                                       toast.info(`Dispute ${d.id} marked as in review`);
-                                    }}>
+                                    }}
+                                  >
                                     Review
                                   </Button>
                                 )}
@@ -1518,7 +2056,8 @@ export function AdminDashboardPage() {
                     <PackageCheck className="h-5 w-5 text-amber-400" /> Product Samples Management
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Process single-pair sample inspection requests, courier dispatch tracking, and bulk conversion analytics
+                    Process single-pair sample inspection requests, courier dispatch tracking, and
+                    bulk conversion analytics
                   </p>
                 </div>
                 <Button
@@ -1532,26 +2071,41 @@ export function AdminDashboardPage() {
               {/* Sample Metrics KPI Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Card className="border-slate-800 bg-slate-900/60 p-4">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Samples</div>
-                  <div className="text-2xl font-black text-slate-100 mt-1">{samplesList.length}</div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Total Samples
+                  </div>
+                  <div className="text-2xl font-black text-slate-100 mt-1">
+                    {samplesList.length}
+                  </div>
                   <div className="text-[10px] text-slate-500 mt-1">Inspection requests</div>
                 </Card>
                 <Card className="border-amber-500/20 bg-amber-500/5 p-4">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400">In Preparation</div>
-                  <div className="text-2xl font-black text-amber-400 mt-1">
-                    {samplesList.filter((s) => ["REQUESTED", "PREPARING"].includes(s.status)).length}
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
+                    In Preparation
                   </div>
-                  <div className="text-[10px] text-amber-400/70 mt-1">Awaiting factory dispatch</div>
+                  <div className="text-2xl font-black text-amber-400 mt-1">
+                    {
+                      samplesList.filter((s) => ["REQUESTED", "PREPARING"].includes(s.status))
+                        .length
+                    }
+                  </div>
+                  <div className="text-[10px] text-amber-400/70 mt-1">
+                    Awaiting factory dispatch
+                  </div>
                 </Card>
                 <Card className="border-blue-500/20 bg-blue-500/5 p-4">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400">In Transit</div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-blue-400">
+                    In Transit
+                  </div>
                   <div className="text-2xl font-black text-blue-400 mt-1">
                     {samplesList.filter((s) => s.status === "DISPATCHED").length}
                   </div>
                   <div className="text-[10px] text-blue-400/70 mt-1">Courier tracking active</div>
                 </Card>
                 <Card className="border-emerald-500/20 bg-emerald-500/5 p-4">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">Converted to Bulk</div>
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
+                    Converted to Bulk
+                  </div>
                   <div className="text-2xl font-black text-emerald-400 mt-1">
                     {samplesList.filter((s) => s.status === "CONVERTED_TO_BULK").length}
                   </div>
@@ -1569,16 +2123,23 @@ export function AdminDashboardPage() {
                   <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                     <div className="flex items-center gap-2">
                       <PackageCheck className="h-4 w-4 text-amber-400" />
-                      <h3 className="text-sm font-bold text-slate-100">Record New Sample Pair Dispatch</h3>
+                      <h3 className="text-sm font-bold text-slate-100">
+                        Record New Sample Pair Dispatch
+                      </h3>
                     </div>
-                    <button onClick={() => setIsAddSampleOpen(false)} className="text-slate-400 hover:text-white">
+                    <button
+                      onClick={() => setIsAddSampleOpen(false)}
+                      className="text-slate-400 hover:text-white"
+                    >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5">
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Buyer / Retailer Name *</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Buyer / Retailer Name *
+                      </label>
                       <Input
                         value={newSampleBuyer}
                         onChange={(e) => setNewSampleBuyer(e.target.value)}
@@ -1588,7 +2149,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">WhatsApp / Phone *</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        WhatsApp / Phone *
+                      </label>
                       <Input
                         value={newSamplePhone}
                         onChange={(e) => setNewSamplePhone(e.target.value)}
@@ -1598,7 +2161,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Destination City *</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Destination City *
+                      </label>
                       <select
                         value={newSampleCity}
                         onChange={(e) => setNewSampleCity(e.target.value)}
@@ -1618,7 +2183,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Select Footwear Model *</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Select Footwear Model *
+                      </label>
                       <select
                         value={newSampleSku}
                         onChange={(e) => {
@@ -1639,7 +2206,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Color Variant</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Color Variant
+                      </label>
                       <Input
                         value={newSampleColor}
                         onChange={(e) => setNewSampleColor(e.target.value)}
@@ -1649,7 +2218,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Sample Shoe Size</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Sample Shoe Size
+                      </label>
                       <select
                         value={newSampleSize}
                         onChange={(e) => setNewSampleSize(e.target.value)}
@@ -1664,7 +2235,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Courier Service</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Courier Service
+                      </label>
                       <select
                         value={newSampleCourier}
                         onChange={(e) => setNewSampleCourier(e.target.value)}
@@ -1680,7 +2253,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Courier Tracking ID</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Courier Tracking ID
+                      </label>
                       <Input
                         value={newSampleTracking}
                         onChange={(e) => setNewSampleTracking(e.target.value)}
@@ -1690,7 +2265,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Sample Fee (PKR)</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Sample Fee (PKR)
+                      </label>
                       <Input
                         type="number"
                         value={newSampleFee}
@@ -1701,7 +2278,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div>
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Payment Status</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Payment Status
+                      </label>
                       <select
                         value={newSamplePayment}
                         onChange={(e) => setNewSamplePayment(e.target.value as any)}
@@ -1714,7 +2293,9 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div className="sm:col-span-2">
-                      <label className="text-[11px] font-bold text-slate-300 block mb-1">Sample Notes / Custom Requests</label>
+                      <label className="text-[11px] font-bold text-slate-300 block mb-1">
+                        Sample Notes / Custom Requests
+                      </label>
                       <Input
                         value={newSampleNotes}
                         onChange={(e) => setNewSampleNotes(e.target.value)}
@@ -1763,7 +2344,9 @@ export function AdminDashboardPage() {
                         setNewSampleBuyer("");
                         setNewSampleTracking("");
                         setNewSampleNotes("");
-                        toast.success(`Registered sample dispatch ${newSample.id} for ${newSample.buyerName}`);
+                        toast.success(
+                          `Registered sample dispatch ${newSample.id} for ${newSample.buyerName}`,
+                        );
                       }}
                       className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs"
                     >
@@ -1781,14 +2364,19 @@ export function AdminDashboardPage() {
                       <h3 className="text-sm font-bold text-slate-100">
                         Update Tracking: {editingSample.id} ({editingSample.buyerName})
                       </h3>
-                      <button onClick={() => setEditingSample(null)} className="text-slate-400 hover:text-white">
+                      <button
+                        onClick={() => setEditingSample(null)}
+                        className="text-slate-400 hover:text-white"
+                      >
                         <X className="h-4 w-4" />
                       </button>
                     </div>
 
                     <div className="space-y-3">
                       <div>
-                        <label className="text-xs font-bold text-slate-300 block mb-1">Courier Carrier</label>
+                        <label className="text-xs font-bold text-slate-300 block mb-1">
+                          Courier Carrier
+                        </label>
                         <select
                           value={editCourier}
                           onChange={(e) => setEditCourier(e.target.value)}
@@ -1803,7 +2391,9 @@ export function AdminDashboardPage() {
                       </div>
 
                       <div>
-                        <label className="text-xs font-bold text-slate-300 block mb-1">Consignment Tracking Number</label>
+                        <label className="text-xs font-bold text-slate-300 block mb-1">
+                          Consignment Tracking Number
+                        </label>
                         <Input
                           value={editTrackingNo}
                           onChange={(e) => setEditTrackingNo(e.target.value)}
@@ -1814,7 +2404,12 @@ export function AdminDashboardPage() {
                     </div>
 
                     <div className="flex justify-end gap-2 pt-2">
-                      <Button variant="outline" size="sm" onClick={() => setEditingSample(null)} className="text-xs border-slate-800">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setEditingSample(null)}
+                        className="text-xs border-slate-800"
+                      >
                         Cancel
                       </Button>
                       <Button
@@ -1827,11 +2422,18 @@ export function AdminDashboardPage() {
                           setSamplesList((prev) =>
                             prev.map((s) =>
                               s.id === editingSample.id
-                                ? { ...s, trackingNo: editTrackingNo.trim(), courier: editCourier, status: "DISPATCHED" }
-                                : s
-                            )
+                                ? {
+                                    ...s,
+                                    trackingNo: editTrackingNo.trim(),
+                                    courier: editCourier,
+                                    status: "DISPATCHED",
+                                  }
+                                : s,
+                            ),
                           );
-                          toast.success(`Updated tracking for ${editingSample.id} and marked as DISPATCHED`);
+                          toast.success(
+                            `Updated tracking for ${editingSample.id} and marked as DISPATCHED`,
+                          );
                           setEditingSample(null);
                         }}
                         className="bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs"
@@ -1856,7 +2458,14 @@ export function AdminDashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                  {["ALL", "REQUESTED", "PREPARING", "DISPATCHED", "DELIVERED", "CONVERTED_TO_BULK"].map((st) => (
+                  {[
+                    "ALL",
+                    "REQUESTED",
+                    "PREPARING",
+                    "DISPATCHED",
+                    "DELIVERED",
+                    "CONVERTED_TO_BULK",
+                  ].map((st) => (
                     <button
                       key={st}
                       onClick={() => setSampleFilter(st)}
@@ -1879,7 +2488,9 @@ export function AdminDashboardPage() {
                     <TableRow className="border-slate-800">
                       <TableHead className="text-slate-400 text-xs">Sample ID & Date</TableHead>
                       <TableHead className="text-slate-400 text-xs">Buyer & City</TableHead>
-                      <TableHead className="text-slate-400 text-xs">Footwear Model & Spec</TableHead>
+                      <TableHead className="text-slate-400 text-xs">
+                        Footwear Model & Spec
+                      </TableHead>
                       <TableHead className="text-slate-400 text-xs">Courier & Tracking</TableHead>
                       <TableHead className="text-slate-400 text-xs">Fee & Payment</TableHead>
                       <TableHead className="text-slate-400 text-xs">Status</TableHead>
@@ -1902,16 +2513,23 @@ export function AdminDashboardPage() {
                         );
                       })
                       .map((sample) => (
-                        <TableRow key={sample.id} className="border-slate-800/60 hover:bg-slate-900/80">
+                        <TableRow
+                          key={sample.id}
+                          className="border-slate-800/60 hover:bg-slate-900/80"
+                        >
                           <TableCell>
-                            <div className="font-mono text-amber-400 font-bold text-xs">{sample.id}</div>
+                            <div className="font-mono text-amber-400 font-bold text-xs">
+                              {sample.id}
+                            </div>
                             <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
                               <Calendar className="h-3 w-3" /> {sample.requestedDate}
                             </div>
                           </TableCell>
 
                           <TableCell>
-                            <div className="text-xs font-bold text-slate-200">{sample.buyerName}</div>
+                            <div className="text-xs font-bold text-slate-200">
+                              {sample.buyerName}
+                            </div>
                             <div className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
                               <MapPin className="h-3 w-3 text-slate-500" /> {sample.buyerCity}
                               <span className="text-slate-600">•</span>
@@ -1920,26 +2538,38 @@ export function AdminDashboardPage() {
                           </TableCell>
 
                           <TableCell>
-                            <div className="text-xs font-semibold text-slate-200">{sample.productName}</div>
+                            <div className="text-xs font-semibold text-slate-200">
+                              {sample.productName}
+                            </div>
                             <div className="text-[10px] text-amber-400 font-mono mt-0.5">
-                              SKU: {sample.productSku} • Color: {sample.color} • Size: EU {sample.size}
+                              SKU: {sample.productSku} • Color: {sample.color} • Size: EU{" "}
+                              {sample.size}
                             </div>
                             {sample.notes && (
-                              <div className="text-[10px] text-slate-400 italic mt-0.5 max-w-[220px] truncate" title={sample.notes}>
+                              <div
+                                className="text-[10px] text-slate-400 italic mt-0.5 max-w-[220px] truncate"
+                                title={sample.notes}
+                              >
                                 Note: {sample.notes}
                               </div>
                             )}
                           </TableCell>
 
                           <TableCell>
-                            <div className="text-xs text-slate-300 font-medium">{sample.courier}</div>
+                            <div className="text-xs text-slate-300 font-medium">
+                              {sample.courier}
+                            </div>
                             <div className="text-[10px] font-mono text-amber-400 mt-0.5 flex items-center gap-1.5">
                               <span>{sample.trackingNo}</span>
                               <button
                                 type="button"
                                 onClick={() => {
                                   setEditingSample(sample);
-                                  setEditTrackingNo(sample.trackingNo === "Pending Dispatch" ? "" : sample.trackingNo);
+                                  setEditTrackingNo(
+                                    sample.trackingNo === "Pending Dispatch"
+                                      ? ""
+                                      : sample.trackingNo,
+                                  );
                                   setEditCourier(sample.courier);
                                 }}
                                 className="text-slate-500 hover:text-amber-400"
@@ -1955,30 +2585,34 @@ export function AdminDashboardPage() {
                               PKR {sample.sampleFee.toLocaleString()}
                             </div>
                             <div className="mt-0.5">
-                              <Badge className={
-                                sample.paymentStatus === "PAID"
-                                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[9px] px-1.5 py-0"
-                                  : sample.paymentStatus === "WAIVED_VIP"
-                                  ? "bg-purple-500/10 text-purple-400 border-purple-500/30 text-[9px] px-1.5 py-0"
-                                  : "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[9px] px-1.5 py-0"
-                              }>
+                              <Badge
+                                className={
+                                  sample.paymentStatus === "PAID"
+                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[9px] px-1.5 py-0"
+                                    : sample.paymentStatus === "WAIVED_VIP"
+                                      ? "bg-purple-500/10 text-purple-400 border-purple-500/30 text-[9px] px-1.5 py-0"
+                                      : "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[9px] px-1.5 py-0"
+                                }
+                              >
                                 {sample.paymentStatus}
                               </Badge>
                             </div>
                           </TableCell>
 
                           <TableCell>
-                            <Badge className={
-                              sample.status === "CONVERTED_TO_BULK"
-                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
-                                : sample.status === "DELIVERED"
-                                ? "bg-teal-500/10 text-teal-400 border-teal-500/30 text-[10px]"
-                                : sample.status === "DISPATCHED"
-                                ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]"
-                                : sample.status === "PREPARING"
-                                ? "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
-                                : "bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]"
-                            }>
+                            <Badge
+                              className={
+                                sample.status === "CONVERTED_TO_BULK"
+                                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 text-[10px]"
+                                  : sample.status === "DELIVERED"
+                                    ? "bg-teal-500/10 text-teal-400 border-teal-500/30 text-[10px]"
+                                    : sample.status === "DISPATCHED"
+                                      ? "bg-blue-500/10 text-blue-400 border-blue-500/30 text-[10px]"
+                                      : sample.status === "PREPARING"
+                                        ? "bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]"
+                                        : "bg-rose-500/10 text-rose-400 border-rose-500/30 text-[10px]"
+                              }
+                            >
                               {sample.status.replace(/_/g, " ")}
                             </Badge>
                           </TableCell>
@@ -1991,7 +2625,9 @@ export function AdminDashboardPage() {
                                   className="h-6 text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/40 px-2"
                                   onClick={() => {
                                     setSamplesList((prev) =>
-                                      prev.map((s) => (s.id === sample.id ? { ...s, status: "PREPARING" } : s))
+                                      prev.map((s) =>
+                                        s.id === sample.id ? { ...s, status: "PREPARING" } : s,
+                                      ),
                                     );
                                     toast.success(`Sample ${sample.id} moved to PREPARING`);
                                   }}
@@ -2020,9 +2656,13 @@ export function AdminDashboardPage() {
                                   className="h-6 text-[10px] bg-teal-600/20 text-teal-400 border border-teal-600/30 hover:bg-teal-600/40 px-2"
                                   onClick={() => {
                                     setSamplesList((prev) =>
-                                      prev.map((s) => (s.id === sample.id ? { ...s, status: "DELIVERED" } : s))
+                                      prev.map((s) =>
+                                        s.id === sample.id ? { ...s, status: "DELIVERED" } : s,
+                                      ),
                                     );
-                                    toast.success(`Sample ${sample.id} marked as DELIVERED to ${sample.buyerName}`);
+                                    toast.success(
+                                      `Sample ${sample.id} marked as DELIVERED to ${sample.buyerName}`,
+                                    );
                                   }}
                                 >
                                   Mark Delivered
@@ -2035,9 +2675,15 @@ export function AdminDashboardPage() {
                                   className="h-6 text-[10px] bg-emerald-600/20 text-emerald-400 border border-emerald-600/30 hover:bg-emerald-600/40 px-2 font-bold"
                                   onClick={() => {
                                     setSamplesList((prev) =>
-                                      prev.map((s) => (s.id === sample.id ? { ...s, status: "CONVERTED_TO_BULK" } : s))
+                                      prev.map((s) =>
+                                        s.id === sample.id
+                                          ? { ...s, status: "CONVERTED_TO_BULK" }
+                                          : s,
+                                      ),
                                     );
-                                    toast.success(`🎉 Sample ${sample.id} converted to wholesale bulk order!`);
+                                    toast.success(
+                                      `🎉 Sample ${sample.id} converted to wholesale bulk order!`,
+                                    );
                                   }}
                                 >
                                   Convert to Bulk
@@ -2074,9 +2720,14 @@ export function AdminDashboardPage() {
                   <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
                     <HeartPulse className="h-5 w-5 text-emerald-400" /> System Health Monitor
                   </h2>
-                  <p className="text-xs text-slate-400">Real-time service status, latency, and uptime tracking</p>
+                  <p className="text-xs text-slate-400">
+                    Real-time service status, latency, and uptime tracking
+                  </p>
                 </div>
-                <Button size="sm" variant="outline" className="border-slate-800 gap-2 text-xs"
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-slate-800 gap-2 text-xs"
                   onClick={() => toast.info("Refreshing health checks...")}
                 >
                   <RefreshCw className="h-3.5 w-3.5" /> Refresh
@@ -2091,7 +2742,10 @@ export function AdminDashboardPage() {
                   </div>
                   <div>
                     <div className="text-sm font-bold text-emerald-400">Platform Health Score</div>
-                    <div className="text-xs text-slate-400">5 of 6 services fully operational — Payment Gateway experiencing elevated latency</div>
+                    <div className="text-xs text-slate-400">
+                      5 of 6 services fully operational — Payment Gateway experiencing elevated
+                      latency
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -2102,47 +2756,88 @@ export function AdminDashboardPage() {
                   const isDegraded = svc.status === "DEGRADED";
                   const SvcIcon = svc.icon;
                   return (
-                    <Card key={svc.name} className={`border p-5 ${
-                      isOperational ? "border-slate-800 bg-slate-900/50" :
-                      isDegraded ? "border-amber-500/30 bg-amber-500/5" :
-                      "border-rose-500/30 bg-rose-500/5"
-                    }`}>
+                    <Card
+                      key={svc.name}
+                      className={`border p-5 ${
+                        isOperational
+                          ? "border-slate-800 bg-slate-900/50"
+                          : isDegraded
+                            ? "border-amber-500/30 bg-amber-500/5"
+                            : "border-rose-500/30 bg-rose-500/5"
+                      }`}
+                    >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2.5">
-                          <div className={`p-2 rounded-lg ${
-                            isOperational ? "bg-slate-950 border border-slate-800" :
-                            isDegraded ? "bg-amber-500/10 border border-amber-500/20" :
-                            "bg-rose-500/10 border border-rose-500/20"
-                          }`}>
-                            <SvcIcon className={`h-4 w-4 ${
-                              isOperational ? "text-emerald-400" : isDegraded ? "text-amber-400" : "text-rose-400"
-                            }`} />
+                          <div
+                            className={`p-2 rounded-lg ${
+                              isOperational
+                                ? "bg-slate-950 border border-slate-800"
+                                : isDegraded
+                                  ? "bg-amber-500/10 border border-amber-500/20"
+                                  : "bg-rose-500/10 border border-rose-500/20"
+                            }`}
+                          >
+                            <SvcIcon
+                              className={`h-4 w-4 ${
+                                isOperational
+                                  ? "text-emerald-400"
+                                  : isDegraded
+                                    ? "text-amber-400"
+                                    : "text-rose-400"
+                              }`}
+                            />
                           </div>
                           <div>
                             <div className="text-xs font-bold text-slate-100">{svc.name}</div>
-                            <div className="text-[10px] text-slate-500">Checked {svc.lastChecked}</div>
+                            <div className="text-[10px] text-slate-500">
+                              Checked {svc.lastChecked}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center gap-1.5">
-                          <span className={`h-2 w-2 rounded-full animate-pulse ${
-                            isOperational ? "bg-emerald-400" : isDegraded ? "bg-amber-400" : "bg-rose-400"
-                          }`} />
-                          <Badge className={`text-[10px] ${
-                            isOperational ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" :
-                            isDegraded ? "bg-amber-500/10 text-amber-400 border-amber-500/30" :
-                            "bg-rose-500/10 text-rose-400 border-rose-500/30"
-                          }`}>{svc.status}</Badge>
+                          <span
+                            className={`h-2 w-2 rounded-full animate-pulse ${
+                              isOperational
+                                ? "bg-emerald-400"
+                                : isDegraded
+                                  ? "bg-amber-400"
+                                  : "bg-rose-400"
+                            }`}
+                          />
+                          <Badge
+                            className={`text-[10px] ${
+                              isOperational
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                                : isDegraded
+                                  ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                                  : "bg-rose-500/10 text-rose-400 border-rose-500/30"
+                            }`}
+                          >
+                            {svc.status}
+                          </Badge>
                         </div>
                       </div>
                       <div className="mt-4 grid grid-cols-2 gap-3 text-xs">
                         <div>
-                          <div className="text-slate-500 text-[10px] uppercase tracking-wider">Latency</div>
-                          <div className={`font-bold font-mono ${
-                            svc.latency < 100 ? "text-emerald-400" : svc.latency < 300 ? "text-amber-400" : "text-rose-400"
-                          }`}>{svc.latency}ms</div>
+                          <div className="text-slate-500 text-[10px] uppercase tracking-wider">
+                            Latency
+                          </div>
+                          <div
+                            className={`font-bold font-mono ${
+                              svc.latency < 100
+                                ? "text-emerald-400"
+                                : svc.latency < 300
+                                  ? "text-amber-400"
+                                  : "text-rose-400"
+                            }`}
+                          >
+                            {svc.latency}ms
+                          </div>
                         </div>
                         <div>
-                          <div className="text-slate-500 text-[10px] uppercase tracking-wider">Uptime</div>
+                          <div className="text-slate-500 text-[10px] uppercase tracking-wider">
+                            Uptime
+                          </div>
                           <div className="font-bold text-slate-100">{svc.uptime}</div>
                         </div>
                       </div>
@@ -2160,7 +2855,9 @@ export function AdminDashboardPage() {
                 <h2 className="text-xl font-bold text-slate-100 flex items-center gap-2">
                   <SlidersHorizontal className="h-5 w-5 text-amber-400" /> Platform Settings
                 </h2>
-                <p className="text-xs text-slate-400">Commission rates, MOQ rules, feature toggles and notification configuration</p>
+                <p className="text-xs text-slate-400">
+                  Commission rates, MOQ rules, feature toggles and notification configuration
+                </p>
               </div>
 
               {/* Commission Rate */}
@@ -2170,43 +2867,74 @@ export function AdminDashboardPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Platform Commission Rate</label>
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                      Platform Commission Rate
+                    </label>
                     {editingCommission ? (
                       <div className="flex items-center gap-2">
                         <Input
-                          type="number" min={1} max={10} step={0.5}
+                          type="number"
+                          min={1}
+                          max={10}
+                          step={0.5}
                           value={commissionRate}
                           onChange={(e) => setCommissionRate(parseFloat(e.target.value) || 3)}
                           className="w-28 bg-slate-950 border-slate-700 text-amber-400 font-mono font-bold text-lg"
                         />
                         <span className="text-slate-400 font-bold">%</span>
-                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9"
-                          onClick={() => { setEditingCommission(false); toast.success(`Commission rate updated to ${commissionRate}%`); }}>
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs h-9"
+                          onClick={() => {
+                            setEditingCommission(false);
+                            toast.success(`Commission rate updated to ${commissionRate}%`);
+                          }}
+                        >
                           Save
                         </Button>
-                        <Button size="sm" variant="outline" className="border-slate-700 text-slate-400 text-xs h-9"
-                          onClick={() => setEditingCommission(false)}>Cancel</Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-700 text-slate-400 text-xs h-9"
+                          onClick={() => setEditingCommission(false)}
+                        >
+                          Cancel
+                        </Button>
                       </div>
                     ) : (
                       <div className="flex items-center gap-3">
-                        <span className="text-3xl font-black text-amber-400 font-mono">{commissionRate}%</span>
-                        <Button size="sm" variant="outline" className="border-slate-700 text-slate-400 text-xs h-8"
-                          onClick={() => setEditingCommission(true)}>Edit</Button>
+                        <span className="text-3xl font-black text-amber-400 font-mono">
+                          {commissionRate}%
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-slate-700 text-slate-400 text-xs h-8"
+                          onClick={() => setEditingCommission(true)}
+                        >
+                          Edit
+                        </Button>
                       </div>
                     )}
-                    <p className="text-[11px] text-slate-500">Applied to every completed wholesale transaction GMV.</p>
+                    <p className="text-[11px] text-slate-500">
+                      Applied to every completed wholesale transaction GMV.
+                    </p>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">MOQ Rules (Factory Standard)</label>
+                    <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                      MOQ Rules (Factory Standard)
+                    </label>
                     <div className="space-y-1.5">
                       {[
                         { label: "Minimum Order", value: "12 pairs (1 carton)" },
                         { label: "Carton Pack", value: "12 pairs / single colour" },
                         { label: "Order Multiples", value: "12, 24, 36, 48..." },
-                      ].map(r => (
+                      ].map((r) => (
                         <div key={r.label} className="flex items-center justify-between text-xs">
                           <span className="text-slate-400">{r.label}</span>
-                          <span className="font-mono font-bold text-slate-100 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded">{r.value}</span>
+                          <span className="font-mono font-bold text-slate-100 bg-slate-950 border border-slate-800 px-2 py-0.5 rounded">
+                            {r.value}
+                          </span>
                         </div>
                       ))}
                     </div>
@@ -2220,28 +2948,56 @@ export function AdminDashboardPage() {
                   <Zap className="h-4 w-4 text-amber-400" /> Feature Flags
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {([
-                    { key: "escrowProtection", label: "Escrow Protection", desc: "Hold platform fee until buyer confirms delivery" },
-                    { key: "rfqSystem", label: "RFQ Negotiation Engine", desc: "Buyers can submit request-for-quote to suppliers" },
-                    { key: "biltiTracking", label: "Bilti Tracking", desc: "Real-time logistics tracking via carrier bilti number" },
-                    { key: "supplierVerification", label: "Supplier Verification Queue", desc: "Manual KYC review before factory goes live" },
-                  ] as const).map((flag) => {
+                  {(
+                    [
+                      {
+                        key: "escrowProtection",
+                        label: "Escrow Protection",
+                        desc: "Hold platform fee until buyer confirms delivery",
+                      },
+                      {
+                        key: "rfqSystem",
+                        label: "RFQ Negotiation Engine",
+                        desc: "Buyers can submit request-for-quote to suppliers",
+                      },
+                      {
+                        key: "biltiTracking",
+                        label: "Bilti Tracking",
+                        desc: "Real-time logistics tracking via carrier bilti number",
+                      },
+                      {
+                        key: "supplierVerification",
+                        label: "Supplier Verification Queue",
+                        desc: "Manual KYC review before factory goes live",
+                      },
+                    ] as const
+                  ).map((flag) => {
                     const isOn = featureFlags[flag.key];
                     return (
                       <button
                         key={flag.key}
                         onClick={() => {
-                          setFeatureFlags(prev => ({ ...prev, [flag.key]: !prev[flag.key] }));
+                          setFeatureFlags((prev) => ({ ...prev, [flag.key]: !prev[flag.key] }));
                           toast.success(`${flag.label} ${!isOn ? "enabled" : "disabled"}`);
                         }}
                         className={`w-full text-left p-4 rounded-xl border transition-all cursor-pointer ${
-                          isOn ? "border-amber-500/30 bg-amber-500/5" : "border-slate-800 bg-slate-950/60"
+                          isOn
+                            ? "border-amber-500/30 bg-amber-500/5"
+                            : "border-slate-800 bg-slate-950/60"
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className={`text-xs font-bold ${ isOn ? "text-amber-300" : "text-slate-400"}`}>{flag.label}</span>
-                          <div className={`relative h-5 w-9 rounded-full transition-colors ${ isOn ? "bg-amber-500" : "bg-slate-700"}`}>
-                            <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${ isOn ? "translate-x-4" : "translate-x-0.5"}`} />
+                          <span
+                            className={`text-xs font-bold ${isOn ? "text-amber-300" : "text-slate-400"}`}
+                          >
+                            {flag.label}
+                          </span>
+                          <div
+                            className={`relative h-5 w-9 rounded-full transition-colors ${isOn ? "bg-amber-500" : "bg-slate-700"}`}
+                          >
+                            <div
+                              className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${isOn ? "translate-x-4" : "translate-x-0.5"}`}
+                            />
                           </div>
                         </div>
                         <p className="text-[11px] text-slate-500 mt-1">{flag.desc}</p>
@@ -2262,11 +3018,19 @@ export function AdminDashboardPage() {
                     className="bg-slate-950 border-slate-800 text-slate-100 text-xs max-w-sm"
                     readOnly
                   />
-                  <Button size="sm" variant="outline" className="border-slate-700 text-slate-400 text-xs h-9"
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-slate-700 text-slate-400 text-xs h-9"
                     onClick={() => toast.info("Contact support to change the master admin email.")}
-                  >Change</Button>
+                  >
+                    Change
+                  </Button>
                 </div>
-                <p className="text-[11px] text-slate-500">All platform alerts, dispute notifications and settlement requests are sent to this address.</p>
+                <p className="text-[11px] text-slate-500">
+                  All platform alerts, dispute notifications and settlement requests are sent to
+                  this address.
+                </p>
               </Card>
             </div>
           )}
@@ -2300,9 +3064,11 @@ function SidebarItem({ icon: Icon, label, id, active, onClick, badge }: any) {
         <span>{label}</span>
       </div>
       {badge !== undefined && (
-        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-          isActive ? "bg-amber-500 text-slate-950" : "bg-slate-800 text-slate-300"
-        }`}>
+        <span
+          className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+            isActive ? "bg-amber-500 text-slate-950" : "bg-slate-800 text-slate-300"
+          }`}
+        >
           {badge}
         </span>
       )}

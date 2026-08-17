@@ -21,7 +21,10 @@ async function run() {
     });
     console.log("Connected successfully!");
     const list = await client.list("public_html");
-    console.log("Files in public_html:", list.map(f => f.name));
+    console.log(
+      "Files in public_html:",
+      list.map((f) => f.name),
+    );
   } catch (err) {
     console.error("Error:", err.message);
   } finally {

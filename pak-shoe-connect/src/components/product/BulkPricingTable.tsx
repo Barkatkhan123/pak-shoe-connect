@@ -42,9 +42,7 @@ export function BulkPricingTable({
           const maxPairs = tier.maxQuantity ? Math.floor(tier.maxQuantity / 12) * 12 : undefined;
           const maxCartons = maxPairs ? Math.round(maxPairs / 12) : undefined;
 
-          const rangeLabel = maxPairs
-            ? `${minPairs}–${maxPairs} prs`
-            : `${minPairs}+ prs`;
+          const rangeLabel = maxPairs ? `${minPairs}–${maxPairs} prs` : `${minPairs}+ prs`;
 
           const cartonLabel = maxCartons
             ? `(${minCartons}–${maxCartons} ctn${maxCartons > 1 ? "s" : ""})`
@@ -72,9 +70,7 @@ export function BulkPricingTable({
                 <span className="block text-[11px] font-bold text-muted-foreground uppercase">
                   {tier.label}
                 </span>
-                <span className="block text-xs font-bold text-foreground mt-0.5">
-                  {rangeLabel}
-                </span>
+                <span className="block text-xs font-bold text-foreground mt-0.5">{rangeLabel}</span>
                 <span className="block text-[10px] text-muted-foreground font-mono">
                   {cartonLabel}
                 </span>
@@ -97,7 +93,12 @@ export function BulkPricingTable({
       {nextTier && nextTier.additionalPairs > 0 && (
         <div className="flex items-center justify-between rounded-xl bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-300 border border-amber-500/20">
           <span>
-            💡 Add <strong>{Math.ceil(nextTier.additionalPairs / 12) * 12} more pairs ({Math.ceil(nextTier.additionalPairs / 12)} carton)</strong> to unlock{" "}
+            💡 Add{" "}
+            <strong>
+              {Math.ceil(nextTier.additionalPairs / 12) * 12} more pairs (
+              {Math.ceil(nextTier.additionalPairs / 12)} carton)
+            </strong>{" "}
+            to unlock{" "}
             <strong>
               {currency} {nextTier.potentialUnitPrice.toLocaleString()}/pair
             </strong>{" "}

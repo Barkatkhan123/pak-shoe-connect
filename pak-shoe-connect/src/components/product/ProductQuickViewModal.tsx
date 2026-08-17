@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Product as LegacyProduct } from "@/data/products";
-import {
-  type EnterpriseProduct,
-  normalizeEnterpriseProduct,
-} from "@/types/product";
+import { type EnterpriseProduct, normalizeEnterpriseProduct } from "@/types/product";
 import { usePricingCalculator } from "@/hooks/usePricingCalculator";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
 import { useWishlist } from "@/hooks/use-wishlist";
@@ -114,7 +111,11 @@ export function ProductQuickViewModal({
       moq: product.inventory.moq || 12,
       priceLabel: `PKR ${pricing.unitPrice.toLocaleString()}/pair`,
       colors: product.variants.colors.map((c) => c.name),
-      sizes: product.variants.sizes.map((s) => ({ EU: s.EU, UK: s.UK, label: s.UK ? `Size ${s.UK}` : s.EU })),
+      sizes: product.variants.sizes.map((s) => ({
+        EU: s.EU,
+        UK: s.UK,
+        label: s.UK ? `Size ${s.UK}` : s.EU,
+      })),
       priceTiers: product.bulkPricing.map((tier) => ({
         moq: tier.minQuantity,
         pricePerPair: tier.unitPrice,
@@ -170,10 +171,7 @@ export function ProductQuickViewModal({
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                 {/* ── Left Column (Media Gallery & Video Player) - 50% ── */}
                 <div className="lg:col-span-6 xl:col-span-6 flex flex-col gap-6">
-                  <MediaGallery
-                    product={product}
-                    selectedColorImage={selectedColorImage}
-                  />
+                  <MediaGallery product={product} selectedColorImage={selectedColorImage} />
                 </div>
 
                 {/* ── Right Column (Purchase Zone, Tiers, Selectors & Tabs) - 50% ── */}

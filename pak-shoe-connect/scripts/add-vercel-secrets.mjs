@@ -5,7 +5,11 @@ const jwtSecret = crypto.randomBytes(32).toString("hex");
 
 const secrets = [
   { key: "JWT_SECRET", value: jwtSecret },
-  { key: "DATABASE_URL", value: "postgresql://postgres:postgres@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1" },
+  {
+    key: "DATABASE_URL",
+    value:
+      "postgresql://postgres:postgres@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1",
+  },
   { key: "EASYPAISA_STORE_ID", value: "EP_SHERSHA_STORE_10029" },
   { key: "EASYPAISA_HASH_KEY", value: "ep_secret_b2b_hash_key_9921" },
   { key: "JAZZCASH_MERCHANT_ID", value: "JC_SHERSHA_MCH_88192" },

@@ -31,19 +31,24 @@ function About() {
       <section className="mx-auto max-w-7xl px-4 py-16 md:py-24">
         <div className="grid gap-10 md:grid-cols-2">
           <div className="relative overflow-hidden rounded-2xl border border-border">
-            <img src={factoryImg} alt="Anamon factory floor" className="h-full w-full object-cover" />
+            <img
+              src={factoryImg}
+              alt="Anamon factory floor"
+              className="h-full w-full object-cover"
+            />
           </div>
           <div>
             <h2 className="font-display text-2xl font-semibold sm:text-3xl">Our story</h2>
             <p className="mt-4 text-muted-foreground">
               Anamon was founded in 1998 with a simple belief: Pakistani retailers deserve
               consistent quality at honest factory rates. What started as a dedicated footwear
-              workshop now produces men's, women's and kids' footwear at scale for over 1,200 dealers nationwide.
+              workshop now produces men's, women's and kids' footwear at scale for over 1,200
+              dealers nationwide.
             </p>
             <p className="mt-3 text-muted-foreground">
-              Today Anamon operates two specialized manufacturing facilities — located in Rawalpindi and Lahore, Pakistan —
-              with 400+ skilled workers, in-house sole moulding, precision cutting, and a dedicated private-label
-              team serving new-age D2C brands.
+              Today Anamon operates two specialized manufacturing facilities — located in Rawalpindi
+              and Lahore, Pakistan — with 400+ skilled workers, in-house sole moulding, precision
+              cutting, and a dedicated private-label team serving new-age D2C brands.
             </p>
           </div>
         </div>
@@ -52,9 +57,21 @@ function About() {
       <section className="border-y border-border bg-cream">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-16 md:grid-cols-3">
           {[
-            { icon: Target, title: "Mission", body: "Deliver factory-direct, dependable footwear to every corner of Pakistan — with fair prices for retailers and lasting comfort for end customers." },
-            { icon: Eye, title: "Vision", body: "To be Pakistan's most trusted wholesale footwear partner and a global name in private-label manufacturing." },
-            { icon: Award, title: "Values", body: "Craftsmanship, consistency, and long-term relationships. No middlemen. No surprises." },
+            {
+              icon: Target,
+              title: "Mission",
+              body: "Deliver factory-direct, dependable footwear to every corner of Pakistan — with fair prices for retailers and lasting comfort for end customers.",
+            },
+            {
+              icon: Eye,
+              title: "Vision",
+              body: "To be Pakistan's most trusted wholesale footwear partner and a global name in private-label manufacturing.",
+            },
+            {
+              icon: Award,
+              title: "Values",
+              body: "Craftsmanship, consistency, and long-term relationships. No middlemen. No surprises.",
+            },
           ].map((c) => (
             <div key={c.title} className="rounded-xl border border-border bg-background p-6">
               <c.icon className="h-6 w-6 text-primary" />
@@ -108,8 +125,8 @@ function About() {
               <Boxes className="h-6 w-6 text-leather" />
               <h3 className="mt-3 font-display text-lg font-semibold">Warehousing</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Buffer stock on best-sellers so dealers can reorder without waiting for
-                production cycles. Ready dispatch within 48 hours on stocked SKUs.
+                Buffer stock on best-sellers so dealers can reorder without waiting for production
+                cycles. Ready dispatch within 48 hours on stocked SKUs.
               </p>
             </div>
           </div>
@@ -119,13 +136,24 @@ function About() {
       {/* Bottom CTA */}
       <section className="bg-ink py-20 text-white text-center">
         <div className="mx-auto max-w-3xl px-4">
-          <h2 className="font-display text-3xl font-bold sm:text-4xl mb-4">Ready to partner with us?</h2>
-          <p className="text-cream/80 text-lg mb-8">Browse our wholesale catalog or get in touch with our sales team today.</p>
+          <h2 className="font-display text-3xl font-bold sm:text-4xl mb-4">
+            Ready to partner with us?
+          </h2>
+          <p className="text-cream/80 text-lg mb-8">
+            Browse our wholesale catalog or get in touch with our sales team today.
+          </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/products" search={{ category: undefined, gender: undefined }} className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-bold text-white hover:bg-white hover:text-primary transition-all hover:scale-105">
+            <Link
+              to="/products"
+              search={{ category: undefined, gender: undefined }}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-sm font-bold text-white hover:bg-white hover:text-primary transition-all hover:scale-105"
+            >
               Browse Catalog <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link to="/contact" className="inline-flex items-center gap-2 rounded-full border border-white/30 glass-dark px-8 py-4 text-sm font-bold text-white hover:bg-white/20 transition-all">
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 rounded-full border border-white/30 glass-dark px-8 py-4 text-sm font-bold text-white hover:bg-white/20 transition-all"
+            >
               Contact Sales
             </Link>
           </div>

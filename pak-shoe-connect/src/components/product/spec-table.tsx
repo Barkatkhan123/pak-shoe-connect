@@ -14,23 +14,23 @@ export function SpecTable({ product }: SpecTableProps) {
     { label: "Gender", value: product.gender.charAt(0).toUpperCase() + product.gender.slice(1) },
     { label: "Lead time", value: product.leadTimeDays },
     { label: "Customization", value: product.customization.join(", ") || "OEM/ODM" },
-    { 
-      label: "Place of origin", 
-      value: <span className="text-emerald font-medium">Lahore, PK</span> 
+    {
+      label: "Place of origin",
+      value: <span className="text-emerald font-medium">Lahore, PK</span>,
     },
     ...Object.entries(product.specifications).map(([key, value]) => ({
       label: key,
-      value
-    }))
+      value,
+    })),
   ];
 
   return (
     <div className="rounded-xl overflow-hidden border border-border">
       <div className="grid grid-cols-1 divide-y divide-border">
         {specs.map((spec, index) => (
-          <div 
-            key={index} 
-            className={`flex items-center p-4 text-sm ${index % 2 === 0 ? 'bg-muted/40' : 'bg-background'}`}
+          <div
+            key={index}
+            className={`flex items-center p-4 text-sm ${index % 2 === 0 ? "bg-muted/40" : "bg-background"}`}
           >
             <div className="w-1/3 text-muted-foreground">{spec.label}</div>
             <div className="w-2/3 text-foreground">{spec.value}</div>

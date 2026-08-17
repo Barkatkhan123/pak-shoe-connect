@@ -53,7 +53,8 @@ export class EasypaisaGateway implements PaymentGateway {
       };
     }
 
-    const responseCode = payload?.responseCode ?? (transactionId.includes("FAIL") ? "0001" : "0000");
+    const responseCode =
+      payload?.responseCode ?? (transactionId.includes("FAIL") ? "0001" : "0000");
     const isSuccess = responseCode === "0000" && !transactionId.includes("FAIL");
 
     return {
@@ -71,7 +72,11 @@ export class EasypaisaGateway implements PaymentGateway {
     };
   }
 
-  async refundPayment(transactionId: string, amount?: number, reason?: string): Promise<RefundResult> {
+  async refundPayment(
+    transactionId: string,
+    amount?: number,
+    reason?: string,
+  ): Promise<RefundResult> {
     const refundTxId = `EP-REF-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`;
     return {
       success: true,
@@ -86,7 +91,11 @@ export class EasypaisaGateway implements PaymentGateway {
     };
   }
 
-  verifyWebhookSignature(signature: string, payload: Record<string, any> | string, secret?: string): boolean {
+  verifyWebhookSignature(
+    signature: string,
+    payload: Record<string, any> | string,
+    secret?: string,
+  ): boolean {
     const key = secret || this.hashKey;
     const bodyString = typeof payload === "string" ? payload : JSON.stringify(payload);
     const expectedHash = crypto.createHmac("sha256", key).update(bodyString).digest("hex");
@@ -95,7 +104,7 @@ export class EasypaisaGateway implements PaymentGateway {
     try {
       return crypto.timingSafeEqual(
         Buffer.from(signature, "hex"),
-        Buffer.from(expectedHash, "hex")
+        Buffer.from(expectedHash, "hex"),
       );
     } catch {
       return false;

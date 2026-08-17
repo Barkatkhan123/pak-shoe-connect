@@ -3,9 +3,7 @@ import { z } from "zod";
 export const ProductListQuerySchema = z.object({
   category: z.string().optional(),
   gender: z.enum(["men", "women", "kids", "unisex"]).optional(),
-  supplierVerified: z
-    .preprocess((val) => val === "true" || val === true, z.boolean())
-    .optional(),
+  supplierVerified: z.preprocess((val) => val === "true" || val === true, z.boolean()).optional(),
   minPrice: z.coerce.number().optional(),
   maxPrice: z.coerce.number().optional(),
   moqMax: z.coerce.number().optional(),

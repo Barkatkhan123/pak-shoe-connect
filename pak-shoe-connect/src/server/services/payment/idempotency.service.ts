@@ -88,7 +88,10 @@ export class IdempotencyService {
    * DB fallback: INSERT with unique key — a P2002 (unique constraint violation)
    * means the lock is already held. Then checks if the existing record is COMPLETED.
    */
-  static async acquireLock(key: string, payload?: any): Promise<{ acquired: boolean; cachedResponse?: any }> {
+  static async acquireLock(
+    key: string,
+    payload?: any,
+  ): Promise<{ acquired: boolean; cachedResponse?: any }> {
     const record: IdempotencyRecord = {
       key,
       requestHash: this.hashPayload(payload),
@@ -148,10 +151,7 @@ export class IdempotencyService {
       return { acquired: true };
     } catch (error) {
       // P2002 = unique constraint violation → key already exists (lock held)
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
         const existing = await prisma.idempotencyKey.findUnique({ where: { key } });
         if (existing?.status === "COMPLETED") {
           return { acquired: false, cachedResponse: existing.response };
@@ -197,9 +197,10 @@ export class IdempotencyService {
     }
 
     // Database fallback: upsert with COMPLETED status and 24h TTL
-    const jsonResponse = (response === undefined || response === null)
-      ? Prisma.DbNull
-      : (response as Prisma.InputJsonValue);
+    const jsonResponse =
+      response === undefined || response === null
+        ? Prisma.DbNull
+        : (response as Prisma.InputJsonValue);
 
     await prisma.idempotencyKey.upsert({
       where: { key },

@@ -59,30 +59,32 @@ export function PurchaseActions({
     const sizeText = isAssorted ? `Size EU ${selectedSize}` : `Size EU ${selectedSize}`;
     const text = encodeURIComponent(
       `Assalam-o-Alaikum, I want to order 1 Sample Pair for quality inspection:\n\n` +
-      `📦 Product: ${product.title}\n` +
-      `🏷️ SKU: ${product.sku}\n` +
-      `🎨 Color: ${selectedColor}\n` +
-      `📏 Size: ${sizeText}\n` +
-      `🔢 Quantity: 1 Sample Pair\n` +
-      `💰 Sample Rate: ${currency} ${samplePrice.toLocaleString()}/pair\n\n` +
-      `Please provide dispatch schedule and payment account for this 1 sample pair.`
+        `📦 Product: ${product.title}\n` +
+        `🏷️ SKU: ${product.sku}\n` +
+        `🎨 Color: ${selectedColor}\n` +
+        `📏 Size: ${sizeText}\n` +
+        `🔢 Quantity: 1 Sample Pair\n` +
+        `💰 Sample Rate: ${currency} ${samplePrice.toLocaleString()}/pair\n\n` +
+        `Please provide dispatch schedule and payment account for this 1 sample pair.`,
     );
     window.open(`https://wa.me/923432178305?text=${text}`, "_blank");
     toast.success(`Opening WhatsApp for 1 Sample Pair Order of ${product.title}!`);
   };
 
   const handleDirectWhatsApp = () => {
-    const sizeText = isAssorted ? "Standard Assorted Ratio (12 prs/ctn)" : `Size EU ${selectedSize}`;
+    const sizeText = isAssorted
+      ? "Standard Assorted Ratio (12 prs/ctn)"
+      : `Size EU ${selectedSize}`;
     const text = encodeURIComponent(
       `Assalam-o-Alaikum, I want to place a wholesale order/inquiry on Anamon:\n\n` +
-      `📦 Product: ${product.title}\n` +
-      `🏷️ SKU: ${product.sku}\n` +
-      `🎨 Color: ${selectedColor}\n` +
-      `📏 Size Run: ${sizeText}\n` +
-      `🔢 Quantity: ${quantity} pairs (${pricing.cartonsCount} cartons)\n` +
-      `💰 Unit Rate: ${currency} ${unitPrice.toLocaleString()}/pair\n` +
-      `💵 Estimated Total: ${currency} ${subtotal.toLocaleString()}\n\n` +
-      `Please confirm stock availability & dispatch schedule.`
+        `📦 Product: ${product.title}\n` +
+        `🏷️ SKU: ${product.sku}\n` +
+        `🎨 Color: ${selectedColor}\n` +
+        `📏 Size Run: ${sizeText}\n` +
+        `🔢 Quantity: ${quantity} pairs (${pricing.cartonsCount} cartons)\n` +
+        `💰 Unit Rate: ${currency} ${unitPrice.toLocaleString()}/pair\n` +
+        `💵 Estimated Total: ${currency} ${subtotal.toLocaleString()}\n\n` +
+        `Please confirm stock availability & dispatch schedule.`,
     );
     window.open(`https://wa.me/923432178305?text=${text}`, "_blank");
   };
@@ -152,7 +154,10 @@ export function PurchaseActions({
               className="flex items-center gap-2"
             >
               <ShoppingCart className="h-5 w-5 text-[#C9A84C]" />
-              <span>Add {quantity} Pairs ({pricing.cartonsCount} Ctn) • {currency} {subtotal.toLocaleString()}</span>
+              <span>
+                Add {quantity} Pairs ({pricing.cartonsCount} Ctn) • {currency}{" "}
+                {subtotal.toLocaleString()}
+              </span>
             </motion.div>
           )}
         </AnimatePresence>

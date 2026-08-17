@@ -52,15 +52,15 @@ export interface PricingCalculationResult {
 
 // City freight rates per 24-pair master carton (in PKR)
 const CITY_FREIGHT_RATES: Record<string, number> = {
-  "Lahore": 450,
-  "Faisalabad": 500,
-  "Gujranwala": 450,
-  "Sialkot": 400,
+  Lahore: 450,
+  Faisalabad: 500,
+  Gujranwala: 450,
+  Sialkot: 400,
   "Rawalpindi / Islamabad": 650,
-  "Peshawar": 750,
-  "Multan": 600,
-  "Karachi": 950,
-  "Quetta": 1100,
+  Peshawar: 750,
+  Multan: 600,
+  Karachi: 950,
+  Quetta: 1100,
   "Dubai / GCC Port": 9800, // Approx $35 USD in PKR
 };
 
@@ -127,8 +127,12 @@ export class PricingService {
     const estimatedRetailMSRP = Math.round(baseFirstTierPrice * 1.65);
     const totalRetailValue = estimatedRetailMSRP * quantity;
     const totalBuyerSavings = totalRetailValue - subtotal;
-    const savingsPercentage = Math.round(((estimatedRetailMSRP - unitPrice) / estimatedRetailMSRP) * 100);
-    const retailProfitMarginPercentage = Math.round(((estimatedRetailMSRP - unitPrice) / unitPrice) * 100);
+    const savingsPercentage = Math.round(
+      ((estimatedRetailMSRP - unitPrice) / estimatedRetailMSRP) * 100,
+    );
+    const retailProfitMarginPercentage = Math.round(
+      ((estimatedRetailMSRP - unitPrice) / unitPrice) * 100,
+    );
 
     // Logistics freight calculation
     const freightRatePerCarton = CITY_FREIGHT_RATES[destinationCity] ?? 650;

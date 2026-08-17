@@ -146,7 +146,11 @@ describe("Catalog & Supplier Ranking System", () => {
         sku: "SHR-PSH-001",
         title: "Double Sole Peshawari Chappal",
         moq: 100,
-        supplier: { factoryName: "Sialkot Master Syndicate", city: "Sialkot", verificationStatus: "VERIFIED" },
+        supplier: {
+          factoryName: "Sialkot Master Syndicate",
+          city: "Sialkot",
+          verificationStatus: "VERIFIED",
+        },
         category: { name: "Peshawari Chappal" },
         bulkPriceTiers: [{ unitPrice: 1250 }],
       } as any,
@@ -166,7 +170,7 @@ describe("Catalog & Supplier Ranking System", () => {
       "/api/v1/catalog/products",
       "GET",
       {},
-      { category: "peshawari-chappal" }
+      { category: "peshawari-chappal" },
     );
 
     expect(response.status).toBe(200);

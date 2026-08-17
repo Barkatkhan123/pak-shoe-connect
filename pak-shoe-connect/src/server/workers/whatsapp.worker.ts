@@ -58,7 +58,10 @@ export function formatWhatsAppMessage(data: WhatsAppJobData): string {
 /**
  * WhatsApp Dispatcher (Integrates with Meta Cloud API or local Twilio/Gupshup gateway)
  */
-export async function sendWhatsAppMessage(recipientPhone: string, messageText: string): Promise<boolean> {
+export async function sendWhatsAppMessage(
+  recipientPhone: string,
+  messageText: string,
+): Promise<boolean> {
   const metaToken = process.env.WHATSAPP_API_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
@@ -116,6 +119,6 @@ export const whatsappWorker = redisConnection
       {
         connection: redisConnection,
         concurrency: 5,
-      }
+      },
     )
   : null;

@@ -40,7 +40,7 @@ export class WholesalePricingEngine {
     const tiersToUse = this.rules.customTiers || GLOBAL_TIERS;
     // Tiers should be evaluated in descending order of minQty
     const sortedTiers = [...tiersToUse].sort((a, b) => b.minQty - a.minQty);
-    
+
     for (const tier of sortedTiers) {
       if (quantity >= tier.minQty) {
         return tier;
@@ -54,7 +54,8 @@ export class WholesalePricingEngine {
    */
   public calculateQuote(quantity: number) {
     const tier = this.getApplicableTier(quantity);
-    const unitPrice = Math.round(this.rules.basePricePKR * (1 - tier.discountPercentage / 100) * 100) / 100;
+    const unitPrice =
+      Math.round(this.rules.basePricePKR * (1 - tier.discountPercentage / 100) * 100) / 100;
     const totalCost = Math.round(unitPrice * quantity * 100) / 100;
     const baseTotal = this.rules.basePricePKR * quantity;
 
@@ -74,11 +75,11 @@ export class WholesalePricingEngine {
   public generateCalculatorTiers() {
     const tiersToUse = this.rules.customTiers || GLOBAL_TIERS;
     const sortedTiers = [...tiersToUse].sort((a, b) => a.minQty - b.minQty);
-    
+
     // Ensure MOQ is the first tier if it doesn't align exactly
     const displayTiers = [];
-    if (!sortedTiers.some(t => t.minQty === this.rules.moq)) {
-       displayTiers.push({ threshold: this.rules.moq, label: `${this.rules.moq} Pairs` });
+    if (!sortedTiers.some((t) => t.minQty === this.rules.moq)) {
+      displayTiers.push({ threshold: this.rules.moq, label: `${this.rules.moq} Pairs` });
     }
 
     for (const tier of sortedTiers) {

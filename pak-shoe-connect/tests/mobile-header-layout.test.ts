@@ -6,7 +6,8 @@ import { SiteLayout } from "../src/components/site-layout";
 
 // Mock router / hooks if necessary
 vi.mock("@tanstack/react-router", () => ({
-  Link: ({ children, activeProps, activeOptions, ...props }: any) => React.createElement("a", props, children),
+  Link: ({ children, activeProps, activeOptions, ...props }: any) =>
+    React.createElement("a", props, children),
   useRouter: () => ({
     subscribe: () => () => {},
   }),
@@ -48,13 +49,17 @@ describe("Mobile Header Architecture & CLS Prevention Test Suite", () => {
 
   it("ensures SiteLayout wraps SiteHeader and Page Content with Scroll Indicator without obstructing document flow", () => {
     const html = renderToStaticMarkup(
-      React.createElement(SiteLayout, null, React.createElement("div", { id: "test-content" }, "Hero Content"))
+      React.createElement(
+        SiteLayout,
+        null,
+        React.createElement("div", { id: "test-content" }, "Hero Content"),
+      ),
     );
 
     // Header is rendered first in layout
     expect(html).toContain("<header");
     // Main content area wraps children
-    expect(html).toContain("id=\"test-content\"");
+    expect(html).toContain('id="test-content"');
     // Scroll indicator has pointer-events-none to prevent layout / click blocking
     expect(html).toContain("pointer-events-none");
     expect(html).toContain("fixed top-0 left-0 right-0 h-[3px]");

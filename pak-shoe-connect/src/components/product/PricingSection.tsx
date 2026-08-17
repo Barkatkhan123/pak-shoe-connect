@@ -33,8 +33,7 @@ export function PricingSection({ product, pricing }: PricingSectionProps) {
             SAVE {savingsPercentage}%
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-0.5 text-xs font-bold text-white shadow-sm">
-            <TrendingUp className="h-3 w-3" />
-            +{profitMarginPercentage}% Retail Margin
+            <TrendingUp className="h-3 w-3" />+{profitMarginPercentage}% Retail Margin
           </span>
         </div>
       </div>
@@ -42,7 +41,8 @@ export function PricingSection({ product, pricing }: PricingSectionProps) {
       {/* MOQ & Carton Quick Info */}
       <div className="flex items-center justify-between text-xs text-muted-foreground pt-1 border-t border-amber-500/15">
         <div className="flex items-center gap-1">
-          <span className="font-semibold text-foreground">MOQ:</span> 12 pairs (1 carton) • Multiples of 12 only
+          <span className="font-semibold text-foreground">MOQ:</span> 12 pairs (1 carton) •
+          Multiples of 12 only
         </div>
         <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
           <Sparkles className="h-3.5 w-3.5" />

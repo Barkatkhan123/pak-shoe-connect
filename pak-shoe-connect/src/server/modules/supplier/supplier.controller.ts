@@ -1,7 +1,11 @@
 // @ts-ignore
 import { Request, Response } from "express";
 import { SupplierService } from "./supplier.service";
-import { SubmitSupplierQuoteSchema, UpdateInventorySchema, UpdateOrderStatusSchema } from "./supplier.schema";
+import {
+  SubmitSupplierQuoteSchema,
+  UpdateInventorySchema,
+  UpdateOrderStatusSchema,
+} from "./supplier.schema";
 
 export class SupplierController {
   static async getProfile(req: Request, res: Response) {

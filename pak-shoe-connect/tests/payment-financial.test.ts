@@ -191,9 +191,12 @@ describe("Step 8: Payment Gateway Integration & Financial Subsystem Suite", () =
       const validSigHex = crypto.createHmac("sha256", testKey).update(bodyString).digest("hex");
 
       const validSig = ep.verifyWebhookSignature(validSigHex, testPayload);
-      const invalidSig = ep.verifyWebhookSignature("badf00d1badf00d1badf00d1badf00d1badf00d1badf00d1badf00d1badf00d1", testPayload);
+      const invalidSig = ep.verifyWebhookSignature(
+        "badf00d1badf00d1badf00d1badf00d1badf00d1badf00d1badf00d1badf00d1",
+        testPayload,
+      );
 
-      expect(validSig).toBe(true);    // Real computed HMAC must pass
+      expect(validSig).toBe(true); // Real computed HMAC must pass
       expect(invalidSig).toBe(false); // Tampered signature must be rejected
     });
 
@@ -206,7 +209,10 @@ describe("Step 8: Payment Gateway Integration & Financial Subsystem Suite", () =
 
       // Generate a real HMAC signature for this payload
       const testKey = requireEnv("EASYPAISA_HASH_KEY");
-      const realSig = crypto.createHmac("sha256", testKey).update(JSON.stringify(testPayload)).digest("hex");
+      const realSig = crypto
+        .createHmac("sha256", testKey)
+        .update(JSON.stringify(testPayload))
+        .digest("hex");
 
       // First webhook callback
       const res1 = await PaymentWebhookHandler.handleWebhook({
@@ -356,7 +362,7 @@ describe("Step 8: Payment Gateway Integration & Financial Subsystem Suite", () =
         SettlementService.createWithdrawal({
           supplierId: "SUPP-001",
           amount: 999999999,
-        })
+        }),
       ).rejects.toThrow(/Insufficient available balance/);
     });
 
@@ -423,7 +429,7 @@ describe("Step 8: Payment Gateway Integration & Financial Subsystem Suite", () =
       // 2. Fetch Status
       const statusRes = await handleApiRequest(
         `/api/v1/payments/${intentRes.data.intentId}/status`,
-        "GET"
+        "GET",
       );
       expect(statusRes.status).toBe(200);
       expect(statusRes.data.intent.orderNumber).toBe("SHR-ORD-2026-8812");

@@ -12,4 +12,9 @@ cd /domains/anamonofficial-com-549724.hostingersite.com/public_html
 put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\* ./
 ls /domains/anamonofficial-com-549724.hostingersite.com/public_html
 
+# 3. Upload to root public_html directory
+cd /public_html
+put C:\Users\itman\Desktop\shersha\pak-shoe-connect\dist\client\* ./
+ls /public_html
+
 exit

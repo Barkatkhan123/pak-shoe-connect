@@ -125,7 +125,8 @@ export function MediaGallery({ product, selectedColorImage }: MediaGalleryProps)
         <div className="flex items-center gap-1.5">
           {product.inventory.inStock ? (
             <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-400">
-              <CheckCircle2 className="h-3 w-3" /> In Stock ({product.inventory.stock.toLocaleString()}+ pairs)
+              <CheckCircle2 className="h-3 w-3" /> In Stock (
+              {product.inventory.stock.toLocaleString()}+ pairs)
             </span>
           ) : (
             <span className="inline-flex items-center gap-1 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:bg-rose-950/60 dark:text-rose-400">
@@ -182,7 +183,9 @@ export function MediaGallery({ product, selectedColorImage }: MediaGalleryProps)
                 <div className="flex h-7 w-7 items-center justify-center rounded-full bg-amber-500 text-black group-hover:scale-110 transition-transform">
                   <Play className="h-3.5 w-3.5 fill-current translate-x-0.5" />
                 </div>
-                <span className="text-[9px] font-bold tracking-wider uppercase text-amber-400">Video</span>
+                <span className="text-[9px] font-bold tracking-wider uppercase text-amber-400">
+                  Video
+                </span>
               </button>
             )}
           </div>
@@ -272,68 +275,71 @@ export function MediaGallery({ product, selectedColorImage }: MediaGalleryProps)
       )}
 
       {/* Fullscreen Lightbox Modal Portal */}
-      {typeof document !== "undefined" && createPortal(
-        <AnimatePresence>
-          {isLightboxOpen && (
-            <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setIsLightboxOpen(false)}
-                className="fixed inset-0 bg-black/95 backdrop-blur-xl"
-              />
-
-              <button
-                type="button"
-                onClick={() => setIsLightboxOpen(false)}
-                className="absolute top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all cursor-pointer"
-                aria-label="Close Lightbox"
-              >
-                <X className="h-6 w-6" />
-              </button>
-
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="relative z-10 flex flex-col items-center justify-center max-w-5xl max-h-[85vh] w-full h-full select-none"
-              >
-                <img
-                  src={currentImage}
-                  alt={product.title}
-                  className="max-h-[75vh] max-w-full rounded-2xl shadow-2xl object-contain border border-white/10"
+      {typeof document !== "undefined" &&
+        createPortal(
+          <AnimatePresence>
+            {isLightboxOpen && (
+              <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="fixed inset-0 bg-black/95 backdrop-blur-xl"
                 />
 
                 <button
                   type="button"
-                  onClick={handlePrevImage}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
-                  aria-label="Previous"
+                  onClick={() => setIsLightboxOpen(false)}
+                  className="absolute top-4 right-4 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-all cursor-pointer"
+                  aria-label="Close Lightbox"
                 >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNextImage}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
-                  aria-label="Next"
-                >
-                  <ChevronRight className="h-6 w-6" />
+                  <X className="h-6 w-6" />
                 </button>
 
-                <div className="mt-4 flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15 text-white text-xs font-semibold">
-                  <span>{product.title}</span>
-                  <span className="opacity-50">•</span>
-                  <span>Photo {activeImageIdx + 1} of {images.length}</span>
-                </div>
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>,
-        document.body
-      )}
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative z-10 flex flex-col items-center justify-center max-w-5xl max-h-[85vh] w-full h-full select-none"
+                >
+                  <img
+                    src={currentImage}
+                    alt={product.title}
+                    className="max-h-[75vh] max-w-full rounded-2xl shadow-2xl object-contain border border-white/10"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={handlePrevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
+                    aria-label="Previous"
+                  >
+                    <ChevronLeft className="h-6 w-6" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleNextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-md transition-all cursor-pointer"
+                    aria-label="Next"
+                  >
+                    <ChevronRight className="h-6 w-6" />
+                  </button>
+
+                  <div className="mt-4 flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/15 text-white text-xs font-semibold">
+                    <span>{product.title}</span>
+                    <span className="opacity-50">•</span>
+                    <span>
+                      Photo {activeImageIdx + 1} of {images.length}
+                    </span>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </AnimatePresence>,
+          document.body,
+        )}
     </div>
   );
 }

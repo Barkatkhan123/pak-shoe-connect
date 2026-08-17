@@ -23,7 +23,7 @@ export class TrackingService {
               phone: true,
               fullName: true,
               city: true,
-            }
+            },
           },
           supplier: true,
           items: { include: { product: true } },
@@ -56,7 +56,8 @@ export class TrackingService {
           {
             step: "IN_PRODUCTION",
             title: "Factory Batch Production",
-            description: "Laser cutting, upper stitching & sole vulcanization at Sialkot Master Syndicate",
+            description:
+              "Laser cutting, upper stitching & sole vulcanization at Sialkot Master Syndicate",
             timestamp: "2026-08-04T12:30:00Z",
             completed: true,
           },
@@ -70,7 +71,8 @@ export class TrackingService {
           {
             step: "DISPATCHED",
             title: "Dispatched via Goods Forwarder (Bilti Issued)",
-            description: "Handed over to Faisal Movers Cargo B2B. Goods Consignment Note: FM-BILTI-LHR-88219",
+            description:
+              "Handed over to Faisal Movers Cargo B2B. Goods Consignment Note: FM-BILTI-LHR-88219",
             timestamp: "2026-08-04T18:45:00Z",
             completed: true,
           },
@@ -87,10 +89,16 @@ export class TrackingService {
 
     // Dynamic timeline based on database order
     const isEscrowFunded = order.status !== "PENDING_PAYMENT" && order.status !== "CANCELLED";
-    const isProduction = ["PROCESSING", "IN_PRODUCTION", "QUALITY_INSPECTION", "DISPATCHED", "DELIVERED"].includes(
-      order.status as any
+    const isProduction = [
+      "PROCESSING",
+      "IN_PRODUCTION",
+      "QUALITY_INSPECTION",
+      "DISPATCHED",
+      "DELIVERED",
+    ].includes(order.status as any);
+    const isQualityPassed = ["QUALITY_INSPECTION", "DISPATCHED", "DELIVERED"].includes(
+      order.status as any,
     );
-    const isQualityPassed = ["QUALITY_INSPECTION", "DISPATCHED", "DELIVERED"].includes(order.status as any);
     const isDispatched = ["DISPATCHED", "DELIVERED"].includes(order.status as any);
     const isDelivered = order.status === "DELIVERED";
 
@@ -98,7 +106,9 @@ export class TrackingService {
       orderNumber: order.orderNumber,
       status: order.status,
       carrierName: "TCS Logistics Cargo / Faisal Movers",
-      biltiNumber: isDispatched ? `BILTI-PK-${order.orderNumber.split("-")[3] || "88219"}` : "Pending Dispatch",
+      biltiNumber: isDispatched
+        ? `BILTI-PK-${order.orderNumber.split("-")[3] || "88219"}`
+        : "Pending Dispatch",
       originCity: "Sialkot / Lahore Industrial Hub",
       destinationCity: order.shippingCity,
       totalPairs: order.totalPairs,

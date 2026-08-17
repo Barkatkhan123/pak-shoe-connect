@@ -2,7 +2,11 @@ import { prisma } from "../../db";
 import { CatalogService } from "../catalog/catalog.service";
 import { enqueueWhatsAppNotification } from "../../queues/whatsapp.queue";
 import { eventHub } from "../../events/event-hub";
-import { SubmitSupplierQuoteInput, UpdateInventoryInput, UpdateOrderStatusInput } from "./supplier.schema";
+import {
+  SubmitSupplierQuoteInput,
+  UpdateInventoryInput,
+  UpdateOrderStatusInput,
+} from "./supplier.schema";
 
 export class SupplierService {
   /**
@@ -84,7 +88,7 @@ export class SupplierService {
     ]);
 
     const ordersInProduction = orders.filter(
-      (o) => o.status === "ESCROW_FUNDED" || (o.status as any) === "PROCESSING"
+      (o) => o.status === "ESCROW_FUNDED" || (o.status as any) === "PROCESSING",
     ).length;
 
     const completedOrders = orders.filter((o) => o.status === "DELIVERED").length;
@@ -114,14 +118,14 @@ export class SupplierService {
    */
   static async getSupplierRfqInbox(
     supplierId: string,
-    filter?: { status?: string; search?: string }
+    filter?: { status?: string; search?: string },
   ) {
     const where: any = { supplierId };
     if (filter?.status) {
       where.status = filter.status;
     }
 
-    const rfqs = await prisma.rfq.findMany({
+    const rfqs = (await prisma.rfq.findMany({
       where,
       orderBy: { createdAt: "desc" },
       include: {
@@ -129,7 +133,7 @@ export class SupplierService {
           include: { product: true },
         },
       },
-    }) as any[];
+    })) as any[];
 
     return rfqs.map((rfq: any) => ({
       id: rfq.id,
@@ -137,13 +141,16 @@ export class SupplierService {
       status: rfq.status,
       targetQuantity: rfq.targetQuantity,
       targetUnitPrice: rfq.targetUnitPrice ? Number(rfq.targetUnitPrice) : 0,
-      supplierQuotePrice: (rfq as any).supplierQuotePrice ? Number((rfq as any).supplierQuotePrice) : null,
+      supplierQuotePrice: (rfq as any).supplierQuotePrice
+        ? Number((rfq as any).supplierQuotePrice)
+        : null,
       supplierLeadTimeDays: (rfq as any).supplierLeadTimeDays,
       supplierQuoteNotes: (rfq as any).supplierQuoteNotes,
       customBranding: rfq.customBranding,
       customLogoUrl: (rfq as any).customLogoUrl,
       notes: rfq.notes,
-      destination: (rfq as any).deliveryCity || (rfq as any).buyer?.destinationCity || "Karachi, Pakistan",
+      destination:
+        (rfq as any).deliveryCity || (rfq as any).buyer?.destinationCity || "Karachi, Pakistan",
       buyer: {
         name: (rfq as any).buyer?.fullName || (rfq as any).buyer?.user?.fullName || "Unknown Buyer",
         businessName: (rfq as any).buyer?.businessName || "Wholesale Footwear Distributor",
@@ -172,12 +179,8 @@ export class SupplierService {
   /**
    * 4. Submit Formal Quotation for RFQ
    */
-  static async submitQuote(
-    rfqId: string,
-    supplierId: string,
-    input: SubmitSupplierQuoteInput
-  ) {
-    const rfq = await prisma.rfq.findFirst({
+  static async submitQuote(rfqId: string, supplierId: string, input: SubmitSupplierQuoteInput) {
+    const rfq = (await prisma.rfq.findFirst({
       where: { id: rfqId, supplierId: supplierId as any } as any,
       include: {
         buyer: {
@@ -187,10 +190,10 @@ export class SupplierService {
             phone: true,
             fullName: true,
             city: true,
-          }
+          },
         },
       },
-    }) as any;
+    })) as any;
 
     if (!rfq) {
       throw new Error(`RFQ not found or unauthorized for supplier: ${rfqId}`);
@@ -294,7 +297,7 @@ export class SupplierService {
   static async updateSkuInventory(
     variantSku: string,
     supplierId: string,
-    input: UpdateInventoryInput
+    input: UpdateInventoryInput,
   ) {
     const variant = await prisma.productVariant.findUnique({
       where: { variantSku },
@@ -355,7 +358,7 @@ export class SupplierService {
    * 6. Order Production Pipeline Management
    */
   static async getSupplierOrders(supplierId: string) {
-    const orders = await prisma.order.findMany({
+    const orders = (await prisma.order.findMany({
       where: { supplierId } as any,
       orderBy: { createdAt: "desc" },
       include: {
@@ -366,31 +369,34 @@ export class SupplierService {
             phone: true,
             fullName: true,
             city: true,
-          }
+          },
         },
         items: { include: { product: true } },
       },
-    }) as any[];
+    })) as any[];
 
     return (orders as any[]).map((o: any) => ({
       id: o.id,
       orderNumber: o.orderNumber,
       status: o.status,
       totalAmount: Number(o.totalAmount),
-      totalPairs: o.items?.reduce((sum: number, i: any) => sum + (i.quantityPairs ?? i.quantity ?? 0), 0) ?? 0,
+      totalPairs:
+        o.items?.reduce((sum: number, i: any) => sum + (i.quantityPairs ?? i.quantity ?? 0), 0) ??
+        0,
       buyer: {
         name: o.buyer?.fullName || o.buyer?.user?.fullName || "Unknown Buyer",
         businessName: (o.buyer as any)?.businessName || "",
         phone: o.buyer?.phone || o.buyer?.user?.phone || "",
         city: o.shippingCity || (o.buyer as any)?.destinationCity || "",
       },
-      items: o.items?.map((i: any) => ({
-        productTitle: i.product?.title,
-        sku: i.variant?.variantSku ?? i.variantSku,
-        sizeEU: i.variant?.sizeEU ?? i.sizeEU,
-        quantity: i.quantityPairs ?? i.quantity ?? 0,
-        unitPrice: Number(i.unitPrice),
-      })) ?? [],
+      items:
+        o.items?.map((i: any) => ({
+          productTitle: i.product?.title,
+          sku: i.variant?.variantSku ?? i.variantSku,
+          sizeEU: i.variant?.sizeEU ?? i.sizeEU,
+          quantity: i.quantityPairs ?? i.quantity ?? 0,
+          unitPrice: Number(i.unitPrice),
+        })) ?? [],
       createdAt: o.createdAt,
     }));
   }
@@ -401,9 +407,9 @@ export class SupplierService {
   static async updateOrderStatus(
     orderId: string,
     supplierId: string,
-    input: UpdateOrderStatusInput
+    input: UpdateOrderStatusInput,
   ) {
-    const order = await prisma.order.findFirst({
+    const order = (await prisma.order.findFirst({
       where: { id: orderId, supplierId } as any,
       include: {
         buyer: {
@@ -413,10 +419,10 @@ export class SupplierService {
             phone: true,
             fullName: true,
             city: true,
-          }
-        }
+          },
+        },
       },
-    }) as any;
+    })) as any;
 
     if (!order) {
       throw new Error(`Order ${orderId} not found or unauthorized`);

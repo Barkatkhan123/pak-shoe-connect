@@ -83,9 +83,7 @@ export class PaymentWebhookHandler {
       input.payload.referenceCode;
 
     const orderRef =
-      input.payload.orderId ||
-      input.payload.pp_BillReference ||
-      input.payload.orderNumber;
+      input.payload.orderId || input.payload.pp_BillReference || input.payload.orderNumber;
 
     if (!transactionId) {
       SecurityLogger.warn(correlationId, "WEBHOOK_REJECTED_MISSING_TXID", { provider });
@@ -125,7 +123,10 @@ export class PaymentWebhookHandler {
         };
       }
 
-      SecurityLogger.warn(correlationId, "WEBHOOK_CONCURRENT_DUPLICATE", { provider, transactionId });
+      SecurityLogger.warn(correlationId, "WEBHOOK_CONCURRENT_DUPLICATE", {
+        provider,
+        transactionId,
+      });
       return {
         success: false,
         status: 409,

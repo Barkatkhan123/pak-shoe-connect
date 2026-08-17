@@ -34,7 +34,7 @@ export class EscrowStateMachine {
   static transition(from: EscrowLifecycleState, to: EscrowLifecycleState): EscrowLifecycleState {
     if (!this.isValidTransition(from, to)) {
       throw new Error(
-        `Invalid escrow state transition from '${from}' to '${to}'. Allowed transitions: [${(ESCROW_TRANSITION_RULES[from] || []).join(", ")}]`
+        `Invalid escrow state transition from '${from}' to '${to}'. Allowed transitions: [${(ESCROW_TRANSITION_RULES[from] || []).join(", ")}]`,
       );
     }
     return to;

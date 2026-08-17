@@ -68,8 +68,7 @@ export function AdminProductTable({
       p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (p.categorySlug && p.categorySlug.toLowerCase().includes(searchTerm.toLowerCase()));
 
-    const matchesCategory =
-      categoryFilter === "ALL" || p.categorySlug === categoryFilter;
+    const matchesCategory = categoryFilter === "ALL" || p.categorySlug === categoryFilter;
 
     const matchesStatus =
       statusFilter === "ALL" ||
@@ -220,7 +219,8 @@ export function AdminProductTable({
                       {p.priceLabel || `PKR ${p.priceTiers?.[0]?.pricePerPair || 1850}`}
                     </div>
                     <div className="text-[11px] text-slate-400">
-                      MOQ: <span className="font-semibold text-slate-200">{p.moq || 12} prs</span> (1 ctn)
+                      MOQ: <span className="font-semibold text-slate-200">{p.moq || 12} prs</span>{" "}
+                      (1 ctn)
                     </div>
                   </TableCell>
 
@@ -243,7 +243,8 @@ export function AdminProductTable({
                     </div>
                     <div className="text-[11px] text-slate-400 mt-1">
                       {/* BUG-17 FIX: Only show "..." when sizes are actually truncated. */}
-                      Sizes: {p.sizes?.slice(0, 4).join(", ")}{(p.sizes?.length ?? 0) > 4 ? "..." : ""}
+                      Sizes: {p.sizes?.slice(0, 4).join(", ")}
+                      {(p.sizes?.length ?? 0) > 4 ? "..." : ""}
                     </div>
                   </TableCell>
 
@@ -311,7 +312,8 @@ export function AdminProductTable({
               <AlertTriangle className="h-5 w-5" /> Confirm Product Deletion
             </DialogTitle>
             <DialogDescription className="text-slate-400 text-xs">
-              Are you sure you want to permanently delete <strong>"{productToDelete?.name}"</strong> (SKU: {productToDelete?.sku})? This action cannot be undone.
+              Are you sure you want to permanently delete <strong>"{productToDelete?.name}"</strong>{" "}
+              (SKU: {productToDelete?.sku})? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
 

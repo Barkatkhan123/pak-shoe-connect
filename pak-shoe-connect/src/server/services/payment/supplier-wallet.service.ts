@@ -214,14 +214,12 @@ export class SupplierWalletService {
 
       // Atomic decrement — Redis single-threaded guarantee
       const newBalance = parseFloat(
-        String(await paymentRedis.hincrbyfloat(key, "availableBalance", -params.amount))
+        String(await paymentRedis.hincrbyfloat(key, "availableBalance", -params.amount)),
       );
       if (newBalance < 0) {
         // Roll back the decrement atomically
         await paymentRedis.hincrbyfloat(key, "availableBalance", params.amount);
-        throw new Error(
-          `Insufficient available balance (Requested: PKR ${params.amount})`
-        );
+        throw new Error(`Insufficient available balance (Requested: PKR ${params.amount})`);
       }
 
       const raw = await paymentRedis.hgetall(key);
@@ -251,7 +249,7 @@ export class SupplierWalletService {
       const wallet = this._testStore.get(params.supplierId)!;
       if (params.amount > wallet.availableBalance) {
         throw new Error(
-          `Insufficient available balance (Available: PKR ${wallet.availableBalance}, Requested: PKR ${params.amount})`
+          `Insufficient available balance (Available: PKR ${wallet.availableBalance}, Requested: PKR ${params.amount})`,
         );
       }
       const bankDetails = wallet.bankAccounts[params.bankAccountIndex || 0] || DEFAULT_BANK_ACCOUNT;
@@ -280,7 +278,7 @@ export class SupplierWalletService {
       const availableBalance = Number(wallet.availableBalance);
       if (availableBalance < params.amount) {
         throw new Error(
-          `Insufficient available balance (Available: PKR ${availableBalance}, Requested: PKR ${params.amount})`
+          `Insufficient available balance (Available: PKR ${availableBalance}, Requested: PKR ${params.amount})`,
         );
       }
 
@@ -317,4 +315,3 @@ export class SupplierWalletService {
     this._testStore.clear();
   }
 }
-

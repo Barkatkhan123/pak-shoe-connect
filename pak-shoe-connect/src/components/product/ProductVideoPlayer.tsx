@@ -254,7 +254,11 @@ export function ProductVideoPlayer({
                     className="hover:text-amber-400 transition-colors"
                     aria-label={isPlaying ? "Pause" : "Play"}
                   >
-                    {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 fill-current" />}
+                    {isPlaying ? (
+                      <Pause className="h-4 w-4" />
+                    ) : (
+                      <Play className="h-4 w-4 fill-current" />
+                    )}
                   </button>
 
                   {/* Volume Control */}
@@ -308,7 +312,9 @@ export function ProductVideoPlayer({
                               setShowSpeedMenu(false);
                             }}
                             className={`rounded px-2.5 py-1 text-left text-xs transition-colors ${
-                              playbackSpeed === spd ? "bg-amber-500 font-bold text-black" : "hover:bg-white/10"
+                              playbackSpeed === spd
+                                ? "bg-amber-500 font-bold text-black"
+                                : "hover:bg-white/10"
                             }`}
                           >
                             {spd}x
@@ -333,7 +339,11 @@ export function ProductVideoPlayer({
                     className="hover:text-amber-400 transition-colors p-1"
                     title="Fullscreen"
                   >
-                    {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                    {isFullscreen ? (
+                      <Minimize2 className="h-4 w-4" />
+                    ) : (
+                      <Maximize2 className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>

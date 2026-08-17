@@ -56,22 +56,23 @@ export function SearchCommand() {
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput 
-          placeholder="Type a product name, SKU, or category..." 
+        <CommandInput
+          placeholder="Type a product name, SKU, or category..."
           value={search}
           onValueChange={setSearch}
         />
         <CommandList className="max-h-[60vh]">
           <CommandEmpty>No results found.</CommandEmpty>
-          
+
           <CommandGroup heading={search.trim() ? "Results" : "Trending Products"}>
-            {(search.trim() 
-              ? PRODUCTS.filter(p => 
-                  p.name.toLowerCase().includes(search.toLowerCase()) || 
-                  p.sku.toLowerCase().includes(search.toLowerCase()) ||
-                  p.categorySlug.toLowerCase().includes(search.toLowerCase())
+            {(search.trim()
+              ? PRODUCTS.filter(
+                  (p) =>
+                    p.name.toLowerCase().includes(search.toLowerCase()) ||
+                    p.sku.toLowerCase().includes(search.toLowerCase()) ||
+                    p.categorySlug.toLowerCase().includes(search.toLowerCase()),
                 ).slice(0, 6)
-              : PRODUCTS.filter(p => p.trending).slice(0, 3)
+              : PRODUCTS.filter((p) => p.trending).slice(0, 3)
             ).map((p) => (
               <CommandItem
                 key={p.slug}
@@ -82,7 +83,9 @@ export function SearchCommand() {
                 <img src={p.image} alt={p.name} className="h-8 w-8 rounded-sm object-cover" />
                 <div className="flex flex-col">
                   <span className="font-medium text-sm">{p.name}</span>
-                  <span className="text-[10px] text-muted-foreground">{p.sku} • {p.priceLabel}</span>
+                  <span className="text-[10px] text-muted-foreground">
+                    {p.sku} • {p.priceLabel}
+                  </span>
                 </div>
               </CommandItem>
             ))}
@@ -92,36 +95,43 @@ export function SearchCommand() {
 
           <CommandGroup heading="Categories">
             {(search.trim()
-              ? CATEGORIES.filter(c => 
-                  c.name.toLowerCase().includes(search.toLowerCase()) ||
-                  c.slug.toLowerCase().includes(search.toLowerCase()) ||
-                  c.gender.toLowerCase().includes(search.toLowerCase())
+              ? CATEGORIES.filter(
+                  (c) =>
+                    c.name.toLowerCase().includes(search.toLowerCase()) ||
+                    c.slug.toLowerCase().includes(search.toLowerCase()) ||
+                    c.gender.toLowerCase().includes(search.toLowerCase()),
                 ).slice(0, 6)
               : CATEGORIES.slice(0, 6)
             ).map((c) => (
               <CommandItem
                 key={c.slug}
                 value={`category ${c.name} ${c.slug} ${c.gender} ${search}`}
-                onSelect={() => runCommand(() => navigate({ to: '/products', search: { category: c.slug, gender: undefined } }))}
+                onSelect={() =>
+                  runCommand(() =>
+                    navigate({ to: "/products", search: { category: c.slug, gender: undefined } }),
+                  )
+                }
                 className="flex items-center gap-3 py-2"
               >
                 <div className="flex h-6 w-6 items-center justify-center rounded-sm bg-muted">
                   <Package className="h-3 w-3" />
                 </div>
                 <span>{c.name}</span>
-                <span className="ml-auto text-xs text-muted-foreground">{c.productCount} items</span>
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {c.productCount} items
+                </span>
               </CommandItem>
             ))}
           </CommandGroup>
-          
+
           <CommandSeparator />
-          
+
           <CommandGroup heading="Quick Links">
-            <CommandItem onSelect={() => runCommand(() => navigate({ to: '/bulk-order' }))}>
+            <CommandItem onSelect={() => runCommand(() => navigate({ to: "/bulk-order" }))}>
               <ArrowRight className="mr-2 h-4 w-4" />
               Request Bulk Quote
             </CommandItem>
-            <CommandItem onSelect={() => runCommand(() => navigate({ to: '/manufacturing' }))}>
+            <CommandItem onSelect={() => runCommand(() => navigate({ to: "/manufacturing" }))}>
               <ArrowRight className="mr-2 h-4 w-4" />
               Tour the Factory
             </CommandItem>

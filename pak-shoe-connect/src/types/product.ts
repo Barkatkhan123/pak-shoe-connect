@@ -1,4 +1,8 @@
-import type { Product as LegacyProduct, Review as LegacyReview, PriceTier as LegacyPriceTier } from "@/data/products";
+import type {
+  Product as LegacyProduct,
+  Review as LegacyReview,
+  PriceTier as LegacyPriceTier,
+} from "@/data/products";
 
 export interface SupplierInfo {
   name: string;
@@ -133,7 +137,9 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
   const profitMargin = Math.round(((retailPrice - basePrice) / basePrice) * 100);
 
   // Generate multi-video suite
-  const defaultVideoUrl = product.video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
+  const defaultVideoUrl =
+    product.video ||
+    "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4";
   const videos: ProductVideo[] = [
     {
       url: defaultVideoUrl,
@@ -159,54 +165,74 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
   ];
 
   // Bulk pricing calculations
-  const bulkPricing: BulkPricingTier[] = (product.priceTiers && product.priceTiers.length > 0)
-    ? product.priceTiers.map((tier, idx, arr) => {
-        const nextTier = arr[idx + 1];
-        const maxQty = nextTier ? nextTier.moq - 1 : undefined;
-        const tierSavings = Math.round(((retailPrice - tier.pricePerPair) / retailPrice) * 100);
-        return {
-          minQuantity: tier.moq,
-          maxQuantity: maxQty,
-          unitPrice: tier.pricePerPair,
-          label: tier.label || `${tier.moq}+ pairs`,
-          savingsPct: tierSavings,
-        };
-      })
-    : [
-        { minQuantity: product.moq || 12, maxQuantity: 49, unitPrice: basePrice, label: "Starter", savingsPct: discount },
-        { minQuantity: 50, maxQuantity: 199, unitPrice: Math.round(basePrice * 0.9), label: "Dealer", savingsPct: discount + 10 },
-        { minQuantity: 200, unitPrice: Math.round(basePrice * 0.8), label: "Wholesale", savingsPct: discount + 20 },
-      ];
+  const bulkPricing: BulkPricingTier[] =
+    product.priceTiers && product.priceTiers.length > 0
+      ? product.priceTiers.map((tier, idx, arr) => {
+          const nextTier = arr[idx + 1];
+          const maxQty = nextTier ? nextTier.moq - 1 : undefined;
+          const tierSavings = Math.round(((retailPrice - tier.pricePerPair) / retailPrice) * 100);
+          return {
+            minQuantity: tier.moq,
+            maxQuantity: maxQty,
+            unitPrice: tier.pricePerPair,
+            label: tier.label || `${tier.moq}+ pairs`,
+            savingsPct: tierSavings,
+          };
+        })
+      : [
+          {
+            minQuantity: product.moq || 12,
+            maxQuantity: 49,
+            unitPrice: basePrice,
+            label: "Starter",
+            savingsPct: discount,
+          },
+          {
+            minQuantity: 50,
+            maxQuantity: 199,
+            unitPrice: Math.round(basePrice * 0.9),
+            label: "Dealer",
+            savingsPct: discount + 10,
+          },
+          {
+            minQuantity: 200,
+            unitPrice: Math.round(basePrice * 0.8),
+            label: "Wholesale",
+            savingsPct: discount + 20,
+          },
+        ];
 
   // Sizes with stock intelligence (Sizes 6 to 12)
-  const sizes: VariantSize[] = (product.sizes && product.sizes.length > 0)
-    ? product.sizes.map((sz, i) => {
-        const szNum = parseInt(sz, 10) || (6 + i);
-        let uk = "";
-        let us = "";
-        let eu = "";
-        if (szNum >= 36 && szNum <= 48) {
-          eu = `${szNum}`;
-          uk = `${szNum - 33}`;
-          us = `${szNum - 32}`;
-        } else {
-          uk = `${szNum}`;
-          us = `${szNum + 1}`;
-          eu = `${szNum + 33}`;
-        }
-        const stockUnits = (i % 5 === 3) ? 0 : (i % 4 === 2) ? 8 : 120 + i * 40;
-        const status: "low" | "available" | "out" = stockUnits === 0 ? "out" : stockUnits < 15 ? "low" : "available";
-        return { EU: eu, UK: uk, US: us, stock: stockUnits, status };
-      })
-    : [
-        { EU: "39", UK: "6", US: "7", stock: 150, status: "available" },
-        { EU: "40", UK: "7", US: "8", stock: 240, status: "available" },
-        { EU: "41", UK: "8", US: "9", stock: 12, status: "low" },
-        { EU: "42", UK: "9", US: "10", stock: 310, status: "available" },
-        { EU: "43", UK: "10", US: "11", stock: 180, status: "available" },
-        { EU: "44", UK: "11", US: "12", stock: 95, status: "available" },
-        { EU: "45", UK: "12", US: "13", stock: 0, status: "out" },
-      ];
+  const sizes: VariantSize[] =
+    product.sizes && product.sizes.length > 0
+      ? product.sizes.map((sz, i) => {
+          const szNum = parseInt(sz, 10) || 6 + i;
+          let uk = "";
+          let us = "";
+          let eu = "";
+          if (szNum >= 36 && szNum <= 48) {
+            eu = `${szNum}`;
+            uk = `${szNum - 33}`;
+            us = `${szNum - 32}`;
+          } else {
+            uk = `${szNum}`;
+            us = `${szNum + 1}`;
+            eu = `${szNum + 33}`;
+          }
+          const stockUnits = i % 5 === 3 ? 0 : i % 4 === 2 ? 8 : 120 + i * 40;
+          const status: "low" | "available" | "out" =
+            stockUnits === 0 ? "out" : stockUnits < 15 ? "low" : "available";
+          return { EU: eu, UK: uk, US: us, stock: stockUnits, status };
+        })
+      : [
+          { EU: "39", UK: "6", US: "7", stock: 150, status: "available" },
+          { EU: "40", UK: "7", US: "8", stock: 240, status: "available" },
+          { EU: "41", UK: "8", US: "9", stock: 12, status: "low" },
+          { EU: "42", UK: "9", US: "10", stock: 310, status: "available" },
+          { EU: "43", UK: "10", US: "11", stock: 180, status: "available" },
+          { EU: "44", UK: "11", US: "12", stock: 95, status: "available" },
+          { EU: "45", UK: "12", US: "13", stock: 0, status: "out" },
+        ];
 
   // Ratings calculation
   const reviews = product.reviews || [];
@@ -222,7 +248,7 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
   const fourStarPct = Math.round((fourStarCount / (totalReviews || 1)) * 100);
   const threeStarPct = Math.round((threeStarCount / (totalReviews || 1)) * 100);
 
-  const allImages = (product.images && product.images.length > 0) ? product.images : [product.image];
+  const allImages = product.images && product.images.length > 0 ? product.images : [product.image];
 
   return {
     id: product.slug,
@@ -261,21 +287,22 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
     },
     bulkPricing,
     variants: {
-      colors: (product.colorVariants && product.colorVariants.length > 0)
-        ? product.colorVariants.map((c, i) => ({
-            name: c.name,
-            hex: c.hex,
-            inStock: c.inStock,
-            stockUnits: c.stockUnits || 500,
-            image: allImages[i % allImages.length],
-          }))
-        : (product.colors || ["Classic Tan", "Midnight Black"]).map((col, i) => ({
-            name: col,
-            hex: i === 0 ? "#C4906B" : "#1C1C1C",
-            inStock: true,
-            stockUnits: 800,
-            image: allImages[i % allImages.length],
-          })),
+      colors:
+        product.colorVariants && product.colorVariants.length > 0
+          ? product.colorVariants.map((c, i) => ({
+              name: c.name,
+              hex: c.hex,
+              inStock: c.inStock,
+              stockUnits: c.stockUnits || 500,
+              image: allImages[i % allImages.length],
+            }))
+          : (product.colors || ["Classic Tan", "Midnight Black"]).map((col, i) => ({
+              name: col,
+              hex: i === 0 ? "#C4906B" : "#1C1C1C",
+              inStock: true,
+              stockUnits: 800,
+              image: allImages[i % allImages.length],
+            })),
       sizes,
     },
     inventory: {
@@ -286,19 +313,30 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
       inStock: product.inStock !== false,
     },
     specifications: {
-      upperMaterial: product.specifications?.["Upper Material"] || product.material || "Full-grain Grade A Leather",
-      soleMaterial: product.specifications?.["Sole Material"] || product.soleType || "High-Density Natural Rubber Sole",
+      upperMaterial:
+        product.specifications?.["Upper Material"] ||
+        product.material ||
+        "Full-grain Grade A Leather",
+      soleMaterial:
+        product.specifications?.["Sole Material"] ||
+        product.soleType ||
+        "High-Density Natural Rubber Sole",
       insole: product.specifications?.["Insole"] || "Orthopedic Dual-Density Memory Cushion",
-      lining: product.specifications?.["Lining"] || "Breathable Genuine Calfskin / Moisture-Wicking Mesh",
+      lining:
+        product.specifications?.["Lining"] || "Breathable Genuine Calfskin / Moisture-Wicking Mesh",
       closure: product.specifications?.["Closure"] || "Precision Buckle / Slip-on Welt",
       toeStyle: product.specifications?.["Toe Style"] || "Classic Ergonomic Stitched",
       origin: product.specifications?.["Origin"] || "Pakistan (Export Quality)",
       weight: product.specifications?.["Weight"] || "approx. 650g - 850g per pair",
-      packaging: product.specifications?.["Packaging"] || "Individual Branded Luxury Box + 12 Pairs Export Carton",
+      packaging:
+        product.specifications?.["Packaging"] ||
+        "Individual Branded Luxury Box + 12 Pairs Export Carton",
       leadTime: product.leadTimeDays || "7–12 Business Days",
       standard: product.specifications?.["Standard"] || "ISO 9001 / SATRA Certified",
     },
-    description: product.description || "Mastercrafted wholesale footwear engineered for high retail turnover, maximum margin, and zero defect tolerance.",
+    description:
+      product.description ||
+      "Mastercrafted wholesale footwear engineered for high retail turnover, maximum margin, and zero defect tolerance.",
     sellingPoints: [
       "100% Genuine Export-Grade Materials with Lab-Tested Durability",
       "Factory-Direct Tiered Wholesale Pricing (Up to 45% Retail Margin)",
@@ -310,8 +348,13 @@ export function normalizeEnterpriseProduct(product: LegacyProduct): EnterprisePr
       dispatchDays: product.leadTimeDays || "3-7 Days for In-Stock Lots",
       cartonInfo: `Packed in heavy-duty 5-ply corrugated export cartons (${product.cartonQty || 12} pairs/carton). Master CBM: 0.12`,
       estimatedCostPKR: 1200,
-      returnPolicy: "Full replacement or refund guaranteed for manufacturing defects reported within 7 days of delivery receipt.",
-      modes: ["TCS / Leopard Freight (Nationwide)", "By-Road Goods Transport (Bilti)", "Direct Factory Pickup"],
+      returnPolicy:
+        "Full replacement or refund guaranteed for manufacturing defects reported within 7 days of delivery receipt.",
+      modes: [
+        "TCS / Leopard Freight (Nationwide)",
+        "By-Road Goods Transport (Bilti)",
+        "Direct Factory Pickup",
+      ],
     },
     reviews: product.reviews || [],
     stats: {

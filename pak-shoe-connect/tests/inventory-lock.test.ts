@@ -25,7 +25,11 @@ describe("3-State Inventory Reservation & Escrow Lock Engine", () => {
       subtotal: 725000,
       activeTier: { minQty: 200, maxQty: 499, unitPrice: 1450, tierLabel: "Wholesale Master" },
       retailComparison: {} as any,
-      logistics: { destinationCity: "Lahore", estimatedFreightPerCarton: 450, totalEstimatedFreight: 9450 },
+      logistics: {
+        destinationCity: "Lahore",
+        estimatedFreightPerCarton: 450,
+        totalEstimatedFreight: 9450,
+      },
       nextTierUpsell: null,
     });
 
@@ -55,7 +59,7 @@ describe("3-State Inventory Reservation & Escrow Lock Engine", () => {
           update: vi.fn().mockResolvedValue({
             ...mockVariant,
             availableStock: 500, // 1000 - 500
-            reservedStock: 500,  // 0 + 500
+            reservedStock: 500, // 0 + 500
           }),
         },
         order: {
@@ -127,7 +131,7 @@ describe("3-State Inventory Reservation & Escrow Lock Engine", () => {
             variantSku: "SHR-PSH-001-BLK-42",
           },
         ],
-      })
+      }),
     ).rejects.toThrow("Insufficient stock");
   });
 });

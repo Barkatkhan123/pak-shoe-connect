@@ -61,7 +61,11 @@ export class SecurityLogger {
     this.log({ correlationId, level: "WARN", event, metadata });
   }
 
-  static critical(correlationId: string, event: string, metadata?: SecurityEvent["metadata"]): void {
+  static critical(
+    correlationId: string,
+    event: string,
+    metadata?: SecurityEvent["metadata"],
+  ): void {
     this.log({ correlationId, level: "CRITICAL", event, metadata });
   }
 }

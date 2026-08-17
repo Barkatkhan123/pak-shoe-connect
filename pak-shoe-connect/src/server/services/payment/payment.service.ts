@@ -112,7 +112,11 @@ export class PaymentService {
     reason?: string;
   }) {
     const gateway = PaymentGatewayFactory.getGateway(params.provider);
-    const refundResult = await gateway.refundPayment(params.transactionId, params.amount, params.reason);
+    const refundResult = await gateway.refundPayment(
+      params.transactionId,
+      params.amount,
+      params.reason,
+    );
 
     if (refundResult.success) {
       const existingEscrow = await EscrowService.getEscrow(params.orderId);

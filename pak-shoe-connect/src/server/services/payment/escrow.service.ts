@@ -71,7 +71,13 @@ export class EscrowService {
       status: OrderStatus;
     },
     metadata: EscrowMetadata,
-    ledgerRows: Array<{ id: string; amount: { toNumber?: () => number } | number; type: string; reference: string; createdAt: Date }>,
+    ledgerRows: Array<{
+      id: string;
+      amount: { toNumber?: () => number } | number;
+      type: string;
+      reference: string;
+      createdAt: Date;
+    }>,
   ): EscrowAccount {
     return {
       orderId: order.id,

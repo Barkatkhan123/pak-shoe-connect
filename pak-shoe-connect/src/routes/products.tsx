@@ -33,7 +33,7 @@ function ProductsPage() {
   const category = searchParams?.category;
   const gender = searchParams?.gender;
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  
+
   // Mobile filter bottom sheet
   const [showFilters, setShowFilters] = useState(false);
 
@@ -44,7 +44,7 @@ function ProductsPage() {
     if (showFilters) window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [showFilters]);
-  
+
   // Filter state initialized from URL params
   const [selectedCats, setSelectedCats] = useState<string[]>(() => (category ? [category] : []));
   const [selectedGender, setSelectedGender] = useState<string | null>(() => gender || null);
@@ -71,17 +71,18 @@ function ProductsPage() {
     if (selectedCats.length > 0) {
       result = result.filter((p) => selectedCats.includes(p.categorySlug));
     }
-    
+
     if (selectedGender && selectedGender !== "all") {
       result = result.filter((p) => p.gender === selectedGender);
     }
-    
+
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
-      result = result.filter((p) => 
-        p.name.toLowerCase().includes(q) || 
-        p.sku.toLowerCase().includes(q) ||
-        (p.description && p.description.toLowerCase().includes(q))
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          (p.description && p.description.toLowerCase().includes(q)),
       );
     }
 
@@ -109,8 +110,8 @@ function ProductsPage() {
   }, [selectedCats, selectedGender, searchQuery, sort]);
 
   const toggleCategory = (slug: string) => {
-    setSelectedCats((prev) => 
-      prev.includes(slug) ? prev.filter((c) => c !== slug) : [...prev, slug]
+    setSelectedCats((prev) =>
+      prev.includes(slug) ? prev.filter((c) => c !== slug) : [...prev, slug],
     );
   };
 
@@ -121,7 +122,10 @@ function ProductsPage() {
     setSort("newest");
   };
 
-  const activeFiltersCount = (selectedCats.length > 0 ? selectedCats.length : 0) + (selectedGender ? 1 : 0) + (searchQuery ? 1 : 0);
+  const activeFiltersCount =
+    (selectedCats.length > 0 ? selectedCats.length : 0) +
+    (selectedGender ? 1 : 0) +
+    (searchQuery ? 1 : 0);
 
   return (
     <SiteLayout>
@@ -129,7 +133,9 @@ function ProductsPage() {
       <div className="bg-white border-b border-[#E0D9CE] py-4 sm:py-6">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5 font-medium">
-            <Link to="/" className="hover:text-primary transition-colors">Home</Link>
+            <Link to="/" className="hover:text-primary transition-colors">
+              Home
+            </Link>
             <span>/</span>
             <span className="text-[#0F1A13] font-bold">Wholesale Catalog</span>
           </nav>
@@ -139,7 +145,8 @@ function ProductsPage() {
                 Wholesale Footwear Catalog
               </h1>
               <p className="text-xs sm:text-sm text-[#5C6B5A] mt-0.5">
-                Factory-direct pricing, 12-pair low MOQs (multiples of 12), and reliable 3–5 day dispatch nationwide.
+                Factory-direct pricing, 12-pair low MOQs (multiples of 12), and reliable 3–5 day
+                dispatch nationwide.
               </p>
             </div>
             <div className="text-xs font-bold text-[#8B5E3C] bg-[#FAF7F2] border border-[#E0D9CE] px-3 py-1.5 rounded-lg shrink-0 self-start sm:self-auto">
@@ -153,7 +160,6 @@ function ProductsPage() {
       <div className="sticky top-14 sm:top-16 z-20 bg-white/95 backdrop-blur-md border-b border-[#E0D9CE] py-2.5 shadow-xs">
         <div className="mx-auto max-w-7xl px-3 sm:px-6">
           <div className="flex items-center justify-between gap-2">
-            
             {/* Left: Mobile Filters Toggle Button */}
             <div className="flex items-center gap-2 flex-1 sm:flex-initial">
               <button
@@ -200,7 +206,6 @@ function ProductsPage() {
                 <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
               </div>
             </div>
-
           </div>
 
           {/* Active Filter Chips */}
@@ -212,7 +217,10 @@ function ProductsPage() {
               {selectedGender && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1B4332]/10 text-[#1B4332] text-xs font-bold capitalize">
                   {selectedGender}
-                  <button onClick={() => setSelectedGender(null)} className="hover:text-rose-500 cursor-pointer">
+                  <button
+                    onClick={() => setSelectedGender(null)}
+                    className="hover:text-rose-500 cursor-pointer"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
@@ -220,9 +228,15 @@ function ProductsPage() {
               {selectedCats.map((slug) => {
                 const catObj = CATEGORIES.find((c) => c.slug === slug);
                 return (
-                  <span key={slug} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1B4332]/10 text-[#1B4332] text-xs font-bold">
+                  <span
+                    key={slug}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1B4332]/10 text-[#1B4332] text-xs font-bold"
+                  >
                     {catObj?.name || slug}
-                    <button onClick={() => toggleCategory(slug)} className="hover:text-rose-500 cursor-pointer">
+                    <button
+                      onClick={() => toggleCategory(slug)}
+                      className="hover:text-rose-500 cursor-pointer"
+                    >
                       <X className="h-3 w-3" />
                     </button>
                   </span>
@@ -231,7 +245,10 @@ function ProductsPage() {
               {searchQuery && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#1B4332]/10 text-[#1B4332] text-xs font-bold">
                   "{searchQuery}"
-                  <button onClick={() => setSearchQuery("")} className="hover:text-rose-500 cursor-pointer">
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="hover:text-rose-500 cursor-pointer"
+                  >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
@@ -244,18 +261,15 @@ function ProductsPage() {
               </button>
             </div>
           )}
-
         </div>
       </div>
 
       {/* ── Main Catalog Grid & Desktop Sidebar ── */}
       <div className="mx-auto max-w-7xl px-3 sm:px-6 py-6 sm:py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          
           {/* Desktop Filter Sidebar */}
           <aside className="hidden lg:block w-60 shrink-0 space-y-6">
             <div className="sticky top-32 space-y-6">
-              
               {/* Gender Radio Group */}
               <div>
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#8B5E3C] mb-3">
@@ -263,7 +277,10 @@ function ProductsPage() {
                 </h3>
                 <div className="space-y-1.5">
                   {["all", "men", "women", "kids", "unisex"].map((g) => (
-                    <label key={g} className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer group hover:text-primary">
+                    <label
+                      key={g}
+                      className="flex items-center gap-2.5 text-xs font-semibold cursor-pointer group hover:text-primary"
+                    >
                       <input
                         type="radio"
                         name="desktop-gender"
@@ -284,7 +301,10 @@ function ProductsPage() {
                 </h3>
                 <div className="space-y-2 max-h-[380px] overflow-y-auto pr-2 scrollbar-hide">
                   {CATEGORIES.map((c) => (
-                    <label key={c.slug} className="flex items-center justify-between gap-2 text-xs font-semibold cursor-pointer group hover:text-primary">
+                    <label
+                      key={c.slug}
+                      className="flex items-center justify-between gap-2 text-xs font-semibold cursor-pointer group hover:text-primary"
+                    >
                       <div className="flex items-center gap-2">
                         <input
                           type="checkbox"
@@ -311,7 +331,6 @@ function ProductsPage() {
                   Clear All Filters
                 </button>
               )}
-
             </div>
           </aside>
 
@@ -331,9 +350,12 @@ function ProductsPage() {
             ) : (
               <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-2xl border border-dashed border-[#E0D9CE] p-6">
                 <Package className="h-12 w-12 text-[#8B5E3C] opacity-40 mb-3" />
-                <h3 className="font-display text-lg font-bold text-[#0F1A13]">No matching footwear found</h3>
+                <h3 className="font-display text-lg font-bold text-[#0F1A13]">
+                  No matching footwear found
+                </h3>
                 <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                  Try adjusting your category or gender filter criteria, or search for other model names.
+                  Try adjusting your category or gender filter criteria, or search for other model
+                  names.
                 </p>
                 <button
                   onClick={clearAllFilters}
@@ -344,7 +366,6 @@ function ProductsPage() {
               </div>
             )}
           </main>
-
         </div>
       </div>
 
@@ -375,7 +396,10 @@ function ProductsPage() {
                 </h3>
                 <div className="space-y-2">
                   {["all", "men", "women", "kids", "unisex"].map((g) => (
-                    <label key={g} className="flex items-center gap-3 text-sm font-semibold capitalize cursor-pointer">
+                    <label
+                      key={g}
+                      className="flex items-center gap-3 text-sm font-semibold capitalize cursor-pointer"
+                    >
                       <input
                         type="radio"
                         name="mobile-gender"
@@ -396,7 +420,10 @@ function ProductsPage() {
                 </h3>
                 <div className="space-y-2.5">
                   {CATEGORIES.map((c) => (
-                    <label key={c.slug} className="flex items-center justify-between text-sm font-semibold cursor-pointer">
+                    <label
+                      key={c.slug}
+                      className="flex items-center justify-between text-sm font-semibold cursor-pointer"
+                    >
                       <div className="flex items-center gap-2.5">
                         <input
                           type="checkbox"
@@ -434,10 +461,7 @@ function ProductsPage() {
       )}
 
       {/* Quick View Modal */}
-      <QuickViewModal
-        product={quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-      />
+      <QuickViewModal product={quickViewProduct} onClose={() => setQuickViewProduct(null)} />
     </SiteLayout>
   );
 }

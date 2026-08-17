@@ -35,8 +35,8 @@ function Catalog() {
             <FileText className="h-10 w-10 text-primary" />
             <h2 className="mt-4 font-display text-2xl font-semibold">Download the PDF</h2>
             <p className="mt-2 text-muted-foreground">
-              Get the current-season linesheet with photos, MOQ, and lead times for every
-              SKU. Updated quarterly.
+              Get the current-season linesheet with photos, MOQ, and lead times for every SKU.
+              Updated quarterly.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
@@ -67,10 +67,17 @@ function Catalog() {
                   className="group overflow-hidden rounded-xl border border-border bg-card transition hover:border-primary/40"
                 >
                   <div className="aspect-[4/3] overflow-hidden bg-cream">
-                    <img src={c.image} alt={c.name} loading="lazy" className="h-full w-full object-cover transition group-hover:scale-105" />
+                    <img
+                      src={c.image}
+                      alt={c.name}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition group-hover:scale-105"
+                    />
                   </div>
                   <div className="p-3">
-                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{c.gender}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+                      {c.gender}
+                    </div>
                     <div className="font-display text-sm font-semibold">{c.name}</div>
                   </div>
                 </Link>

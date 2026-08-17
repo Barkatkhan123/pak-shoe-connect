@@ -54,7 +54,9 @@ export class OrderService {
         });
 
         if (priceInfo.isMoqMet === false) {
-          throw new Error(`Quantity ${item.quantityPairs} does not meet Minimum Order Quantity (${priceInfo.moq}) for product ${item.productId}`);
+          throw new Error(
+            `Quantity ${item.quantityPairs} does not meet Minimum Order Quantity (${priceInfo.moq}) for product ${item.productId}`,
+          );
         }
 
         const itemSubtotal = priceInfo.unitPrice * item.quantityPairs;
@@ -80,7 +82,7 @@ export class OrderService {
 
         if (!skuToReserve) {
           throw new Error(
-            `Unable to resolve product variant SKU for product ${item.productId} (${item.color}, ${item.sizeRun})`
+            `Unable to resolve product variant SKU for product ${item.productId} (${item.color}, ${item.sizeRun})`,
           );
         }
 
@@ -199,13 +201,17 @@ export class OrderService {
       }
 
       if (order.status !== OrderStatus.PENDING_PAYMENT) {
-        throw new Error(`Order ${params.orderId} is not awaiting payment (status: ${order.status})`);
+        throw new Error(
+          `Order ${params.orderId} is not awaiting payment (status: ${order.status})`,
+        );
       }
 
       const paidAmount = Number(params.amount);
       const requiredAmount = Number(order.totalAmount);
       if (isNaN(paidAmount) || paidAmount < requiredAmount) {
-        throw new Error(`Underpayment or invalid payment amount detected: Received ${params.amount}, required ${order.totalAmount}`);
+        throw new Error(
+          `Underpayment or invalid payment amount detected: Received ${params.amount}, required ${order.totalAmount}`,
+        );
       }
 
       const existingPayment = await tx.paymentTransaction.findUnique({
@@ -225,7 +231,10 @@ export class OrderService {
       });
 
       if (atomicUpdate.count === 0) {
-        const freshOrder = await tx.order.findUnique({ where: { id: params.orderId }, include: { items: true } });
+        const freshOrder = await tx.order.findUnique({
+          where: { id: params.orderId },
+          include: { items: true },
+        });
         if (freshOrder?.status === OrderStatus.ESCROW_FUNDED) {
           return freshOrder;
         }
@@ -294,7 +303,9 @@ export class OrderService {
       await tx.auditLog.create({
         data: {
           userId: params.adminUserId || order.buyerId,
-          action: params.verifiedByAdmin ? "ADMIN_MANUAL_PAYMENT_CONFIRMED" : "WEBHOOK_PAYMENT_CONFIRMED",
+          action: params.verifiedByAdmin
+            ? "ADMIN_MANUAL_PAYMENT_CONFIRMED"
+            : "WEBHOOK_PAYMENT_CONFIRMED",
           entityType: "Order",
           entityId: order.id,
           newValues: {

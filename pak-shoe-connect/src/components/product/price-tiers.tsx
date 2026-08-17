@@ -30,37 +30,41 @@ export function PriceTiers({ tiers, selectedQuantity }: Props) {
           const nextTier = tiers[idx + 1];
           const minPairs = Math.max(12, tier.moq);
           const minCtns = Math.max(1, Math.round(minPairs / 12));
-          
+
           const maxPairs = nextTier ? nextTier.moq - 1 : undefined;
           const maxCtns = maxPairs ? Math.floor(maxPairs / 12) : undefined;
-          
-          const qtyString = isLast 
-            ? `≥${minPairs} pairs (${minCtns}+ ctns)` 
+
+          const qtyString = isLast
+            ? `≥${minPairs} pairs (${minCtns}+ ctns)`
             : `${minPairs}–${maxPairs} prs (${minCtns}–${maxCtns} ctns)`;
 
           const isActive = idx === activeTierIndex;
 
           return (
-            <div 
-              key={tier.moq} 
+            <div
+              key={tier.moq}
               className={cn(
                 "flex-1 py-3 px-3 flex flex-col justify-center transition-colors duration-200",
-                isActive ? "bg-primary/10 border-b-2 border-primary" : "bg-transparent"
+                isActive ? "bg-primary/10 border-b-2 border-primary" : "bg-transparent",
               )}
             >
               <div className="text-[11px] font-bold uppercase text-muted-foreground">
                 {tier.label}
               </div>
-              <div className={cn(
-                "font-display text-xl sm:text-2xl tracking-tight transition-colors duration-200 mt-0.5",
-                isActive ? "text-primary font-bold" : "text-foreground"
-              )}>
+              <div
+                className={cn(
+                  "font-display text-xl sm:text-2xl tracking-tight transition-colors duration-200 mt-0.5",
+                  isActive ? "text-primary font-bold" : "text-foreground",
+                )}
+              >
                 {formatPKR(tier.pricePerPair)}
               </div>
-              <div className={cn(
-                "text-[11px] transition-colors duration-200 mt-1 font-mono",
-                isActive ? "text-primary font-medium" : "text-muted-foreground"
-              )}>
+              <div
+                className={cn(
+                  "text-[11px] transition-colors duration-200 mt-1 font-mono",
+                  isActive ? "text-primary font-medium" : "text-muted-foreground",
+                )}
+              >
                 {qtyString}
               </div>
             </div>

@@ -18,7 +18,7 @@ async function build() {
         DEV: false,
         MODE: "production",
         VITE_SITE_URL: "https://anamonofficial.com",
-        VITE_API_URL: "",
+        VITE_API_URL: "https://api.anamonofficial.com",
         VITE_SUPABASE_URL: "https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud",
         VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy",
         VITE_SUPABASE_PROJECT_ID: "ydkdicudwhxrukppucxy",
@@ -26,10 +26,12 @@ async function build() {
       "import.meta.env.PROD": "true",
       "import.meta.env.DEV": "false",
       "import.meta.env.MODE": '"production"',
-      "import.meta.env.VITE_API_URL": '""',
+      "import.meta.env.VITE_API_URL": '"https://api.anamonofficial.com"',
       "import.meta.env.VITE_SITE_URL": '"https://anamonofficial.com"',
-      "import.meta.env.VITE_SUPABASE_URL": '"https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud"',
-      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY": '"sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy"',
+      "import.meta.env.VITE_SUPABASE_URL":
+        '"https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud"',
+      "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY":
+        '"sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy"',
       "import.meta.env.VITE_SUPABASE_PROJECT_ID": '"ydkdicudwhxrukppucxy"',
     },
     loader: {
@@ -60,28 +62,29 @@ async function build() {
       {
         "@type": "Organization",
         "@id": "https://anamonofficial.com/#organization",
-        "name": "Anamon",
-        "url": "https://anamonofficial.com",
-        "logo": "https://anamonofficial.com/favicon.jpg",
-        "description": "Pakistan's premier B2B wholesale footwear marketplace and direct manufacturing network.",
-        "contactPoint": {
+        name: "Anamon",
+        url: "https://anamonofficial.com",
+        logo: "https://anamonofficial.com/favicon.jpg",
+        description:
+          "Pakistan's premier B2B wholesale footwear marketplace and direct manufacturing network.",
+        contactPoint: {
           "@type": "ContactPoint",
-          "telephone": "+92-300-1234567",
-          "contactType": "wholesale sales",
-          "areaServed": "PK",
-          "availableLanguage": ["English", "Urdu"]
-        }
+          telephone: "+92-300-1234567",
+          contactType: "wholesale sales",
+          areaServed: "PK",
+          availableLanguage: ["English", "Urdu"],
+        },
       },
       {
         "@type": "WebSite",
         "@id": "https://anamonofficial.com/#website",
-        "url": "https://anamonofficial.com",
-        "name": "Anamon Wholesale Footwear",
-        "publisher": {
-          "@id": "https://anamonofficial.com/#organization"
-        }
-      }
-    ]
+        url: "https://anamonofficial.com",
+        name: "Anamon Wholesale Footwear",
+        publisher: {
+          "@id": "https://anamonofficial.com/#organization",
+        },
+      },
+    ],
   };
 
   const htmlContent = `<!DOCTYPE html>
@@ -125,7 +128,7 @@ ${JSON.stringify(jsonLd, null, 2)}
 
   fs.writeFileSync(path.resolve("./dist/client/index.html"), htmlContent, "utf-8");
   fs.writeFileSync(path.resolve("./public/index.html"), htmlContent, "utf-8");
-  
+
   // Copy production .htaccess to dist/client
   if (fs.existsSync(path.resolve("./public/.htaccess"))) {
     fs.copyFileSync(path.resolve("./public/.htaccess"), path.resolve("./dist/client/.htaccess"));

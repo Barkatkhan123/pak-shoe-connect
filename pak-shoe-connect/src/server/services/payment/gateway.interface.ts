@@ -1,9 +1,5 @@
 export type SupportedPaymentProvider =
-  | "EASYPAISA"
-  | "JAZZCASH"
-  | "PAYFAST"
-  | "DIRECT_BANK_TRANSFER"
-  | "STRIPE_INTERNATIONAL";
+  "EASYPAISA" | "JAZZCASH" | "PAYFAST" | "DIRECT_BANK_TRANSFER" | "STRIPE_INTERNATIONAL";
 
 export interface CreatePaymentParams {
   orderId: string;
@@ -14,7 +10,8 @@ export interface CreatePaymentParams {
   customerEmail?: string;
   description?: string;
   returnUrl?: string;
-  paymentMethodType?: "MOBILE_WALLET" | "VOUCHER_OTC" | "DIRECT_DEBIT_1LINK" | "CREDIT_DEBIT_CARD" | "BANK_TRANSFER";
+  paymentMethodType?:
+    "MOBILE_WALLET" | "VOUCHER_OTC" | "DIRECT_DEBIT_1LINK" | "CREDIT_DEBIT_CARD" | "BANK_TRANSFER";
 }
 
 export interface PaymentInitiationResult {
@@ -65,5 +62,9 @@ export interface PaymentGateway {
   /**
    * Cryptographically verifies inbound webhook signature
    */
-  verifyWebhookSignature(signature: string, payload: Record<string, any> | string, secret?: string): boolean;
+  verifyWebhookSignature(
+    signature: string,
+    payload: Record<string, any> | string,
+    secret?: string,
+  ): boolean;
 }

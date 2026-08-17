@@ -15,7 +15,7 @@ async function inspectDomains() {
   const targets = [
     "/domains/anamonofficial.com/public_html",
     "/domains/anamonofficial-com-549724.hostingersite.com/public_html",
-    "/public_html"
+    "/public_html",
   ];
 
   for (const target of targets) {

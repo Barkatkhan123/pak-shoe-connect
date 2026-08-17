@@ -13,12 +13,17 @@ if (typeof globalThis.WebSocket === "undefined") {
 }
 
 // Load environment configuration
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "https://shersha-shoe-connect.supabase.co";
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "sb_secret_shersha_master";
+const SUPABASE_URL =
+  process.env.VITE_SUPABASE_URL ||
+  process.env.SUPABASE_URL ||
+  "https://shersha-shoe-connect.supabase.co";
+const SUPABASE_SERVICE_ROLE_KEY =
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "sb_secret_shersha_master";
 
 // Environment-driven bootstrap secrets
 const ADMIN_EMAIL = process.env.MASTER_ADMIN_EMAIL || "anamoontotrade@gmail.com";
-const INITIAL_ADMIN_PASSWORD = process.env.MASTER_ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD || "Anamon12&1marcH2007";
+const INITIAL_ADMIN_PASSWORD =
+  process.env.MASTER_ADMIN_PASSWORD || process.env.INITIAL_ADMIN_PASSWORD || "Anamon12&1marcH2007";
 
 const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
@@ -35,14 +40,14 @@ export async function seedMasterAdmin() {
 
     // 1. Check if user already exists in auth system
     const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    
-    let targetUser = existingUsers?.users?.find(
-      (u) => u.email?.toLowerCase() === targetEmail
-    );
+
+    let targetUser = existingUsers?.users?.find((u) => u.email?.toLowerCase() === targetEmail);
 
     if (targetUser) {
-      console.log(`[Seed Script] Account ${targetEmail} already exists in database (ID: ${targetUser.id}).`);
-      
+      console.log(
+        `[Seed Script] Account ${targetEmail} already exists in database (ID: ${targetUser.id}).`,
+      );
+
       // Update role & metadata securely
       await supabaseAdmin.auth.admin.updateUserById(targetUser.id, {
         user_metadata: { role: "MASTER_ADMIN", status: "ACTIVE", email_verified: true },
@@ -52,8 +57,9 @@ export async function seedMasterAdmin() {
       console.log("[Seed Script] Updated user metadata: Role = MASTER_ADMIN, Status = ACTIVE.");
     } else {
       console.log(`[Seed Script] Creating new Master Admin record for ${targetEmail}...`);
-      
-      const pwdToUse = INITIAL_ADMIN_PASSWORD || `SherSha_Master_${Math.random().toString(36).substring(2, 12)}!`;
+
+      const pwdToUse =
+        INITIAL_ADMIN_PASSWORD || `SherSha_Master_${Math.random().toString(36).substring(2, 12)}!`;
 
       // Create user with Argon2id / bcrypt hashed password handled securely by backend Auth engine
       const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
@@ -67,26 +73,31 @@ export async function seedMasterAdmin() {
         console.warn("[Seed Script] Supabase admin API notice:", createError.message);
       } else {
         targetUser = newUser.user;
-        console.log(`[Seed Script] Successfully created user ${targetEmail} (ID: ${targetUser?.id}).`);
+        console.log(
+          `[Seed Script] Successfully created user ${targetEmail} (ID: ${targetUser?.id}).`,
+        );
       }
     }
 
     // 2. Ensure RBAC Permission Table `public.user_roles` contains MASTER_ADMIN binding
     if (targetUser) {
-      const { error: roleError } = await supabaseAdmin
-        .from("user_roles")
-        .upsert({
+      const { error: roleError } = await supabaseAdmin.from("user_roles").upsert(
+        {
           user_id: targetUser.id,
           email: targetEmail,
           role: "MASTER_ADMIN",
           status: "ACTIVE",
           updated_at: new Date().toISOString(),
-        }, { onConflict: "email" });
+        },
+        { onConflict: "email" },
+      );
 
       if (roleError) {
         console.warn("[Seed Script] Database user_roles upsert note:", roleError.message);
       } else {
-        console.log("[Seed Script] Idempotently synced MASTER_ADMIN role in public.user_roles table.");
+        console.log(
+          "[Seed Script] Idempotently synced MASTER_ADMIN role in public.user_roles table.",
+        );
       }
     }
 

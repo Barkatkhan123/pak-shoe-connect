@@ -30,32 +30,24 @@ export async function initializeMeilisearch() {
         "city",
         "material",
       ],
-      filterableAttributes: [
-        "categoryId",
-        "gender",
-        "isVerified",
-        "moq",
-        "startingPrice",
-        "city",
-      ],
+      filterableAttributes: ["categoryId", "gender", "isVerified", "moq", "startingPrice", "city"],
       sortableAttributes: ["startingPrice", "moq", "supplierScore", "createdAt"],
-      rankingRules: [
-        "words",
-        "typo",
-        "proximity",
-        "attribute",
-        "sort",
-        "exactness",
-      ],
+      rankingRules: ["words", "typo", "proximity", "attribute", "sort", "exactness"],
     });
     console.log("✅ Meilisearch Products Index Configured Successfully");
   } catch (err) {
     if (!process.env.MEILISEARCH_HOST) {
-      console.log("ℹ️ [Search Layer] MEILISEARCH_HOST unconfigured; PostgreSQL search fallback active.");
+      console.log(
+        "ℹ️ [Search Layer] MEILISEARCH_HOST unconfigured; PostgreSQL search fallback active.",
+      );
     } else if (process.env.NODE_ENV === "development") {
-      console.log("ℹ️ [Search Layer] Meilisearch offline in local dev; PostgreSQL full-text fallback active.");
+      console.log(
+        "ℹ️ [Search Layer] Meilisearch offline in local dev; PostgreSQL full-text fallback active.",
+      );
     } else {
-      console.log("ℹ️ [Search Layer] Meilisearch server offline/unreachable; PostgreSQL fallback active.");
+      console.log(
+        "ℹ️ [Search Layer] Meilisearch server offline/unreachable; PostgreSQL fallback active.",
+      );
     }
   }
 }
