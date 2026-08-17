@@ -1,5 +1,12 @@
 import { useState } from "react";
-import { CreditCard, Smartphone, Building2, CheckCircle2, ShieldCheck, Loader2 } from "lucide-react";
+import {
+  CreditCard,
+  Smartphone,
+  Building2,
+  CheckCircle2,
+  ShieldCheck,
+  Loader2,
+} from "lucide-react";
 import { formatPKR } from "@/lib/site";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "@/lib/api-client";
@@ -13,7 +20,12 @@ type Props = {
   onSuccess: (transactionId: string) => void;
 };
 
-export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", customerPhone = "+923001234567", onSuccess }: Props) {
+export function PaymentGateway({
+  amount,
+  orderNumber = "ORD-PK-2026-9901",
+  customerPhone = "+923001234567",
+  onSuccess,
+}: Props) {
   const [method, setMethod] = useState<PaymentMethod>("card");
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -29,26 +41,39 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
     setIsProcessing(true);
 
     try {
+      // Call live backend payment intent service (gateway: POST /api/v1/payments/intent)
+      const provider: "DIRECT_BANK_TRANSFER" | "JAZZCASH" | "PAYFAST" =
+        method === "mobile" ? "JAZZCASH" : method === "bank" ? "DIRECT_BANK_TRANSFER" : "PAYFAST";
 
-      // Call live backend payment intent service
-      // BUG-21 FIX: Migrated from removed createIntent to typed createPaymentIntent.
-      const paymentMethod: "BANK_TRANSFER" | "JAZZCASH" | "EASYPAISA" | "ESCROW_GATEWAY" =
-        method === "mobile" ? "JAZZCASH" :
-        method === "bank"   ? "BANK_TRANSFER" :
-        "ESCROW_GATEWAY";
+      const phoneRaw = mobileNumber ? `+92${mobileNumber}` : customerPhone;
+      const customerPhoneE164 = phoneRaw.replace(/\s/g, "").match(/^\+92\d{10}$/)
+        ? phoneRaw.replace(/\s/g, "")
+        : "+923001234567";
 
       const res = await apiClient.payments.createPaymentIntent({
-        orderId: `ord-${Date.now()}`,
+        orderId: orderNumber || `ord-${Date.now()}`,
+        orderNumber,
         amount,
-        paymentMethod,
-        customerDetails: {
-          name: cardHolder || "Wholesale Footwear Dealer",
-          email: "buyer@pak-shoe.test",
-          phone: mobileNumber ? `+92${mobileNumber}` : customerPhone,
-        },
+        provider,
+        currency: "PKR",
+        customerPhone: customerPhoneE164,
+        customerEmail: "buyer@pak-shoe.test",
       });
 
-      const txnId = res.data?.paymentIntent?.id || res.data?.gatewayResponse?.transactionId || `TXN-SHR-${Date.now().toString(36).toUpperCase()}`;
+      if (!res.success) {
+        throw new Error(
+          typeof res.error === "string"
+            ? res.error
+            : res.error?.message || "Payment intent failed",
+        );
+      }
+
+      const txnId =
+        res.data?.intentId ||
+        res.data?.reference ||
+        res.data?.intent?.intentId ||
+        res.data?.intent?.reference ||
+        `TXN-SHR-${Date.now().toString(36).toUpperCase()}`;
       setActiveTxnId(txnId);
       setIsProcessing(false);
       setIsSuccess(true);
@@ -70,7 +95,7 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
   if (isSuccess) {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center animate-slide-up">
-        <motion.div 
+        <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           className="rounded-full bg-emerald-500/10 p-4 mb-6"
@@ -79,7 +104,8 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
         </motion.div>
         <h3 className="font-display text-2xl font-bold text-ink">Payment Successful!</h3>
         <p className="mt-2 text-muted-foreground max-w-sm">
-          Your payment of <strong className="text-foreground">{formatPKR(amount)}</strong> has been locked in Escrow.
+          Your payment of <strong className="text-foreground">{formatPKR(amount)}</strong> has been
+          locked in Escrow.
         </p>
         <p className="mt-1 text-xs font-mono text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
           Ref: {activeTxnId}
@@ -94,11 +120,14 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
         <div>
           <h3 className="font-bold text-lg text-ink">Secure Escrow Checkout</h3>
           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-            <ShieldCheck className="h-3 w-3 text-emerald-500" /> 256-bit SSL Encrypted & Escrow Protected
+            <ShieldCheck className="h-3 w-3 text-emerald-500" /> 256-bit SSL Encrypted & Escrow
+            Protected
           </p>
         </div>
         <div className="text-right">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Amount to Pay</p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            Amount to Pay
+          </p>
           <p className="font-display text-xl font-bold text-primary">{formatPKR(amount)}</p>
         </div>
       </div>
@@ -109,8 +138,8 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
           type="button"
           onClick={() => setMethod("card")}
           className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
-            method === "card" 
-              ? "border-primary bg-primary/5 text-primary" 
+            method === "card"
+              ? "border-primary bg-primary/5 text-primary"
               : "border-border hover:border-primary/50 text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -121,8 +150,8 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
           type="button"
           onClick={() => setMethod("mobile")}
           className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
-            method === "mobile" 
-              ? "border-[#E31019] bg-[#E31019]/5 text-[#E31019]" 
+            method === "mobile"
+              ? "border-[#E31019] bg-[#E31019]/5 text-[#E31019]"
               : "border-border hover:border-[#E31019]/50 text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -133,8 +162,8 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
           type="button"
           onClick={() => setMethod("bank")}
           className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
-            method === "bank" 
-              ? "border-ink bg-ink/5 text-ink" 
+            method === "bank"
+              ? "border-ink bg-ink/5 text-ink"
               : "border-border hover:border-ink/50 text-muted-foreground hover:text-foreground"
           }`}
         >
@@ -163,12 +192,20 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
                     maxLength={19}
                     placeholder="0000 0000 0000 0000"
                     value={cardNumber}
-                    onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 '))}
+                    onChange={(e) =>
+                      setCardNumber(
+                        e.target.value.replace(/\D/g, "").replace(/(\d{4})(?=\d)/g, "$1 "),
+                      )
+                    }
                     className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
-                    <div className="h-5 w-8 rounded bg-slate-200 text-[9px] font-bold flex items-center justify-center">1Link</div>
-                    <div className="h-5 w-8 rounded bg-slate-200 text-[9px] font-bold flex items-center justify-center">VISA</div>
+                    <div className="h-5 w-8 rounded bg-slate-200 text-[9px] font-bold flex items-center justify-center">
+                      1Link
+                    </div>
+                    <div className="h-5 w-8 rounded bg-slate-200 text-[9px] font-bold flex items-center justify-center">
+                      VISA
+                    </div>
                   </div>
                 </div>
               </div>
@@ -218,20 +255,25 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
             >
               <div className="rounded-lg bg-amber-50 p-4 mb-4 border border-amber-200">
                 <p className="text-xs text-amber-800">
-                  Enter your registered mobile wallet number. You will receive an MPIN prompt on your phone to authorize this transaction.
+                  Enter your registered mobile wallet number. You will receive an MPIN prompt on
+                  your phone to authorize this transaction.
                 </p>
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-bold text-ink">Mobile Wallet Number</label>
+                <label className="mb-1.5 block text-xs font-bold text-ink">
+                  Mobile Wallet Number
+                </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">+92</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                    +92
+                  </span>
                   <input
                     type="text"
                     required
                     maxLength={10}
                     placeholder="300 1234567"
                     value={mobileNumber}
-                    onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
+                    onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ""))}
                     className="w-full rounded-lg border border-input bg-background pl-12 pr-4 py-3 text-sm focus:border-[#E31019] focus:outline-none focus:ring-1 focus:ring-[#E31019]"
                   />
                 </div>
@@ -250,8 +292,11 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
               <div className="rounded-lg bg-muted p-5 text-center">
                 <Building2 className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
                 <p className="font-semibold mb-1">Transfer directly via 1Link IBFT</p>
-                <p className="text-xs text-muted-foreground mb-4">Please transfer the exact amount to the following Escrow account to process your wholesale order.</p>
-                
+                <p className="text-xs text-muted-foreground mb-4">
+                  Please transfer the exact amount to the following Escrow account to process your
+                  wholesale order.
+                </p>
+
                 <div className="bg-white p-4 rounded border border-border text-left">
                   <div className="flex justify-between border-b border-border pb-2 mb-2">
                     <span className="text-muted-foreground text-xs">Bank Name:</span>
@@ -263,7 +308,7 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground text-xs">IBAN:</span>
-                    <span className="font-mono text-xs font-bold">PK12 MEZN 0000 1234 5678 90</span>
+                    <span className="font-mono text-xs font-bold">PK42 MEZN 0001 0928 3746 1928</span>
                   </div>
                 </div>
               </div>
@@ -278,9 +323,13 @@ export function PaymentGateway({ amount, orderNumber = "ORD-PK-2026-9901", custo
           className="mt-8 w-full flex items-center justify-center gap-2 rounded-xl bg-ink px-4 py-4 text-sm font-bold text-white shadow-lg transition-all hover:bg-primary disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
         >
           {isProcessing ? (
-            <><Loader2 className="h-5 w-5 animate-spin" /> Processing Secure Escrow...</>
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" /> Processing Secure Escrow...
+            </>
+          ) : method === "bank" ? (
+            "Confirm IBFT Transfer"
           ) : (
-            method === "bank" ? "Confirm IBFT Transfer" : `Lock ${formatPKR(amount)} in Escrow`
+            `Lock ${formatPKR(amount)} in Escrow`
           )}
         </button>
       </form>

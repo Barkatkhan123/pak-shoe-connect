@@ -41,61 +41,83 @@
 
 // ── Internal Services (PRIVATE — never import these in frontend) ──────────
 import { CatalogService } from "../modules/catalog/catalog.service";
-import { SearchService }  from "../modules/search/search.service";
+import { SearchService } from "../modules/search/search.service";
 import { PricingService } from "../services/pricing.service";
-import { RfqService }     from "../services/rfq.service";
-import { OrderService }   from "../services/order.service";
+import { RfqService } from "../services/rfq.service";
+import { OrderService } from "../services/order.service";
 import { TrackingService } from "../modules/tracking/tracking.service";
 import { PaymentService } from "../services/payment/payment.service";
 import { PaymentWebhookHandler } from "../services/payment/payment.webhook";
-import { PaymentIntentService }  from "../services/payment/payment-intent.service";
-import { SettlementService }     from "../services/payment/settlement.service";
+import { PaymentIntentService } from "../services/payment/payment-intent.service";
+import { SettlementService } from "../services/payment/settlement.service";
 import { SupplierWalletService } from "../services/payment/supplier-wallet.service";
-import { SupplierService }       from "../modules/supplier/supplier.service";
-import { InvoiceService }        from "../services/payment/invoice.service";
-import { CartService }           from "../modules/cart/cart.service";
-import { AddBasketItemSchema }   from "../modules/cart/cart.schema";
-import { prisma }                from "../db";
+import { SupplierService } from "../modules/supplier/supplier.service";
+import { InvoiceService } from "../services/payment/invoice.service";
+import { CartService } from "../modules/cart/cart.service";
+import { AddBasketItemSchema } from "../modules/cart/cart.schema";
+import { prisma } from "../db";
 
 // ── Gateway Middleware ────────────────────────────────────────────────────
 import { createRequestContext, type RequestContext } from "./middleware/correlation-id.middleware";
-import { authenticate, authorize, attachIdentity, signToken } from "./middleware/auth.middleware";
-import { checkRateLimit }   from "./middleware/rate-limit.middleware";
 import {
-  validateBody, validateQueryParams,
-  CreatePaymentIntentSchema, CreateRfqPublicSchema,
-  WithdrawalRequestSchema, PricingCalculateSchema, SearchQuerySchema,
-  CreateOrderPublicSchema, ManualPaymentConfirmSchema, CalculateCartPublicSchema,
+  authenticateRequest,
+  authorize,
+  attachIdentity,
+  signToken,
+} from "./middleware/auth.middleware";
+import { checkRateLimit } from "./middleware/rate-limit.middleware";
+import {
+  validateBody,
+  validateQueryParams,
+  CreatePaymentIntentSchema,
+  CreateRfqPublicSchema,
+  WithdrawalRequestSchema,
+  PricingCalculateSchema,
+  SearchQuerySchema,
+  CreateOrderPublicSchema,
+  ManualPaymentConfirmSchema,
+  CalculateCartPublicSchema,
+  SubmitSupplierQuotePublicSchema,
 } from "./middleware/validate.middleware";
 import {
-  normalizeError, unauthorizedResponse, forbiddenResponse,
-  rateLimitResponse, validationErrorResponse, notFoundResponse,
+  normalizeError,
+  unauthorizedResponse,
+  forbiddenResponse,
+  rateLimitResponse,
+  validationErrorResponse,
+  notFoundResponse,
 } from "./middleware/error-handler.middleware";
 
 // ── DTO Mappers ───────────────────────────────────────────────────────────
 import {
   successResponse,
-  toOrderDto, toPaymentIntentDto, toWalletSummaryDto, toWithdrawalReceiptDto,
-  toTrackingDto, toRfqConfirmationDto, toSupplierDashboardDto,
-  type CategoryDto, type WebhookAcknowledgmentDto,
+  toOrderDto,
+  toPaymentIntentDto,
+  toWalletSummaryDto,
+  toWithdrawalReceiptDto,
+  toTrackingDto,
+  toRfqConfirmationDto,
+  toSupplierDashboardDto,
+  type CategoryDto,
+  type WebhookAcknowledgmentDto,
 } from "./dto/common.dto";
 
 // ── Gateway Response Type ─────────────────────────────────────────────────
 
 export interface GatewayResponse {
-  status:  number;
-  body:    any;
+  status: number;
+  body: any;
   headers: Record<string, string>;
 }
 
 function buildHeaders(ctx: RequestContext): Record<string, string> {
   return {
-    "X-Correlation-Id":  ctx.correlationId,
+    "X-Correlation-Id": ctx.correlationId,
     "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options":        "DENY",
+    "X-Frame-Options": "DENY",
     "Strict-Transport-Security": "max-age=63072000; includeSubDomains",
-    "Cache-Control":           "no-store",
-    "Content-Type":            "application/json",
+    "Cache-Control": "no-store",
+    "Content-Type": "application/json",
   };
 }
 
@@ -149,28 +171,30 @@ const BUYER_ROUTES: RegExp[] = [
  */
 const SUPPLIER_ROUTES: RegExp[] = [
   /^GET \/api\/v1\/supplier\//,
-  /^POST \/api\/v1\/supplier\/quote/,
+  /^POST \/api\/v1\/supplier\/quotes?/,
   /^POST \/api\/v1\/supplier\/settlement\//,
 ];
 
 /**
  * Admin-only routes — require ADMIN or OPERATOR role
  */
-const ADMIN_ROUTES: RegExp[] = [
-  /^GET \/api\/v1\/admin\//,
-  /^POST \/api\/v1\/admin\//,
-];
+const ADMIN_ROUTES: RegExp[] = [/^GET \/api\/v1\/admin\//, /^POST \/api\/v1\/admin\//];
 
 function isPublicRoute(method: string, path: string): boolean {
   const key = `${method} ${path}`;
   return PUBLIC_ROUTES.some((r) => r.test(key));
 }
 
-function resolveRequiredRoles(method: string, path: string): Array<"BUYER" | "SUPPLIER" | "OPERATOR" | "ADMIN" | "SUPER_ADMIN"> | null {
+function resolveRequiredRoles(
+  method: string,
+  path: string,
+): Array<"BUYER" | "SUPPLIER" | "OPERATOR" | "ADMIN" | "SUPER_ADMIN"> | null {
   const key = `${method} ${path}`;
-  if (ADMIN_ROUTES.some((r) => r.test(key)))    return ["OPERATOR", "ADMIN", "SUPER_ADMIN"];
-  if (SUPPLIER_ROUTES.some((r) => r.test(key))) return ["SUPPLIER", "ADMIN", "SUPER_ADMIN", "OPERATOR"];
-  if (BUYER_ROUTES.some((r) => r.test(key)))    return ["BUYER", "SUPPLIER", "ADMIN", "SUPER_ADMIN", "OPERATOR"];
+  if (ADMIN_ROUTES.some((r) => r.test(key))) return ["OPERATOR", "ADMIN", "SUPER_ADMIN"];
+  if (SUPPLIER_ROUTES.some((r) => r.test(key)))
+    return ["SUPPLIER", "ADMIN", "SUPER_ADMIN", "OPERATOR"];
+  if (BUYER_ROUTES.some((r) => r.test(key)))
+    return ["BUYER", "SUPPLIER", "ADMIN", "SUPER_ADMIN", "OPERATOR"];
   return null; // Will be treated as requiring any authenticated user
 }
 
@@ -181,12 +205,12 @@ function resolveRequiredRoles(method: string, path: string): Array<"BUYER" | "SU
  * Replace with your HTTP framework adapter (Express, Fastify, etc.).
  */
 export async function apiGateway(
-  path:        string,
-  method:      string,
-  body:        any = {},
-  query:       Record<string, string> = {},
-  headers:     Record<string, string> = {},
-  clientIp:    string = "unknown"
+  path: string,
+  method: string,
+  body: any = {},
+  query: Record<string, string> = {},
+  headers: Record<string, string> = {},
+  clientIp: string = "unknown",
 ): Promise<GatewayResponse> {
   const ctx = createRequestContext(path, method, headers);
 
@@ -206,12 +230,15 @@ export async function apiGateway(
     // Skip only for explicitly declared public routes
     // ─────────────────────────────────────────────────────────────────────
     const isPublic = isPublicRoute(method, path);
-    let authToken: ReturnType<typeof authenticate>["token"] | undefined;
+    let authToken: Awaited<ReturnType<typeof authenticateRequest>>["token"] | undefined;
 
     if (!isPublic) {
-      const authResult = authenticate(headers);
+      const authResult = await authenticateRequest(headers);
       if (!authResult.authenticated || !authResult.token) {
-        const r = unauthorizedResponse(authResult.error || "Authentication required", ctx.correlationId);
+        const r = unauthorizedResponse(
+          authResult.error || "Authentication required",
+          ctx.correlationId,
+        );
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
       authToken = authResult.token;
@@ -220,7 +247,7 @@ export async function apiGateway(
       // Optional auth for public routes (enriches context if token present)
       const raw = headers["authorization"] || headers["Authorization"] || "";
       if (raw.startsWith("Bearer ")) {
-        const authResult = authenticate(headers);
+        const authResult = await authenticateRequest(headers);
         if (authResult.authenticated && authResult.token) {
           authToken = authResult.token;
           attachIdentity(ctx, authToken);
@@ -248,16 +275,18 @@ export async function apiGateway(
     // Logs: timestamp, correlationId, userId (truncated), endpoint, method
     // NEVER logs: passwords, tokens, card data, secrets, full body
     // ─────────────────────────────────────────────────────────────────────
-    console.info(JSON.stringify({
-      event:         "REQUEST",
-      correlationId: ctx.correlationId,
-      method,
-      path,
-      userId:        ctx.userId || "anonymous",
-      role:          ctx.role || "public",
-      ip:            clientIp.slice(0, 15), // Truncate for privacy
-      ts:            new Date().toISOString(),
-    }));
+    console.info(
+      JSON.stringify({
+        event: "REQUEST",
+        correlationId: ctx.correlationId,
+        method,
+        path,
+        userId: ctx.userId || "anonymous",
+        role: ctx.role || "public",
+        ip: clientIp.slice(0, 15), // Truncate for privacy
+        ts: new Date().toISOString(),
+      }),
+    );
 
     // ─────────────────────────────────────────────────────────────────────
     // STEP 5 — ROUTE DISPATCH + RESPONSE DTO MAPPING
@@ -267,16 +296,22 @@ export async function apiGateway(
     // ── Tiered Health Probes (ECS / Kubernetes) ─────────────────────────
     if (path === "/health/live" && method === "GET") {
       // Process liveness probe: returns 200 if process event loop is running
-      return ok({ status: "alive", uptime: process.uptime(), timestamp: new Date().toISOString() }, ctx);
+      return ok(
+        { status: "alive", uptime: process.uptime(), timestamp: new Date().toISOString() },
+        ctx,
+      );
     }
 
     if (path === "/health/ready" && method === "GET") {
       // Readiness probe: returns 200 if gateway is ready to accept traffic
-      return ok({
-        status: "ready",
-        services: { database: "connected", redis: "connected", gateway: "ready" },
-        timestamp: new Date().toISOString(),
-      }, ctx);
+      return ok(
+        {
+          status: "ready",
+          services: { database: "connected", redis: "connected", gateway: "ready" },
+          timestamp: new Date().toISOString(),
+        },
+        ctx,
+      );
     }
 
     if (path === "/health/startup" && method === "GET") {
@@ -284,21 +319,32 @@ export async function apiGateway(
       return ok({ status: "started", version: "1.0.0", timestamp: new Date().toISOString() }, ctx);
     }
 
-    if ((path === "/api/v1" || path === "/api/v1/" || path === "/api/v1/health") && method === "GET") {
-      return ok({
-        status:      "operational",
-        version:     "1.0.0",
-        environment: process.env.NODE_ENV === "production" ? "production" : "sandbox",
-        timestamp:   new Date().toISOString(),
-      }, ctx);
+    if (
+      (path === "/api/v1" || path === "/api/v1/" || path === "/api/v1/health") &&
+      method === "GET"
+    ) {
+      return ok(
+        {
+          status: "operational",
+          version: "1.0.0",
+          environment: process.env.NODE_ENV === "production" ? "production" : "sandbox",
+          timestamp: new Date().toISOString(),
+        },
+        ctx,
+      );
     }
 
     // ── Auth ─────────────────────────────────────────────────────────────
     if (path === "/api/v1/auth/login" && method === "POST") {
-      const validation = validateBody(body, require("zod").z.object({
-        phone:    require("zod").z.string().regex(/^\+92[0-9]{10}$/),
-        password: require("zod").z.string().min(8).max(128),
-      }));
+      const validation = validateBody(
+        body,
+        require("zod").z.object({
+          phone: require("zod")
+            .z.string()
+            .regex(/^\+92[0-9]{10}$/),
+          password: require("zod").z.string().min(8).max(128),
+        }),
+      );
       if (!validation.valid) {
         const r = validationErrorResponse(validation.errors!, ctx.correlationId);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
@@ -313,19 +359,18 @@ export async function apiGateway(
         // Fallback for test mode or disconnected DB
       }
 
-      if (!user || !user.isActive) {
+      if (!user || !user.isActive || !user.passwordHash) {
         const r = unauthorizedResponse("Invalid phone number or password", ctx.correlationId);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
-      if (user.passwordHash) {
-        const isValid = user.passwordHash.startsWith("$2")
-          ? require("crypto").timingSafeEqual(Buffer.from(user.passwordHash), Buffer.from(user.passwordHash))
-          : user.passwordHash === validation.data.password;
-        if (!isValid) {
-          const r = unauthorizedResponse("Invalid phone number or password", ctx.correlationId);
-          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
-        }
+      const isValid = user.passwordHash.startsWith("$2")
+        ? require("bcryptjs").compareSync(validation.data.password, user.passwordHash)
+        : user.passwordHash === validation.data.password;
+
+      if (!isValid) {
+        const r = unauthorizedResponse("Invalid phone number or password", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
       const token = signToken({ sub: user.id, role: user.role as any });
@@ -335,19 +380,19 @@ export async function apiGateway(
     // ── Catalog ───────────────────────────────────────────────────────────
     if (path === "/api/v1/catalog/products" && method === "GET") {
       const result = await CatalogService.listProducts({
-        sort:     "newest" as const,
+        sort: "newest" as const,
         category: query.category,
         minPrice: query.minPrice ? Number(query.minPrice) : undefined,
         maxPrice: query.maxPrice ? Number(query.maxPrice) : undefined,
-        page:     query.page ? Number(query.page) : 1,
-        limit:    Math.min(Number(query.limit) || 20, 100), // Cap at 100
+        page: query.page ? Number(query.page) : 1,
+        limit: Math.min(Number(query.limit) || 20, 100), // Cap at 100
       });
       // Strip internal fields — only return public-safe DTO fields
       const products = result.products.map((p) => ({
-        slug:         p.slug,
-        name:         p.title,
+        slug: p.slug,
+        name: p.title,
         minimumOrder: p.moq || 12,
-        leadTime:     p.leadTimeDays || "7-14 Days",
+        leadTime: p.leadTimeDays || "7-14 Days",
       }));
       return ok({ products, total: result.meta.totalCount }, ctx);
     }
@@ -365,24 +410,28 @@ export async function apiGateway(
       }
       const p = detail.product;
       const supp = (p as any)?.supplier || (detail as any)?.supplier;
-      return ok({
-        product: {
-          slug:           p.slug,
-          name:           (p as any).title || (p as any).name,
-          description:    p.description,
-          minimumOrder:   (p as any).moq || 12,
-          leadTime:       (p as any).leadTimeDays,
-          specifications: p.specifications,
-          images:         (p as any).images || [],
-          supplier: {
-            name:        supp?.factoryName || supp?.name || "Apex Footwear Ltd",
-            factoryName: supp?.factoryName || supp?.name || "Apex Footwear Ltd",
-            city:        supp?.city || "Lahore",
-            verified:    supp?.verificationStatus === "VERIFIED" || supp?.isVerified || supp?.verified,
-            rating:      supp?.responseRate || supp?.rating || 4.9,
+      return ok(
+        {
+          product: {
+            slug: p.slug,
+            name: (p as any).title || (p as any).name,
+            description: p.description,
+            minimumOrder: (p as any).moq || 12,
+            leadTime: (p as any).leadTimeDays,
+            specifications: p.specifications,
+            images: (p as any).images || [],
+            supplier: {
+              name: supp?.factoryName || supp?.name || "Apex Footwear Ltd",
+              factoryName: supp?.factoryName || supp?.name || "Apex Footwear Ltd",
+              city: supp?.city || "Lahore",
+              verified:
+                supp?.verificationStatus === "VERIFIED" || supp?.isVerified || supp?.verified,
+              rating: supp?.responseRate || supp?.rating || 4.9,
+            },
           },
         },
-      }, ctx);
+        ctx,
+      );
     }
 
     if (path === "/api/v1/catalog/categories" && method === "GET") {
@@ -390,9 +439,9 @@ export async function apiGateway(
         include: { _count: { select: { products: true } } },
       });
       const dto: CategoryDto[] = categories.map((c) => ({
-        slug:         c.slug,      // public slug — NOT internal UUID
-        name:         c.name,
-        nameUrdu:     c.nameUrdu ?? undefined,
+        slug: c.slug, // public slug — NOT internal UUID
+        name: c.name,
+        nameUrdu: c.nameUrdu ?? undefined,
         productCount: c._count.products,
         // id: c.id  ← NEVER exposed
       }));
@@ -406,11 +455,11 @@ export async function apiGateway(
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
       const result = await SearchService.searchCatalog(query.q || "", {
-        category:    query.category,
-        gender:      query.gender,
+        category: query.category,
+        gender: query.gender,
         verifiedOnly: query.verified === "true",
-        maxMoq:      query.maxMoq ? Number(query.maxMoq) : undefined,
-        city:        query.city,
+        maxMoq: query.maxMoq ? Number(query.maxMoq) : undefined,
+        city: query.city,
       });
       return ok(result, ctx);
     }
@@ -440,7 +489,10 @@ export async function apiGateway(
     if (path === "/api/v1/basket/add" && method === "POST") {
       const userId = ctx.fullUserId || ctx.userId;
       if (!userId) {
-        const r = unauthorizedResponse("Authentication required to add items to basket", ctx.correlationId);
+        const r = unauthorizedResponse(
+          "Authentication required to add items to basket",
+          ctx.correlationId,
+        );
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
       const validation = validateBody(body, AddBasketItemSchema);
@@ -480,7 +532,10 @@ export async function apiGateway(
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
       const slug = path.replace("/api/v1/basket/", "");
-      const items = await CartService.removeItem(userId, slug, { color: query.color, size: query.size });
+      const items = await CartService.removeItem(userId, slug, {
+        color: query.color,
+        size: query.size,
+      });
       return ok({ items, success: true }, ctx);
     }
 
@@ -503,21 +558,26 @@ export async function apiGateway(
       }
       const result = await PricingService.calculate(validation.data);
       // Map pricing result — strip internal fields like productId, tierIds
-      return ok({
-        productSlug:     validation.data.productSlug,
-        quantity:        result.orderedPairs,
-        unitPrice:       result.unitPrice,
-        subtotal:        result.subtotal,
-        freight:         result.logistics?.totalEstimatedFreight,
-        totalEstimate:   result.subtotal + (result.logistics?.totalEstimatedFreight || 0),
-        currency:        "PKR",
-        tier:            result.activeTier?.tierLabel,
-        moqMet:          result.isMoqMet,
-        upsell:          result.nextTierUpsell?.hasNextTier ? {
-          additionalPairs: result.nextTierUpsell.additionalPairsNeeded,
-          savingPerUnit:   result.nextTierUpsell.potentialUnitPrice,
-        } : null,
-      }, ctx);
+      return ok(
+        {
+          productSlug: validation.data.productSlug,
+          quantity: result.orderedPairs,
+          unitPrice: result.unitPrice,
+          subtotal: result.subtotal,
+          freight: result.logistics?.totalEstimatedFreight,
+          totalEstimate: result.subtotal + (result.logistics?.totalEstimatedFreight || 0),
+          currency: "PKR",
+          tier: result.activeTier?.tierLabel,
+          moqMet: result.isMoqMet,
+          upsell: result.nextTierUpsell?.hasNextTier
+            ? {
+                additionalPairs: result.nextTierUpsell.additionalPairsNeeded,
+                savingPerUnit: result.nextTierUpsell.potentialUnitPrice,
+              }
+            : null,
+        },
+        ctx,
+      );
     }
 
     // ── RFQ ───────────────────────────────────────────────────────────────
@@ -535,9 +595,34 @@ export async function apiGateway(
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
+      // Resolve public productSlug → internal productId for RfqService
+      const resolvedItems = [];
+      for (const item of validation.data.items) {
+        const product = await prisma.product.findUnique({
+          where: { slug: item.productSlug },
+          select: { id: true },
+        });
+        if (!product) {
+          const r = validationErrorResponse(
+            [`Unknown product slug: ${item.productSlug}`],
+            ctx.correlationId,
+          );
+          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+        }
+        resolvedItems.push({
+          productId: product.id,
+          color: item.color,
+          quantity: item.quantity,
+          sizeBreakdown: { assorted: item.quantity },
+        });
+      }
+
       const result = await RfqService.createRfq({
-        ...validation.data,
-        buyerId, // Injected from verified JWT — never from body
+        buyerId,
+        targetQuantity: validation.data.targetQuantity,
+        customBranding: validation.data.customBranding,
+        notes: validation.data.notes,
+        items: resolvedItems,
       });
       return ok(toRfqConfirmationDto(result), ctx, 201);
     }
@@ -565,12 +650,26 @@ export async function apiGateway(
 
     if (path.startsWith("/api/v1/orders/") && method === "GET") {
       if (path.includes("/tracking")) {
-        const orderRef = path.split("/")[4];
+        // Support /orders/tracking/:ref and /orders/:ref/tracking
+        const parts = path.split("/").filter(Boolean);
+        const trackingIdx = parts.indexOf("tracking");
+        const orderRef =
+          trackingIdx >= 0 && parts[trackingIdx + 1]
+            ? parts[trackingIdx + 1]
+            : parts[trackingIdx - 1];
+        if (!orderRef || orderRef === "orders" || orderRef === "tracking") {
+          const r = validationErrorResponse(["Missing order reference"], ctx.correlationId);
+          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+        }
         const result = await TrackingService.getOrderTracking(orderRef);
-        return ok({ tracking: toTrackingDto(result) }, ctx);
+        const trackingDto = toTrackingDto(result);
+        return ok({ ...trackingDto, tracking: trackingDto }, ctx);
       }
       if (path.includes("/invoice")) {
-        const orderRef = path.split("/")[4];
+        // Support /orders/:ref/invoice
+        const parts = path.split("/").filter(Boolean);
+        const invoiceIdx = parts.indexOf("invoice");
+        const orderRef = invoiceIdx > 0 ? parts[invoiceIdx - 1] : parts[3];
         // Return invoice DTO — no internal ledger IDs or payment engine details
         const invoice = InvoiceService.generateInvoice({
           orderNumber: orderRef,
@@ -579,28 +678,34 @@ export async function apiGateway(
         });
         const invoiceDto = {
           invoiceReference: invoice.invoiceNumber,
-          orderReference:   orderRef,
-          issuedAt:         invoice.issuedAt,
-          dueDate:          invoice.dueDate,
-          grandTotal:       invoice.financials.grandTotal,
-          subtotal:         invoice.financials.subtotal,
-          gstAmount:        invoice.financials.gstTaxAmount,
-          freightCharges:   invoice.financials.freightCharges,
-          currency:         invoice.financials.currency,
-          taxRate:          `${invoice.financials.gstRatePercent}% GST`,
-          seller:           invoice.seller,
-          buyer:            invoice.buyer,
-          lineItems:        invoice.items,
+          orderReference: orderRef,
+          issuedAt: invoice.issuedAt,
+          dueDate: invoice.dueDate,
+          grandTotal: invoice.financials.grandTotal,
+          subtotal: invoice.financials.subtotal,
+          gstAmount: invoice.financials.gstTaxAmount,
+          freightCharges: invoice.financials.freightCharges,
+          currency: invoice.financials.currency,
+          taxRate: `${invoice.financials.gstRatePercent}% GST`,
+          seller: invoice.seller,
+          buyer: invoice.buyer,
+          lineItems: invoice.items,
         };
-        return ok({
-          ...invoiceDto,
-          invoice: invoiceDto,
-        }, ctx);
+        return ok(
+          {
+            ...invoiceDto,
+            invoice: invoiceDto,
+          },
+          ctx,
+        );
       }
     }
 
     // ── Payment Intent ────────────────────────────────────────────────────
-    if ((path === "/api/v1/payments/intent" || path === "/api/v1/payments/initiate") && method === "POST") {
+    if (
+      (path === "/api/v1/payments/intent" || path === "/api/v1/payments/initiate") &&
+      method === "POST"
+    ) {
       const validation = validateBody(body, CreatePaymentIntentSchema);
       if (!validation.valid) {
         const r = validationErrorResponse(validation.errors!, ctx.correlationId);
@@ -630,30 +735,67 @@ export async function apiGateway(
     // Webhook endpoints are public (called by payment gateways, not browsers)
     // but protected by HMAC signature verification inside PaymentWebhookHandler
     if (path.startsWith("/api/v1/payments/webhooks/") && method === "POST") {
-      const gateway  = path.replace("/api/v1/payments/webhooks/", "");
-      const signature = headers["x-webhook-signature"]
-        || headers["pp-securehash"]
-        || headers["x-ep-signature"]
-        || body?.pp_SecureHash;
+      const gateway = path.replace("/api/v1/payments/webhooks/", "");
+      const signature =
+        headers["x-webhook-signature"] ||
+        headers["pp-securehash"] ||
+        headers["x-ep-signature"] ||
+        body?.pp_SecureHash;
       const timestamp = headers["x-webhook-timestamp"]
         ? parseInt(headers["x-webhook-timestamp"], 10)
         : undefined;
 
       const result = await PaymentWebhookHandler.handleWebhook({
-        provider:  gateway,
+        provider: gateway,
         signature,
         timestamp,
-        payload:   body,
-        rawBody:   headers["x-raw-body"],
+        payload: body,
+        rawBody: headers["x-raw-body"],
       });
 
       // Return minimal acknowledgment — no internal state to client
       const ack: WebhookAcknowledgmentDto = {
-        received:      true,
-        reference:     (result as any).transactionId || "unknown",
+        received: true,
+        reference: (result as any).transactionId || "unknown",
         correlationId: ctx.correlationId,
       };
       return ok(ack, ctx);
+    }
+
+    // ── Supplier Quote ────────────────────────────────────────────────────
+    if (
+      (path === "/api/v1/supplier/quote" || path === "/api/v1/supplier/quotes") &&
+      method === "POST"
+    ) {
+      const supplierId = authToken?.supplierId || authToken?.sub;
+      if (!supplierId) {
+        const r = unauthorizedResponse("Authentication required", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      const validation = validateBody(body, SubmitSupplierQuotePublicSchema);
+      if (!validation.valid) {
+        const r = validationErrorResponse(validation.errors!, ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+      const productionDays = validation.data.productionDays || validation.data.leadTimeDays || 14;
+      const result = await SupplierService.submitQuote(validation.data.rfqId, supplierId, {
+        unitPrice: validation.data.unitPrice,
+        productionDays,
+        currency: validation.data.currency,
+        notes: validation.data.notes,
+        paymentTerms: validation.data.paymentTerms,
+        minimumOrderQuantity: validation.data.minimumOrderQuantity,
+      });
+      return ok(
+        {
+          rfqId: validation.data.rfqId,
+          status: (result as any)?.status || "SUPPLIER_QUOTED",
+          unitPrice: validation.data.unitPrice,
+          productionDays,
+        },
+        ctx,
+        201,
+      );
     }
 
     // ── Supplier Dashboard ────────────────────────────────────────────────
@@ -664,7 +806,7 @@ export async function apiGateway(
         const r = unauthorizedResponse("Authentication required", ctx.correlationId);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
-      const metrics = await (OrderService as any).getSupplierDashboardMetrics(supplierId);
+      const metrics = await SupplierService.getSupplierDashboardMetrics(supplierId);
       return ok(toSupplierDashboardDto(metrics), ctx);
     }
 
@@ -692,37 +834,49 @@ export async function apiGateway(
       }
       const payout = await SettlementService.createWithdrawal({
         supplierId, // From JWT — never body
-        amount:           validation.data.amount,
+        amount: validation.data.amount,
         bankAccountIndex: validation.data.bankAccountIndex,
       });
       return ok(toWithdrawalReceiptDto(payout), ctx, 201);
     }
 
     if (path === "/api/v1/supplier/analytics" && method === "GET") {
-      const supplierId = authToken?.supplierId || authToken?.sub || "sup-factory-1";
+      const supplierId = authToken?.supplierId || authToken?.sub;
+      if (!supplierId) {
+        const r = unauthorizedResponse("Authentication required", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
       const analytics = await SupplierService.getSupplierAnalytics(supplierId);
       const analyticsDto = {
-        rfqResponseTrends:           analytics?.rfqResponseTrends || [],
-        revenueTrends:               analytics?.revenueTrendsPKR || [],
+        rfqResponseTrends: analytics?.rfqResponseTrends || [],
+        revenueTrends: analytics?.revenueTrendsPKR || [],
         buyerGeographicDistribution: analytics?.buyerGeographicDistribution || [],
-        topProducts:                 (analytics?.topProducts || []).map((p: any) => ({
-          name:   p.productTitle,
+        topProducts: (analytics?.topProducts || []).map((p: any) => ({
+          name: p.productTitle,
           orders: p.orderCount,
         })),
       };
-      return ok({
-        ...analyticsDto,
-        analytics: analyticsDto,
-      }, ctx);
+      return ok(
+        {
+          ...analyticsDto,
+          analytics: analyticsDto,
+        },
+        ctx,
+      );
     }
 
     // ── Finance Reports ──
     if (path.startsWith("/api/v1/admin/finance/")) {
-      const { FinanceAnalyticsService } = await import("../services/payment/finance-analytics.service");
-      if (path.includes("/revenue"))        return ok(await FinanceAnalyticsService.getRevenueOverview(), ctx);
-      if (path.includes("/transactions"))   return ok(await FinanceAnalyticsService.getTransactionAnalytics(), ctx);
-      if (path.includes("/metrics"))        return ok(await FinanceAnalyticsService.getMarketplaceHealthMetrics(), ctx);
-      if (path.includes("/reconciliation")) return ok(await FinanceAnalyticsService.getReconciliationReport(), ctx);
+      const { FinanceAnalyticsService } =
+        await import("../services/payment/finance-analytics.service");
+      if (path.includes("/revenue"))
+        return ok(await FinanceAnalyticsService.getRevenueOverview(), ctx);
+      if (path.includes("/transactions"))
+        return ok(await FinanceAnalyticsService.getTransactionAnalytics(), ctx);
+      if (path.includes("/metrics"))
+        return ok(await FinanceAnalyticsService.getMarketplaceHealthMetrics(), ctx);
+      if (path.includes("/reconciliation"))
+        return ok(await FinanceAnalyticsService.getReconciliationReport(), ctx);
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -734,46 +888,55 @@ export async function apiGateway(
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
-      const {
-        toAdminOverviewDto, toAdminProductDto, toAdminSupplierDto,
-        toAdminAuditLogDto
-      } = await import("./dto/admin-dto");
+      const { toAdminOverviewDto, toAdminProductDto, toAdminSupplierDto, toAdminAuditLogDto } =
+        await import("./dto/admin-dto");
 
       // ── Overview & Dashboard ──
       if (path === "/api/v1/admin/overview" && method === "GET") {
         return ok(toAdminOverviewDto({}), ctx);
       }
 
-        // Four-Eyes Approval Endpoints
-        if (path.includes("/four-eyes/initiate") && method === "POST") {
-          if (!["ADMIN", "SUPER_ADMIN"].includes(authToken.role)) {
-            const r = forbiddenResponse(ctx.correlationId);
-            return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
-          }
-          return ok({
+      // Four-Eyes Approval Endpoints
+      if (path.includes("/four-eyes/initiate") && method === "POST") {
+        if (!["ADMIN", "SUPER_ADMIN"].includes(authToken.role)) {
+          const r = forbiddenResponse(ctx.correlationId);
+          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+        }
+        return ok(
+          {
             requestId: `FOUR-EYES-${Date.now()}`,
             amount: body.amount,
             status: "AWAITING_SECOND_ADMIN_APPROVAL",
             initiatedBy: authToken.sub,
-          }, ctx, 201);
-        }
+          },
+          ctx,
+          201,
+        );
+      }
 
-        if (path.includes("/four-eyes/approve") && method === "POST") {
-          if (authToken.role !== "SUPER_ADMIN") {
-            const r = forbiddenResponse(ctx.correlationId);
-            return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
-          }
-          return ok({
+      if (path.includes("/four-eyes/approve") && method === "POST") {
+        if (authToken.role !== "SUPER_ADMIN") {
+          const r = forbiddenResponse(ctx.correlationId);
+          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+        }
+        return ok(
+          {
             requestId: body.requestId,
             status: "APPROVED_AND_EXECUTED",
             approvedBy: authToken.sub,
             executedAt: new Date().toISOString(),
-          }, ctx);
-        }
+          },
+          ctx,
+        );
+      }
 
       // ── Product Management ──
       if (path === "/api/v1/admin/products" && method === "GET") {
-        const productsList = await CatalogService.listProducts({ page: 1, limit: 50, sort: "newest" as const });
+        const productsList = await CatalogService.listProducts({
+          page: 1,
+          limit: 50,
+          sort: "newest" as const,
+        });
         const dtos = (productsList.products || []).map((p: any) => toAdminProductDto(p));
         return ok({ products: dtos, total: productsList.meta?.totalCount || dtos.length }, ctx);
       }
@@ -806,12 +969,15 @@ export async function apiGateway(
           return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
         }
         const productId = path.split("/")[5];
-        return ok({
-          id: productId,
-          status: "REJECTED",
-          rejectionReason: body.reason || "Violates quality guidelines",
-          rejectedBy: authToken.sub,
-        }, ctx);
+        return ok(
+          {
+            id: productId,
+            status: "REJECTED",
+            rejectionReason: body.reason || "Violates quality guidelines",
+            rejectedBy: authToken.sub,
+          },
+          ctx,
+        );
       }
 
       if (path.startsWith("/api/v1/admin/products/") && method === "DELETE") {
@@ -827,9 +993,27 @@ export async function apiGateway(
       // ── Supplier Management ──
       if (path === "/api/v1/admin/suppliers" && method === "GET") {
         const suppliers = [
-          { id: "sup-factory-1", factoryName: "Sialkot Master Syndicate Leather", city: "Sialkot", verificationStatus: "VERIFIED", badge: "Gold Factory" },
-          { id: "sup-factory-2", factoryName: "Lahore Footwear Craftsmen", city: "Lahore", verificationStatus: "PENDING", badge: "Starter Workshop" },
-          { id: "sup-factory-3", factoryName: "Faisalabad Sole Manufacturing", city: "Faisalabad", verificationStatus: "VERIFIED", badge: "Verified Supplier" },
+          {
+            id: "sup-factory-1",
+            factoryName: "Sialkot Master Syndicate Leather",
+            city: "Sialkot",
+            verificationStatus: "VERIFIED",
+            badge: "Gold Factory",
+          },
+          {
+            id: "sup-factory-2",
+            factoryName: "Lahore Footwear Craftsmen",
+            city: "Lahore",
+            verificationStatus: "PENDING",
+            badge: "Starter Workshop",
+          },
+          {
+            id: "sup-factory-3",
+            factoryName: "Faisalabad Sole Manufacturing",
+            city: "Faisalabad",
+            verificationStatus: "VERIFIED",
+            badge: "Verified Supplier",
+          },
         ].map(toAdminSupplierDto);
         return ok({ suppliers }, ctx);
       }
@@ -840,35 +1024,58 @@ export async function apiGateway(
           return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
         }
         const supplierId = path.split("/")[5];
-        return ok({
-          supplierId,
-          verificationStatus: body.status || "VERIFIED",
-          badge: body.badge || "Verified Supplier",
-          verifiedBy: authToken.sub,
-        }, ctx);
+        return ok(
+          {
+            supplierId,
+            verificationStatus: body.status || "VERIFIED",
+            badge: body.badge || "Verified Supplier",
+            verifiedBy: authToken.sub,
+          },
+          ctx,
+        );
       }
 
       // ── Audit Logs & System Health ──
       if (path === "/api/v1/admin/audit-logs" && method === "GET") {
         const logs = [
-          { id: "log-1", action: "PRODUCT_APPROVED", entityType: "PRODUCT", entityId: "SHR-SHOE-101", userEmail: "anamoontotrade@gmail.com", role: "ADMIN", timestamp: new Date() },
-          { id: "log-2", action: "FOUR_EYES_PAYOUT_INITIATED", entityType: "FINANCE", entityId: "PAY-9901", userEmail: "operator@anamonofficial.com", role: "OPERATOR", timestamp: new Date() },
+          {
+            id: "log-1",
+            action: "PRODUCT_APPROVED",
+            entityType: "PRODUCT",
+            entityId: "SHR-SHOE-101",
+            userEmail: "anamoontotrade@gmail.com",
+            role: "ADMIN",
+            timestamp: new Date(),
+          },
+          {
+            id: "log-2",
+            action: "FOUR_EYES_PAYOUT_INITIATED",
+            entityType: "FINANCE",
+            entityId: "PAY-9901",
+            userEmail: "operator@anamonofficial.com",
+            role: "OPERATOR",
+            timestamp: new Date(),
+          },
         ].map(toAdminAuditLogDto);
         return ok({ logs }, ctx);
       }
 
       if (path === "/api/v1/admin/system/health" && method === "GET") {
-        const { PaymentCircuitBreaker } = await import("../services/payment/payment-circuit-breaker");
-        return ok({
-          gatewayStatus: "HEALTHY",
-          uptimeSeconds: Math.floor(process.uptime()),
-          redisConnection: "CONNECTED",
-          postgresPool: { active: 3, idle: 7, max: 20 },
-          bullMqBacklog: 0,
-          circuitBreakers: PaymentCircuitBreaker.getMetrics(),
-          memoryUsageMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
-          cpuLoadPercent: 1.2,
-        }, ctx);
+        const { PaymentCircuitBreaker } =
+          await import("../services/payment/payment-circuit-breaker");
+        return ok(
+          {
+            gatewayStatus: "HEALTHY",
+            uptimeSeconds: Math.floor(process.uptime()),
+            redisConnection: "CONNECTED",
+            postgresPool: { active: 3, idle: 7, max: 20 },
+            bullMqBacklog: 0,
+            circuitBreakers: PaymentCircuitBreaker.getMetrics(),
+            memoryUsageMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+            cpuLoadPercent: 1.2,
+          },
+          ctx,
+        );
       }
     }
 
@@ -878,7 +1085,6 @@ export async function apiGateway(
     // ─────────────────────────────────────────────────────────────────────
     const r = notFoundResponse(ctx.correlationId);
     return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
-
   } catch (error) {
     // ─────────────────────────────────────────────────────────────────────
     // GLOBAL ERROR HANDLER
@@ -890,13 +1096,15 @@ export async function apiGateway(
     // ─────────────────────────────────────────────────────────────────────
     // ACCESS LOG — every request logged with timing
     // ─────────────────────────────────────────────────────────────────────
-    console.info(JSON.stringify({
-      event:         "RESPONSE",
-      correlationId: ctx.correlationId,
-      method,
-      path,
-      userId:        ctx.userId || "anonymous",
-      durationMs:    Date.now() - ctx.startedAt,
-    }));
+    console.info(
+      JSON.stringify({
+        event: "RESPONSE",
+        correlationId: ctx.correlationId,
+        method,
+        path,
+        userId: ctx.userId || "anonymous",
+        durationMs: Date.now() - ctx.startedAt,
+      }),
+    );
   }
 }

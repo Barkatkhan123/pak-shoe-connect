@@ -22,9 +22,17 @@ export interface ValidationResult {
 
 /** Strips fields that must NEVER come from the client */
 const FORBIDDEN_CLIENT_FIELDS = [
-  "userId", "supplierId", "walletId", "ledgerId",
-  "role", "isAdmin", "internalStatus", "escrowId",
-  "platformFee", "commissionRate", "adminApproved",
+  "userId",
+  "supplierId",
+  "walletId",
+  "ledgerId",
+  "role",
+  "isAdmin",
+  "internalStatus",
+  "escrowId",
+  "platformFee",
+  "commissionRate",
+  "adminApproved",
 ];
 
 function stripForbiddenFields(body: Record<string, any>): Record<string, any> {
@@ -36,10 +44,7 @@ function stripForbiddenFields(body: Record<string, any>): Record<string, any> {
 }
 
 /** Validates and sanitizes request body against a Zod schema */
-export function validateBody<T>(
-  body: any,
-  schema: z.ZodSchema<T>
-): ValidationResult {
+export function validateBody<T>(body: any, schema: z.ZodSchema<T>): ValidationResult {
   if (!body || typeof body !== "object") {
     return { valid: false, errors: ["Request body is required"] };
   }
@@ -49,9 +54,7 @@ export function validateBody<T>(
 
   const result = schema.safeParse(cleaned);
   if (!result.success) {
-    const errors = result.error.issues.map(
-      (i) => `${i.path.join(".")}: ${i.message}`
-    );
+    const errors = result.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`);
     return { valid: false, errors };
   }
 
@@ -61,7 +64,10 @@ export function validateBody<T>(
 /** Validates query parameters against simple constraints */
 export function validateQueryParams(
   params: Record<string, string>,
-  rules: Record<string, { type: "string" | "number" | "boolean"; required?: boolean; maxLength?: number }>
+  rules: Record<
+    string,
+    { type: "string" | "number" | "boolean"; required?: boolean; maxLength?: number }
+  >,
 ): ValidationResult {
   const errors: string[] = [];
 
@@ -88,17 +94,20 @@ export function validateQueryParams(
 
 /** Pagination shared schema */
 export const PaginationSchema = z.object({
-  page:  z.coerce.number().int().min(1).max(1000).default(1),
+  page: z.coerce.number().int().min(1).max(1000).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
 /** Payment intent request — clients can only choose provider + amount */
 export const CreatePaymentIntentSchema = z.object({
-  orderId:     z.string().min(3).max(100),
-  amount:      z.number().positive("Amount must be positive").max(100_000_000, "Amount exceeds limit"),
-  currency:    z.string().default("PKR"),
-  provider:    z.string(),
-  customerPhone: z.string().regex(/^\+92[0-9]{10}$/, "Phone must be E.164 format (+92XXXXXXXXXX)").optional(),
+  orderId: z.string().min(3).max(100),
+  amount: z.number().positive("Amount must be positive").max(100_000_000, "Amount exceeds limit"),
+  currency: z.string().default("PKR"),
+  provider: z.string(),
+  customerPhone: z
+    .string()
+    .regex(/^\+92[0-9]{10}$/, "Phone must be E.164 format (+92XXXXXXXXXX)")
+    .optional(),
   customerEmail: z.string().email().optional(),
 });
 
@@ -106,42 +115,67 @@ export const CreatePaymentIntentSchema = z.object({
 export const CreateRfqPublicSchema = z.object({
   targetQuantity: z.number().int().min(12).max(100_000),
   customBranding: z.boolean().default(false),
-  notes:          z.string().max(1000).optional(),
-  items: z.array(z.object({
-    productSlug: z.string().min(1).max(200),
-    color:       z.string().min(1).max(100),
-    quantity:    z.number().int().min(12).max(100_000),
-  })).min(1).max(20),
+  notes: z.string().max(1000).optional(),
+  items: z
+    .array(
+      z.object({
+        productSlug: z.string().min(1).max(200),
+        color: z.string().min(1).max(100),
+        quantity: z.number().int().min(12).max(100_000),
+      }),
+    )
+    .min(1)
+    .max(20),
 });
 
 /** Withdrawal request — supplier facing */
 export const WithdrawalRequestSchema = z.object({
-  amount:           z.number().positive().min(5000, "Minimum withdrawal is PKR 5,000"),
+  amount: z.number().positive().min(5000, "Minimum withdrawal is PKR 5,000"),
   bankAccountIndex: z.number().int().min(0).max(9).default(0),
 });
 
-/** Pricing calculation — public */
-export const PricingCalculateSchema = z.object({
-  productSlug:     z.string().min(1).max(200).optional(),
-  productId:       z.string().uuid().optional(),
-  quantity:        z.number().int().min(12).max(100_000),
-  destinationCity: z.string().min(1).max(100),
-}).refine((data) => data.productSlug || data.productId, {
-  message: "Either productSlug or productId must be provided",
+/** Supplier quote submission — rfqId + pricing; supplierId from JWT */
+export const SubmitSupplierQuotePublicSchema = z.object({
+  rfqId: z.string().min(1).max(100),
+  unitPrice: z.number().positive(),
+  productionDays: z.number().int().min(1).optional(),
+  leadTimeDays: z.number().int().min(1).optional(),
+  notes: z.string().max(1000).optional(),
+  currency: z.string().default("PKR"),
+  paymentTerms: z.string().optional(),
+  minimumOrderQuantity: z.number().int().positive().optional(),
+}).refine((data) => data.productionDays || data.leadTimeDays, {
+  message: "Either productionDays or leadTimeDays must be provided",
 });
+
+/** Pricing calculation — public */
+export const PricingCalculateSchema = z
+  .object({
+    productSlug: z.string().min(1).max(200).optional(),
+    productId: z.string().uuid().optional(),
+    quantity: z.number().int().min(12).max(100_000),
+    destinationCity: z.string().min(1).max(100),
+  })
+  .refine((data) => data.productSlug || data.productId, {
+    message: "Either productSlug or productId must be provided",
+  });
 
 /** Order creation — buyer facing (buyerId injected from JWT) */
 export const CreateOrderPublicSchema = z.object({
   rfqId: z.string().uuid().optional(),
   shippingCity: z.string(),
   shippingAddress: z.string().min(5),
-  items: z.array(z.object({
-    productId: z.string().uuid(),
-    color: z.string(),
-    sizeRun: z.string(),
-    quantityPairs: z.number().int().min(1),
-    variantSku: z.string().optional(),
-  })).min(1),
+  items: z
+    .array(
+      z.object({
+        productId: z.string().uuid(),
+        color: z.string(),
+        sizeRun: z.string(),
+        quantityPairs: z.number().int().min(1),
+        variantSku: z.string().optional(),
+      }),
+    )
+    .min(1),
 });
 
 /** Admin manual payment confirmation — requires reason + audit trail */
@@ -155,29 +189,35 @@ export const ManualPaymentConfirmSchema = z.object({
 
 /** Cart calculation */
 export const CalculateCartPublicSchema = z.object({
-  items: z.array(z.object({
-    productId: z.string().uuid().optional(),
-    productSlug: z.string().optional(),
-    quantityPairs: z.coerce.number().int().positive(),
-    color: z.string().optional().default("Black"),
-    sizeRun: z.string().optional().default("EU 39-44 Assorted"),
-    variantSku: z.string().optional(),
-  }).refine((data) => data.productId || data.productSlug, {
-    message: "Either productId or productSlug must be provided",
-  })).min(1),
+  items: z
+    .array(
+      z
+        .object({
+          productId: z.string().uuid().optional(),
+          productSlug: z.string().optional(),
+          quantityPairs: z.coerce.number().int().positive(),
+          color: z.string().optional().default("Black"),
+          sizeRun: z.string().optional().default("EU 39-44 Assorted"),
+          variantSku: z.string().optional(),
+        })
+        .refine((data) => data.productId || data.productSlug, {
+          message: "Either productId or productSlug must be provided",
+        }),
+    )
+    .min(1),
   destinationCity: z.string().default("Karachi"),
 });
 
 /** Search query */
 export const SearchQuerySchema = z.object({
-  q:           z.string().max(200).default(""),
-  category:    z.string().max(100).optional(),
-  gender:      z.enum(["men", "women", "kids", "unisex"]).optional(),
-  verified:    z.coerce.boolean().optional(),
-  maxMoq:      z.coerce.number().int().min(1).max(10_000).optional(),
-  city:        z.string().max(100).optional(),
-  minPrice:    z.coerce.number().min(0).optional(),
-  maxPrice:    z.coerce.number().max(100_000_000).optional(),
-  page:        z.coerce.number().int().min(1).max(1000).default(1),
-  limit:       z.coerce.number().int().min(1).max(100).default(20),
+  q: z.string().max(200).default(""),
+  category: z.string().max(100).optional(),
+  gender: z.enum(["men", "women", "kids", "unisex"]).optional(),
+  verified: z.coerce.boolean().optional(),
+  maxMoq: z.coerce.number().int().min(1).max(10_000).optional(),
+  city: z.string().max(100).optional(),
+  minPrice: z.coerce.number().min(0).optional(),
+  maxPrice: z.coerce.number().max(100_000_000).optional(),
+  page: z.coerce.number().int().min(1).max(1000).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
 });

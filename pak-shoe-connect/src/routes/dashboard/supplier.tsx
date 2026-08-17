@@ -118,18 +118,62 @@ interface SKUInventory {
 }
 
 const INITIAL_SKUS: SKUInventory[] = [
-  { skuCode: "SHR-PSH-001-BLK-39", color: "Black", sizeEU: "39", availableStock: 450, reservedStock: 50, soldStock: 800 },
-  { skuCode: "SHR-PSH-001-BLK-40", color: "Black", sizeEU: "40", availableStock: 600, reservedStock: 100, soldStock: 1200 },
-  { skuCode: "SHR-PSH-001-BLK-41", color: "Black", sizeEU: "41", availableStock: 950, reservedStock: 200, soldStock: 1500 },
-  { skuCode: "SHR-PSH-001-BLK-42", color: "Black", sizeEU: "42", availableStock: 1200, reservedStock: 500, soldStock: 2100 },
-  { skuCode: "SHR-PSH-001-BLK-43", color: "Black", sizeEU: "43", availableStock: 800, reservedStock: 150, soldStock: 1400 },
-  { skuCode: "SHR-PSH-001-BLK-44", color: "Black", sizeEU: "44", availableStock: 500, reservedStock: 80, soldStock: 950 },
+  {
+    skuCode: "SHR-PSH-001-BLK-39",
+    color: "Black",
+    sizeEU: "39",
+    availableStock: 450,
+    reservedStock: 50,
+    soldStock: 800,
+  },
+  {
+    skuCode: "SHR-PSH-001-BLK-40",
+    color: "Black",
+    sizeEU: "40",
+    availableStock: 600,
+    reservedStock: 100,
+    soldStock: 1200,
+  },
+  {
+    skuCode: "SHR-PSH-001-BLK-41",
+    color: "Black",
+    sizeEU: "41",
+    availableStock: 950,
+    reservedStock: 200,
+    soldStock: 1500,
+  },
+  {
+    skuCode: "SHR-PSH-001-BLK-42",
+    color: "Black",
+    sizeEU: "42",
+    availableStock: 1200,
+    reservedStock: 500,
+    soldStock: 2100,
+  },
+  {
+    skuCode: "SHR-PSH-001-BLK-43",
+    color: "Black",
+    sizeEU: "43",
+    availableStock: 800,
+    reservedStock: 150,
+    soldStock: 1400,
+  },
+  {
+    skuCode: "SHR-PSH-001-BLK-44",
+    color: "Black",
+    sizeEU: "44",
+    availableStock: 500,
+    reservedStock: 80,
+    soldStock: 950,
+  },
 ];
 
 function SupplierDashboard() {
   const { session } = Route.useLoaderData();
   const userMetadata = session?.user?.user_metadata || {};
-  const [activeTab, setActiveTab] = useState<"overview" | "rfqs" | "inventory" | "orders" | "analytics" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "rfqs" | "inventory" | "orders" | "analytics" | "settings"
+  >("overview");
 
   // RFQ State
   const [rfqs, setRfqs] = useState<RFQItem[]>(INITIAL_RFQS);
@@ -138,7 +182,9 @@ function SupplierDashboard() {
   const [quoteUnitPrice, setQuoteUnitPrice] = useState<number>(1250);
   const [quoteLeadTime, setQuoteLeadTime] = useState<number>(12);
   const [quoteTerms, setQuoteTerms] = useState<string>("50% advance in Escrow / 50% on Bilti");
-  const [quoteNotes, setQuoteNotes] = useState<string>("OEM Laser Branding & Custom Master Cartons Included");
+  const [quoteNotes, setQuoteNotes] = useState<string>(
+    "OEM Laser Branding & Custom Master Cartons Included",
+  );
   const [quoteSuccessMsg, setQuoteSuccessMsg] = useState<string | null>(null);
 
   // Inventory State
@@ -185,7 +231,6 @@ function SupplierDashboard() {
     try {
       await apiClient.supplier.submitQuote({
         rfqId: selectedRfqForQuote.id,
-        supplierId: "sup-1",
         unitPrice: quoteUnitPrice,
         leadTimeDays: quoteLeadTime,
       });
@@ -202,12 +247,12 @@ function SupplierDashboard() {
               quotedPrice: quoteUnitPrice,
               leadTimeDays: quoteLeadTime,
             }
-          : r
-      )
+          : r,
+      ),
     );
 
     setQuoteSuccessMsg(
-      `✅ Quote of PKR ${quoteUnitPrice.toLocaleString()}/pair submitted for ${selectedRfqForQuote.rfqNumber}! WhatsApp alert sent to ${selectedRfqForQuote.buyerName}.`
+      `✅ Quote of PKR ${quoteUnitPrice.toLocaleString()}/pair submitted for ${selectedRfqForQuote.rfqNumber}! WhatsApp alert sent to ${selectedRfqForQuote.buyerName}.`,
     );
 
     setTimeout(() => {
@@ -218,9 +263,7 @@ function SupplierDashboard() {
 
   const handleUpdateStock = (skuCode: string) => {
     setSkus((prev) =>
-      prev.map((s) =>
-        s.skuCode === skuCode ? { ...s, availableStock: editStockValue } : s
-      )
+      prev.map((s) => (s.skuCode === skuCode ? { ...s, availableStock: editStockValue } : s)),
     );
     setEditingSku(null);
   };
@@ -249,7 +292,8 @@ function SupplierDashboard() {
                 Sialkot Master Footwear Syndicate
               </h1>
               <p className="text-xs text-cream/70 mt-0.5 flex items-center gap-2">
-                <MapPin className="h-3 w-3" /> Daska Road Industrial Estate, Sialkot, Pakistan • Monthly Capacity: 25,000 pairs
+                <MapPin className="h-3 w-3" /> Daska Road Industrial Estate, Sialkot, Pakistan •
+                Monthly Capacity: 25,000 pairs
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -275,7 +319,12 @@ function SupplierDashboard() {
             <nav className="flex lg:flex-col gap-1.5 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide">
               {[
                 { id: "overview", label: "Factory Overview", icon: TrendingUp },
-                { id: "rfqs", label: "Live RFQ Inbox", icon: FileText, badge: rfqs.filter((r) => r.status === "SUBMITTED").length },
+                {
+                  id: "rfqs",
+                  label: "Live RFQ Inbox",
+                  icon: FileText,
+                  badge: rfqs.filter((r) => r.status === "SUBMITTED").length,
+                },
                 { id: "inventory", label: "3-State Inventory", icon: Layers },
                 { id: "orders", label: "Production & Bilti", icon: Truck, badge: orders.length },
                 { id: "analytics", label: "Factory Analytics", icon: TrendingUp },
@@ -325,7 +374,9 @@ function SupplierDashboard() {
                       <span>Total Revenue (Escrow Funded)</span>
                       <DollarSign className="h-4 w-4 text-primary" />
                     </div>
-                    <div className="text-2xl font-bold font-display text-foreground">{formatPKR(4850000)}</div>
+                    <div className="text-2xl font-bold font-display text-foreground">
+                      {formatPKR(4850000)}
+                    </div>
                     <div className="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
                       <ArrowUpRight className="h-3 w-3" /> +18.4% this month
                     </div>
@@ -349,8 +400,12 @@ function SupplierDashboard() {
                       <span>Orders in Production</span>
                       <Truck className="h-4 w-4 text-indigo-500" />
                     </div>
-                    <div className="text-2xl font-bold font-display text-foreground">{orders.length} Batch Orders</div>
-                    <div className="text-xs text-indigo-600 font-semibold mt-1">1,500 pairs in line</div>
+                    <div className="text-2xl font-bold font-display text-foreground">
+                      {orders.length} Batch Orders
+                    </div>
+                    <div className="text-xs text-indigo-600 font-semibold mt-1">
+                      1,500 pairs in line
+                    </div>
                   </div>
 
                   <div className="rounded-xl border border-border bg-card p-5 shadow-xs">
@@ -358,8 +413,12 @@ function SupplierDashboard() {
                       <span>Monthly Capacity</span>
                       <Layers className="h-4 w-4 text-emerald-500" />
                     </div>
-                    <div className="text-2xl font-bold font-display text-foreground">25,000 Pairs</div>
-                    <div className="text-xs text-muted-foreground mt-1">68% Factory Utilization</div>
+                    <div className="text-2xl font-bold font-display text-foreground">
+                      25,000 Pairs
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      68% Factory Utilization
+                    </div>
                   </div>
                 </div>
 
@@ -368,7 +427,9 @@ function SupplierDashboard() {
                   <div className="flex items-center justify-between mb-5">
                     <div>
                       <h3 className="font-display font-bold text-lg">Urgent Buyer Inquiries</h3>
-                      <p className="text-xs text-muted-foreground">Direct wholesale RFQs requiring formal quotation</p>
+                      <p className="text-xs text-muted-foreground">
+                        Direct wholesale RFQs requiring formal quotation
+                      </p>
                     </div>
                     <button
                       onClick={() => setActiveTab("rfqs")}
@@ -380,10 +441,15 @@ function SupplierDashboard() {
 
                   <div className="divide-y divide-border">
                     {rfqs.slice(0, 2).map((rfq) => (
-                      <div key={rfq.id} className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div
+                        key={rfq.id}
+                        className="py-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                      >
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-sm text-foreground">{rfq.rfqNumber}</span>
+                            <span className="font-bold text-sm text-foreground">
+                              {rfq.rfqNumber}
+                            </span>
                             <span className="text-xs px-2 py-0.5 rounded bg-primary/10 text-primary font-semibold">
                               {rfq.quantity.toLocaleString()} pairs
                             </span>
@@ -394,13 +460,17 @@ function SupplierDashboard() {
                             )}
                           </div>
                           <div className="text-sm font-medium text-muted-foreground mt-1">
-                            {rfq.productTitle} • Buyer: <span className="text-foreground">{rfq.buyerCompany}</span> ({rfq.destination})
+                            {rfq.productTitle} • Buyer:{" "}
+                            <span className="text-foreground">{rfq.buyerCompany}</span> (
+                            {rfq.destination})
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="text-right">
                             <div className="text-xs text-muted-foreground">Target Rate</div>
-                            <div className="text-sm font-bold text-emerald-600">PKR {rfq.targetPrice}/pair</div>
+                            <div className="text-sm font-bold text-emerald-600">
+                              PKR {rfq.targetPrice}/pair
+                            </div>
                           </div>
                           <button
                             onClick={() => {
@@ -424,8 +494,12 @@ function SupplierDashboard() {
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h2 className="text-2xl font-display font-bold">RFQ Inquiries & Negotiations</h2>
-                    <p className="text-xs text-muted-foreground">Real-time buyer quotation requests and formal bidding</p>
+                    <h2 className="text-2xl font-display font-bold">
+                      RFQ Inquiries & Negotiations
+                    </h2>
+                    <p className="text-xs text-muted-foreground">
+                      Real-time buyer quotation requests and formal bidding
+                    </p>
                   </div>
                   <div className="flex items-center gap-2">
                     {["ALL", "SUBMITTED", "SUPPLIER_QUOTED"].map((st) => (
@@ -438,7 +512,11 @@ function SupplierDashboard() {
                             : "bg-muted text-muted-foreground hover:bg-muted/80"
                         }`}
                       >
-                        {st === "ALL" ? "All Inquiries" : st === "SUBMITTED" ? "Pending Quote" : "Quoted"}
+                        {st === "ALL"
+                          ? "All Inquiries"
+                          : st === "SUBMITTED"
+                            ? "Pending Quote"
+                            : "Quoted"}
                       </button>
                     ))}
                   </div>
@@ -453,10 +531,12 @@ function SupplierDashboard() {
                           <Send className="h-3 w-3" /> Submit Formal Factory Quotation
                         </div>
                         <h3 className="font-display font-bold text-lg mt-1">
-                          Quote for {selectedRfqForQuote.rfqNumber} — {selectedRfqForQuote.productTitle}
+                          Quote for {selectedRfqForQuote.rfqNumber} —{" "}
+                          {selectedRfqForQuote.productTitle}
                         </h3>
                         <p className="text-xs text-muted-foreground">
-                          Buyer: {selectedRfqForQuote.buyerName} ({selectedRfqForQuote.buyerCompany}) • Destination: {selectedRfqForQuote.destination}
+                          Buyer: {selectedRfqForQuote.buyerName} ({selectedRfqForQuote.buyerCompany}
+                          ) • Destination: {selectedRfqForQuote.destination}
                         </p>
                       </div>
                       <button
@@ -472,7 +552,10 @@ function SupplierDashboard() {
                         {quoteSuccessMsg}
                       </div>
                     ) : (
-                      <form onSubmit={handleQuoteSubmit} className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <form
+                        onSubmit={handleQuoteSubmit}
+                        className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                      >
                         <div>
                           <label className="text-xs font-bold text-foreground block mb-1">
                             Quoted Unit Price (PKR)
@@ -484,7 +567,9 @@ function SupplierDashboard() {
                             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-bold font-mono focus:border-gold outline-none"
                             required
                           />
-                          <span className="text-[10px] text-muted-foreground">Buyer target: PKR {selectedRfqForQuote.targetPrice}</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Buyer target: PKR {selectedRfqForQuote.targetPrice}
+                          </span>
                         </div>
 
                         <div>
@@ -498,7 +583,9 @@ function SupplierDashboard() {
                             className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm font-bold font-mono focus:border-gold outline-none"
                             required
                           />
-                          <span className="text-[10px] text-muted-foreground">Days to dispatch {selectedRfqForQuote.quantity.toLocaleString()} pairs</span>
+                          <span className="text-[10px] text-muted-foreground">
+                            Days to dispatch {selectedRfqForQuote.quantity.toLocaleString()} pairs
+                          </span>
                         </div>
 
                         <div className="sm:col-span-2">
@@ -572,7 +659,9 @@ function SupplierDashboard() {
                           <td className="px-4 py-3 font-mono font-bold text-foreground">
                             {rfq.quantity.toLocaleString()} pairs
                           </td>
-                          <td className="px-4 py-3 text-xs text-muted-foreground">{rfq.destination}</td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground">
+                            {rfq.destination}
+                          </td>
                           <td className="px-4 py-3">
                             <span
                               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${
@@ -581,7 +670,9 @@ function SupplierDashboard() {
                                   : "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20"
                               }`}
                             >
-                              {rfq.status === "SUBMITTED" ? "Pending Quote" : `Quoted: PKR ${rfq.quotedPrice}`}
+                              {rfq.status === "SUBMITTED"
+                                ? "Pending Quote"
+                                : `Quoted: PKR ${rfq.quotedPrice}`}
                             </span>
                           </td>
                           <td className="px-4 py-3 text-right">
@@ -622,16 +713,24 @@ function SupplierDashboard() {
                         <th className="px-4 py-3 font-semibold">SKU Code</th>
                         <th className="px-4 py-3 font-semibold">Size EU</th>
                         <th className="px-4 py-3 font-semibold">Color</th>
-                        <th className="px-4 py-3 font-semibold text-emerald-600">Available Stock</th>
-                        <th className="px-4 py-3 font-semibold text-amber-600">Reserved (Locked)</th>
-                        <th className="px-4 py-3 font-semibold text-indigo-600">Sold (Fulfilled)</th>
+                        <th className="px-4 py-3 font-semibold text-emerald-600">
+                          Available Stock
+                        </th>
+                        <th className="px-4 py-3 font-semibold text-amber-600">
+                          Reserved (Locked)
+                        </th>
+                        <th className="px-4 py-3 font-semibold text-indigo-600">
+                          Sold (Fulfilled)
+                        </th>
                         <th className="px-4 py-3 font-semibold text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
                       {skus.map((sku) => (
                         <tr key={sku.skuCode} className="hover:bg-muted/30">
-                          <td className="px-4 py-3 font-mono font-bold text-foreground text-xs">{sku.skuCode}</td>
+                          <td className="px-4 py-3 font-mono font-bold text-foreground text-xs">
+                            {sku.skuCode}
+                          </td>
                           <td className="px-4 py-3 font-bold font-mono">EU {sku.sizeEU}</td>
                           <td className="px-4 py-3 text-xs">{sku.color}</td>
                           <td className="px-4 py-3 font-mono font-bold text-emerald-600">
@@ -692,7 +791,9 @@ function SupplierDashboard() {
             {activeTab === "orders" && (
               <div className="space-y-6">
                 <div>
-                  <h2 className="text-2xl font-display font-bold">Production & Bilti Dispatch Pipeline</h2>
+                  <h2 className="text-2xl font-display font-bold">
+                    Production & Bilti Dispatch Pipeline
+                  </h2>
                   <p className="text-xs text-muted-foreground">
                     Track wholesale orders from Escrow Funded ➔ Quality Inspection ➔ Cargo Dispatch
                   </p>
@@ -700,7 +801,10 @@ function SupplierDashboard() {
 
                 <div className="space-y-4">
                   {orders.map((ord) => (
-                    <div key={ord.id} className="rounded-xl border border-border bg-card p-6 shadow-xs">
+                    <div
+                      key={ord.id}
+                      className="rounded-xl border border-border bg-card p-6 shadow-xs"
+                    >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
                         <div>
                           <div className="flex items-center gap-2">
@@ -710,19 +814,25 @@ function SupplierDashboard() {
                             </span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-1">
-                            Buyer: <span className="font-semibold text-foreground">{ord.buyer}</span> • {ord.destination}
+                            Buyer:{" "}
+                            <span className="font-semibold text-foreground">{ord.buyer}</span> •{" "}
+                            {ord.destination}
                           </p>
                         </div>
                         <div className="text-right">
                           <div className="text-xs text-muted-foreground">Order Value</div>
-                          <div className="text-lg font-bold text-primary">{formatPKR(ord.totalAmount)}</div>
+                          <div className="text-lg font-bold text-primary">
+                            {formatPKR(ord.totalAmount)}
+                          </div>
                         </div>
                       </div>
 
                       <div className="grid sm:grid-cols-3 gap-4 pt-4 text-xs">
                         <div>
                           <span className="text-muted-foreground block">Batch Quantity</span>
-                          <span className="font-bold font-mono text-foreground">{ord.quantity} pairs (21 Cartons)</span>
+                          <span className="font-bold font-mono text-foreground">
+                            {ord.quantity} pairs (21 Cartons)
+                          </span>
                         </div>
                         <div>
                           <span className="text-muted-foreground block">Assigned Carrier</span>
@@ -730,7 +840,9 @@ function SupplierDashboard() {
                         </div>
                         <div>
                           <span className="text-muted-foreground block">Bilti Number</span>
-                          <span className="font-bold font-mono text-foreground">{ord.biltiNumber}</span>
+                          <span className="font-bold font-mono text-foreground">
+                            {ord.biltiNumber}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -744,7 +856,9 @@ function SupplierDashboard() {
               <div className="space-y-6">
                 <div>
                   <h2 className="text-2xl font-display font-bold">Factory Performance Analytics</h2>
-                  <p className="text-xs text-muted-foreground">RFQ response times, buyer destinations and revenue trajectory</p>
+                  <p className="text-xs text-muted-foreground">
+                    RFQ response times, buyer destinations and revenue trajectory
+                  </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
@@ -763,7 +877,10 @@ function SupplierDashboard() {
                             <span>{r.rate}%</span>
                           </div>
                           <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-                            <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${r.rate}%` }} />
+                            <div
+                              className="h-full bg-emerald-500 rounded-full"
+                              style={{ width: `${r.rate}%` }}
+                            />
                           </div>
                         </div>
                       ))}
@@ -780,7 +897,10 @@ function SupplierDashboard() {
                         { city: "Dubai (Export)", pct: 15, orders: "51 orders" },
                         { city: "Faisalabad", pct: 10, orders: "34 orders" },
                       ].map((c) => (
-                        <div key={c.city} className="flex items-center justify-between text-xs border-b border-border/50 pb-2">
+                        <div
+                          key={c.city}
+                          className="flex items-center justify-between text-xs border-b border-border/50 pb-2"
+                        >
                           <span className="font-medium text-foreground">{c.city}</span>
                           <span className="font-mono text-muted-foreground">{c.orders}</span>
                           <span className="font-bold text-primary">{c.pct}%</span>
@@ -795,15 +915,27 @@ function SupplierDashboard() {
             {/* 6. SETTINGS */}
             {activeTab === "settings" && (
               <div className="rounded-xl border border-border bg-card p-6 shadow-xs space-y-4">
-                <h2 className="text-xl font-display font-bold">Factory Profile & NTN Verification</h2>
+                <h2 className="text-xl font-display font-bold">
+                  Factory Profile & NTN Verification
+                </h2>
                 <div className="grid sm:grid-cols-2 gap-4 text-sm">
                   <div>
-                    <label className="text-xs text-muted-foreground block">Factory Legal Name</label>
-                    <input type="text" defaultValue="Sialkot Master Footwear Syndicate" className="w-full rounded border border-border px-3 py-2 mt-1 bg-background text-foreground" />
+                    <label className="text-xs text-muted-foreground block">
+                      Factory Legal Name
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue="Sialkot Master Footwear Syndicate"
+                      className="w-full rounded border border-border px-3 py-2 mt-1 bg-background text-foreground"
+                    />
                   </div>
                   <div>
                     <label className="text-xs text-muted-foreground block">NTN Tax Number</label>
-                    <input type="text" defaultValue="NTN-998822-1" className="w-full rounded border border-border px-3 py-2 mt-1 bg-background text-foreground font-mono" />
+                    <input
+                      type="text"
+                      defaultValue="NTN-998822-1"
+                      className="w-full rounded border border-border px-3 py-2 mt-1 bg-background text-foreground font-mono"
+                    />
                   </div>
                 </div>
               </div>

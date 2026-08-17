@@ -36,7 +36,8 @@ const DEFAULT_TRACKING_DATA: TrackingData = {
     {
       step: "IN_PRODUCTION",
       title: "Factory Batch Production",
-      description: "Laser cutting, full-grain upper stitching & vulcanization at Rawalpindi & Lahore Facilities",
+      description:
+        "Laser cutting, full-grain upper stitching & vulcanization at Rawalpindi & Lahore Facilities",
       timestamp: "2026-08-04T12:30:00Z",
       completed: true,
     },
@@ -50,7 +51,8 @@ const DEFAULT_TRACKING_DATA: TrackingData = {
     {
       step: "DISPATCHED",
       title: "Dispatched via Goods Forwarder (Bilti Issued)",
-      description: "Handed over to Faisal Movers Cargo B2B. Goods Consignment Note: FM-BILTI-LHR-88219",
+      description:
+        "Handed over to Faisal Movers Cargo B2B. Goods Consignment Note: FM-BILTI-LHR-88219",
       timestamp: "2026-08-04T18:45:00Z",
       completed: true,
     },
@@ -74,10 +76,32 @@ function TrackingPage() {
     setIsLoading(true);
     try {
       const res = await apiClient.tracking.get(orderNum);
-      if (res.success && res.data) {
-        setCurrentTracking(res.data);
+      const payload = res.data?.tracking || res.data;
+      if (res.success && payload) {
+        setCurrentTracking({
+          orderNumber: payload.orderNumber || payload.orderReference || orderNum,
+          status: payload.status || payload.currentStatus || "Processing",
+          carrierName: payload.carrierName || payload.carrier || "Carrier TBD",
+          biltiNumber: payload.biltiNumber || payload.biltiNo || "Pending",
+          originCity: payload.originCity || "Sialkot / Lahore Industrial Hub",
+          destinationCity: payload.destinationCity || "Destination TBD",
+          totalPairs: payload.totalPairs ?? DEFAULT_TRACKING_DATA.totalPairs,
+          totalCartons: payload.totalCartons ?? DEFAULT_TRACKING_DATA.totalCartons,
+          totalAmount: payload.totalAmount ?? DEFAULT_TRACKING_DATA.totalAmount,
+          timeline:
+            payload.timeline?.length > 0
+              ? payload.timeline
+              : payload.events?.length > 0
+                ? payload.events.map((e: any) => ({
+                    step: e.step || e.status,
+                    title: e.title || e.status,
+                    description: e.description || "",
+                    timestamp: e.timestamp,
+                    completed: e.completed ?? Boolean(e.timestamp),
+                  }))
+                : DEFAULT_TRACKING_DATA.timeline,
+        });
       } else {
-        // Dynamic simulated fallback for any order query
         setCurrentTracking({
           ...DEFAULT_TRACKING_DATA,
           orderNumber: orderNum,

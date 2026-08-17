@@ -16,12 +16,12 @@ import type { RequestContext } from "./correlation-id.middleware";
  */
 
 export interface AuthToken {
-  sub: string;          // internal userId — NEVER sent to client directly
+  sub: string; // internal userId — NEVER sent to client directly
   role: "BUYER" | "SUPPLIER" | "OPERATOR" | "ADMIN" | "SUPER_ADMIN";
-  supplierId?: string;  // internal — NEVER sent to client directly
+  supplierId?: string; // internal — NEVER sent to client directly
   iat: number;
   exp: number;
-  jti: string;          // unique token ID for revocation
+  jti: string; // unique token ID for revocation
 }
 
 export interface AuthResult {
@@ -51,18 +51,21 @@ function b64urlDecode(input: string): string {
 }
 
 /** Issues a signed JWT (for auth endpoint use only) */
-export function signToken(payload: Omit<AuthToken, "iat" | "exp" | "jti">, expiresInSeconds = 3600): string {
+export function signToken(
+  payload: Omit<AuthToken, "iat" | "exp" | "jti">,
+  expiresInSeconds = 3600,
+): string {
   const header = b64url(JSON.stringify({ alg: "HS256", typ: "JWT" }));
   const now = Math.floor(Date.now() / 1000);
-  const body = b64url(JSON.stringify({
-    ...payload,
-    iat: now,
-    exp: now + expiresInSeconds,
-    jti: crypto.randomBytes(8).toString("hex"),
-  }));
-  const sig = b64url(
-    crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest()
+  const body = b64url(
+    JSON.stringify({
+      ...payload,
+      iat: now,
+      exp: now + expiresInSeconds,
+      jti: crypto.randomBytes(8).toString("hex"),
+    }),
   );
+  const sig = b64url(crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest());
   return `${header}.${body}.${sig}`;
 }
 
@@ -74,7 +77,7 @@ export function verifyToken(token: string): AuthToken | null {
 
     const [header, body, signature] = parts;
     const expectedSig = b64url(
-      crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest()
+      crypto.createHmac("sha256", JWT_SECRET).update(`${header}.${body}`).digest(),
     );
 
     // Timing-safe comparison — prevents signature oracle attacks
@@ -101,6 +104,14 @@ export function extractBearerToken(headers: Record<string, string>): string | nu
   return authHeader.slice(7).trim();
 }
 
+function mapExternalRole(raw?: string): AuthToken["role"] {
+  const role = (raw || "BUYER").toUpperCase();
+  if (role === "SUPER_ADMIN" || role === "MASTER_ADMIN") return "SUPER_ADMIN";
+  if (role === "ADMIN" || role === "OPERATOR") return role as AuthToken["role"];
+  if (role === "SUPPLIER" || role === "FACTORY") return "SUPPLIER";
+  return "BUYER";
+}
+
 /**
  * Authenticates a request using the Authorization header.
  * Returns the decoded token on success.
@@ -121,13 +132,80 @@ export function authenticate(headers: Record<string, string>): AuthResult {
 }
 
 /**
+ * Authenticates gateway JWT first; if that fails, accepts a verified Supabase
+ * access token and maps it to an AuthToken for RBAC.
+ */
+export async function authenticateRequest(headers: Record<string, string>): Promise<AuthResult> {
+  const raw = extractBearerToken(headers);
+  if (!raw) {
+    return { authenticated: false, error: "Authentication required" };
+  }
+
+  const gatewayToken = verifyToken(raw);
+  if (gatewayToken) {
+    return { authenticated: true, token: gatewayToken };
+  }
+
+  try {
+    const { supabaseAdmin } = await import("../../../integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.auth.getUser(raw);
+    if (error || !data?.user) {
+      return { authenticated: false, error: "Invalid or expired token" };
+    }
+
+    const email = data.user.email?.toLowerCase();
+    const metaRole =
+      (data.user.app_metadata?.role as string | undefined) ||
+      (data.user.user_metadata?.role as string | undefined);
+
+    let dbUser: {
+      id: string;
+      role: string;
+      supplierProfile?: { id: string } | null;
+    } | null = null;
+
+    try {
+      const { prisma } = await import("../../db");
+      if (email) {
+        dbUser = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, role: true, supplierProfile: { select: { id: true } } },
+        });
+      }
+      if (!dbUser) {
+        dbUser = await prisma.user.findUnique({
+          where: { id: data.user.id },
+          select: { id: true, role: true, supplierProfile: { select: { id: true } } },
+        });
+      }
+    } catch {
+      dbUser = null;
+    }
+
+    const now = Math.floor(Date.now() / 1000);
+    const token: AuthToken = {
+      sub: dbUser?.id || data.user.id,
+      role: mapExternalRole(dbUser?.role || metaRole),
+      supplierId: dbUser?.supplierProfile?.id,
+      iat: now,
+      exp: now + 3600,
+      jti: `sb-${data.user.id.slice(0, 8)}`,
+    };
+
+    return { authenticated: true, token };
+  } catch {
+    return { authenticated: false, error: "Invalid or expired token" };
+  }
+}
+
+/**
  * Authorizes that the authenticated user has the required role.
  * Also verifies ownership where applicable.
  */
 export function authorize(
   token: AuthToken,
   requiredRoles: AuthToken["role"][],
-  options?: { ownerId?: string }
+  options?: { ownerId?: string },
 ): { authorized: boolean; reason?: string } {
   if (!requiredRoles.includes(token.role)) {
     return { authorized: false, reason: "Insufficient permissions" };

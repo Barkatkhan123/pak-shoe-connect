@@ -8,9 +8,16 @@ import { supabase } from "@/integrations/supabase/client";
 
 const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
-    return (typeof import.meta !== "undefined" && import.meta.env && (import.meta.env.VITE_API_URL as string)) || "";
+    return (
+      (typeof import.meta !== "undefined" &&
+        import.meta.env &&
+        (import.meta.env.VITE_API_URL as string)) ||
+      ""
+    );
   }
-  return (typeof process !== "undefined" && (process.env?.VITE_API_URL || process.env?.SITE_URL)) || "";
+  return (
+    (typeof process !== "undefined" && (process.env?.VITE_API_URL || process.env?.SITE_URL)) || ""
+  );
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -18,9 +25,10 @@ const API_BASE_URL = getApiBaseUrl();
 export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
-  error?: string;
+  error?: string | { code?: string; message?: string; correlationId?: string };
   meta?: any;
   timestamp?: string;
+  correlationId?: string;
 }
 
 async function request<T = any>(
@@ -30,7 +38,7 @@ async function request<T = any>(
     body?: any;
     params?: Record<string, string | number | boolean | undefined>;
     headers?: Record<string, string>;
-  } = {}
+  } = {},
 ): Promise<ApiResponse<T>> {
   const { method = "GET", body, params, headers = {} } = options;
 
@@ -111,19 +119,28 @@ export const apiClient = {
 
     search: (query: string, filters?: any) =>
       request("/api/v1/catalog/search", { params: { q: query, ...filters } }),
+
+    categories: () => request("/api/v1/catalog/categories"),
   },
 
   // 2. Wholesale Pricing & Cart Engine
   pricing: {
     calculate: (payload: {
+      productSlug?: string;
       productId?: string;
-      cartonQty: number;
-      destinationCity?: string;
-      isExpress?: boolean;
+      quantity: number;
+      destinationCity: string;
     }) => request("/api/v1/pricing/calculate", { method: "POST", body: payload }),
 
     calculateCart: (payload: {
-      items: Array<{ productId?: string; cartonQty: number; pairsCount?: number; unitPrice?: number }>;
+      items: Array<{
+        productId?: string;
+        productSlug?: string;
+        quantityPairs: number;
+        color?: string;
+        sizeRun?: string;
+        variantSku?: string;
+      }>;
       destinationCity?: string;
     }) => request("/api/v1/cart/calculate", { method: "POST", body: payload }),
   },
@@ -144,18 +161,16 @@ export const apiClient = {
         variantSku?: string;
         idempotencyKey?: string;
       },
-      headers?: Record<string, string>
+      headers?: Record<string, string>,
     ) => request("/api/v1/basket/add", { method: "POST", body: payload, headers }),
 
-    updateQty: (
-      payload: { slug: string; quantity: number },
-      headers?: Record<string, string>
-    ) => request("/api/v1/basket/qty", { method: "PUT", body: payload, headers }),
+    updateQty: (payload: { slug: string; quantity: number }, headers?: Record<string, string>) =>
+      request("/api/v1/basket/qty", { method: "PUT", body: payload, headers }),
 
     removeItem: (
       slug: string,
       params?: { color?: string; size?: string },
-      headers?: Record<string, string>
+      headers?: Record<string, string>,
     ) => request(`/api/v1/basket/${slug}`, { method: "DELETE", params, headers }),
 
     clear: (headers?: Record<string, string>) =>
@@ -165,11 +180,10 @@ export const apiClient = {
   // 3. RFQ Negotiation Engine
   rfq: {
     create: (payload: {
-      buyerId: string;
-      productId: string;
-      quantityPairs: number;
-      targetPricePerPair?: number;
-      customizationDetails?: string;
+      targetQuantity: number;
+      customBranding?: boolean;
+      notes?: string;
+      items: Array<{ productSlug: string; color: string; quantity: number }>;
     }) => request("/api/v1/rfq/create", { method: "POST", body: payload }),
 
     get: (rfqId: string) => request(`/api/v1/rfq/${rfqId}`),
@@ -186,8 +200,7 @@ export const apiClient = {
       isExpress?: boolean;
     }) => request("/api/v1/logistics/calculate-shipping", { method: "POST", body: payload }),
 
-    trackBilti: (biltiNumber: string) =>
-      request(`/api/v1/logistics/track-bilti/${biltiNumber}`),
+    trackBilti: (biltiNumber: string) => request(`/api/v1/logistics/track-bilti/${biltiNumber}`),
 
     listHubs: () => request("/api/v1/logistics/hubs"),
   },
@@ -198,8 +211,7 @@ export const apiClient = {
 
   // 5. Escrow Protection Services
   escrow: {
-    getAccountSummary: (userId: string) =>
-      request(`/api/v1/escrow/summary/${userId}`),
+    getAccountSummary: (userId: string) => request(`/api/v1/escrow/summary/${userId}`),
 
     createProtection: (payload: {
       orderId: string;
@@ -211,72 +223,78 @@ export const apiClient = {
       request(`/api/v1/escrow/release/${escrowId}`, { method: "POST" }),
   },
 
-  // 6. Payments Engine
+  // 6. Payments Engine — aligned to gateway CreatePaymentIntentSchema
   payments: {
-    // BUG-21 FIX: Removed the untyped `createIntent` duplicate \u2014 it called the
-    // same endpoint as `createPaymentIntent` with a loose `any` payload type.
     createPaymentIntent: (payload: {
       orderId: string;
       amount: number;
-      paymentMethod: "BANK_TRANSFER" | "JAZZCASH" | "EASYPAISA" | "ESCROW_GATEWAY";
-      customerDetails: {
-        name: string;
-        email: string;
-        phone: string;
-      };
-    }) => request("/api/v1/payments/create-intent", { method: "POST", body: payload }),
+      provider: "BANK_TRANSFER" | "DIRECT_BANK_TRANSFER" | "JAZZCASH" | "EASYPAISA" | "PAYFAST";
+      currency?: string;
+      customerPhone?: string;
+      customerEmail?: string;
+      orderNumber?: string;
+    }) => request("/api/v1/payments/intent", { method: "POST", body: payload }),
 
-    getStatus: (intentId: string) => request(`/api/v1/payments/intent/${intentId}`),
+    getStatus: (intentId: string) => request(`/api/v1/payments/${intentId}/status`),
 
     submitBankSlip: (payload: { intentId: string; slipUrl: string; notes?: string }) =>
       request("/api/v1/payments/bank-transfer/confirm-slip", { method: "POST", body: payload }),
 
     processWebhook: (gateway: string, payload: any, headers?: Record<string, string>) =>
-      request(`/api/v1/payments/webhook/${gateway}`, {
+      request(`/api/v1/payments/webhooks/${gateway}`, {
         method: "POST",
         body: payload,
         headers,
       }),
   },
 
-  // 7. Supplier Factory Portal
+  // 7. Supplier Factory Portal — JWT supplies supplier identity
   supplier: {
-    getDashboard: (supplierId: string) =>
-      request(`/api/v1/supplier/dashboard/${supplierId}`),
+    getDashboard: () => request("/api/v1/supplier/dashboard"),
 
-    getAnalytics: (supplierId: string) =>
-      request(`/api/v1/supplier/analytics/${supplierId}`),
+    getAnalytics: () => request("/api/v1/supplier/analytics"),
 
     submitQuote: (payload: {
       rfqId: string;
-      supplierId: string;
       unitPrice: number;
-      leadTimeDays: number;
+      leadTimeDays?: number;
+      productionDays?: number;
       validityDays?: number;
       notes?: string;
-    }) => request("/api/v1/supplier/quotes", { method: "POST", body: payload }),
+    }) =>
+      request("/api/v1/supplier/quote", {
+        method: "POST",
+        body: {
+          rfqId: payload.rfqId,
+          unitPrice: payload.unitPrice,
+          leadTimeDays: payload.leadTimeDays ?? payload.productionDays,
+          productionDays: payload.productionDays ?? payload.leadTimeDays,
+          notes: payload.notes,
+        },
+      }),
 
-    getWallet: (supplierId: string) =>
-      request(`/api/v1/supplier/wallet/${supplierId}`),
+    getWallet: () => request("/api/v1/supplier/wallet"),
 
-    requestSettlement: (payload: {
-      supplierId: string;
-      amount: number;
-      iban: string;
-      bankName: string;
-    }) => request("/api/v1/supplier/settlements/request", { method: "POST", body: payload }),
+    requestSettlement: (payload: { amount: number; bankAccountIndex?: number }) =>
+      request("/api/v1/supplier/settlement/withdraw", {
+        method: "POST",
+        body: {
+          amount: payload.amount,
+          bankAccountIndex: payload.bankAccountIndex ?? 0,
+        },
+      }),
   },
 
   // 8. Invoicing & Financial Operations
   invoices: {
-    generate: (orderNumber: string) =>
-      request(`/api/v1/invoices/order/${orderNumber}`),
+    generate: (orderNumber: string, params?: { amount?: number; city?: string }) =>
+      request(`/api/v1/orders/${orderNumber}/invoice`, { params }),
   },
 
   // 9. Master Admin Production Authorization API
   admin: {
-    getFinancialAnalytics: () => request("/api/v1/finance/analytics/overview"),
-    getReconciliationReport: () => request("/api/v1/finance/reconciliation/report"),
+    getFinancialAnalytics: () => request("/api/v1/admin/finance/revenue"),
+    getReconciliationReport: () => request("/api/v1/admin/finance/reconciliation"),
 
     verifyAuthorization: async () => {
       const session = adminSecurityEngine.getStoredSession();
@@ -302,7 +320,10 @@ export const apiClient = {
           status: "DENIED",
           details: "Attempted product modification without MASTER_ADMIN authorization.",
         });
-        return { success: false, error: "HTTP 403 Forbidden: Only anamoontotrade@gmail.com can manage catalog items." };
+        return {
+          success: false,
+          error: "HTTP 403 Forbidden: Only anamoontotrade@gmail.com can manage catalog items.",
+        };
       }
 
       adminSecurityEngine.logActivity({
