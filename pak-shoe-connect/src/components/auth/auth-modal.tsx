@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ interface AuthModalProps {
   title?: string;
   description?: string;
   hasPendingItem?: boolean;
+  initialMode?: "signin" | "signup";
 }
 
 const signInSchema = z.object({
@@ -39,10 +40,17 @@ export function AuthModal({
   title = "Sign in to continue",
   description = "Access wholesale pricing and add items to your B2B inquiry basket.",
   hasPendingItem = false,
+  initialMode = "signin",
 }: AuthModalProps) {
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [mode, setMode] = useState<"signin" | "signup">(initialMode);
   const [busy, setBusy] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode(initialMode || "signin");
+    }
+  }, [isOpen, initialMode]);
 
   async function handleSignIn(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();

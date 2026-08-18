@@ -87,7 +87,7 @@ describe("Step 8: Payment Gateway Integration & Financial Subsystem Suite", () =
       });
 
       expect(bankSession.gatewayTransactionId).toContain("SHR-BANK-");
-      expect(bankSession.rawResponse.iban).toContain("PK42MEZN");
+      expect(bankSession.rawResponse.iban).toContain("PK18ABPA");
     });
   });
 

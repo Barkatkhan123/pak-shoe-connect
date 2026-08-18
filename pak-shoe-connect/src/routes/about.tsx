@@ -7,13 +7,18 @@ export const Route = createFileRoute("/about")({
   component: About,
   head: () => ({
     meta: [
-      { title: "About Anamon — Wholesale Footwear Manufacturer in Pakistan" },
+      { title: "About Anamon Official | Global B2B Wholesale Footwear Manufacturer" },
       {
         name: "description",
         content:
-          "Anamon is a Pakistan-based wholesale footwear manufacturer with production facilities in Rawalpindi and Lahore, supplying retailers and distributors across Pakistan since 1998. 8,000 pairs/day capacity.",
+          "Anamon Official is a trusted manufacturer of leather and rexine footwear serving wholesale buyers, retailers, and emerging footwear brands across international markets.",
       },
-      { property: "og:title", content: "About Anamon" },
+      {
+        name: "keywords",
+        content:
+          "B2B leather shoe manufacturer, wholesale leather footwear supplier, rexine shoes bulk order, custom private label footwear, leather shoe exporter, OEM shoe manufacturing",
+      },
+      { property: "og:title", content: "About Anamon Official" },
       { property: "og:url", content: "/about" },
     ],
     links: [{ rel: "canonical", href: "/about" }],
@@ -24,31 +29,31 @@ function About() {
   return (
     <SiteLayout>
       <PageHero
-        eyebrow="About us"
-        title="Manufacturing Pakistan's everyday footwear for 25+ years."
-        description="From our initial workshop to two full-scale manufacturing facilities in Rawalpindi and Lahore today — Anamon has grown into one of Pakistan's most trusted B2B footwear names."
+        eyebrow="About Anamon Official"
+        title="International-Grade Materials. Custom Branding. Wholesale Scale."
+        description="Anamon Official is a trusted manufacturer of leather and rexine footwear serving wholesale buyers, retailers, and emerging footwear brands across international markets."
       />
       <section className="mx-auto max-w-7xl px-4 py-16 md:py-24">
-        <div className="grid gap-10 md:grid-cols-2">
-          <div className="relative overflow-hidden rounded-2xl border border-border">
+        <div className="grid gap-10 md:grid-cols-2 items-center">
+          <div className="relative overflow-hidden rounded-2xl border border-border shadow-xs">
             <img
               src={factoryImg}
-              alt="Anamon factory floor"
+              alt="Anamon Official factory production floor"
               className="h-full w-full object-cover"
             />
           </div>
           <div>
-            <h2 className="font-display text-2xl font-semibold sm:text-3xl">Our story</h2>
-            <p className="mt-4 text-muted-foreground">
-              Anamon was founded in 1998 with a simple belief: Pakistani retailers deserve
-              consistent quality at honest factory rates. What started as a dedicated footwear
-              workshop now produces men's, women's and kids' footwear at scale for over 1,200
-              dealers nationwide.
+            <div className="text-xs font-bold uppercase tracking-wider text-leather mb-2">
+              Our Legacy & Global Reach
+            </div>
+            <h2 className="font-display text-2xl font-bold sm:text-3xl text-ink">
+              Precision Footwear Manufacturing for Modern Wholesale Buyers
+            </h2>
+            <p className="mt-4 text-sm sm:text-base text-muted-foreground leading-relaxed font-medium">
+              Anamon Official is a trusted manufacturer of leather and rexine footwear serving wholesale buyers, retailers, and emerging footwear brands across international markets. Backed by skilled craftsmanship, quality-controlled production, and material sourcing that meets global standards, we help businesses scale with competitive pricing, custom manufacturing options, and dependable delivery — from first sample to full container order.
             </p>
-            <p className="mt-3 text-muted-foreground">
-              Today Anamon operates two specialized manufacturing facilities — located in Rawalpindi
-              and Lahore, Pakistan — with 400+ skilled workers, in-house sole moulding, precision
-              cutting, and a dedicated private-label team serving new-age D2C brands.
+            <p className="mt-3 text-sm sm:text-base text-muted-foreground leading-relaxed font-medium">
+              What started as a dedicated craftsmanship workshop in 1998 now supplies international-grade footwear at scale with dual state-of-the-art facilities, in-house PU sole moulding, and dedicated private-label engineering.
             </p>
           </div>
         </div>
@@ -58,25 +63,25 @@ function About() {
         <div className="mx-auto grid max-w-7xl gap-6 px-4 py-16 md:grid-cols-3">
           {[
             {
+              icon: Award,
+              title: "Genuine & Premium Materials",
+              body: "Every pair is crafted using internationally certified leather and high-grade rexine, engineered for durability, comfort, and a refined finish that meets global quality standards.",
+            },
+            {
               icon: Target,
-              title: "Mission",
-              body: "Deliver factory-direct, dependable footwear to every corner of Pakistan — with fair prices for retailers and lasting comfort for end customers.",
+              title: "Custom Manufacturing (Private Label & OEM)",
+              body: "From private-label branding to custom colorways, logos, and design specifications, our production line adapts to your brand's exact requirements — at scale.",
             },
             {
               icon: Eye,
-              title: "Vision",
-              body: "To be Pakistan's most trusted wholesale footwear partner and a global name in private-label manufacturing.",
-            },
-            {
-              icon: Award,
-              title: "Values",
-              body: "Craftsmanship, consistency, and long-term relationships. No middlemen. No surprises.",
+              title: "Dependable Global Logistics",
+              body: "Secure, export-ready packaging and time-tested international shipping partnerships ensure your bulk orders arrive on schedule, anywhere in the world.",
             },
           ].map((c) => (
-            <div key={c.title} className="rounded-xl border border-border bg-background p-6">
+            <div key={c.title} className="rounded-xl border border-border bg-background p-6 shadow-xs">
               <c.icon className="h-6 w-6 text-primary" />
-              <h3 className="mt-4 font-display text-lg font-semibold">{c.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{c.body}</p>
+              <h3 className="mt-4 font-display text-lg font-bold text-ink">{c.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground leading-relaxed font-medium">{c.body}</p>
             </div>
           ))}
         </div>

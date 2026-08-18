@@ -10,11 +10,27 @@ const getSiteUrl = () => {
 
 export const SITE = {
   brand: "Anamon",
-  brandUrdu: "اینامون",
+  fullName: "Anamon Official",
+  brandUrdu: "اینامون آفیشل",
   domain: "anamonofficial.com",
   url: getSiteUrl(),
-  tagline: "Pakistan's Premier B2B Wholesale Shoe Marketplace",
-  taglineUrdu: "پاکستان کا پریمیئر تھوک جوتا مارکیٹ پلیس",
+  title: "Anamon Official | B2B Wholesale Leather Shoes Manufacturer",
+  metaDescription:
+    "Anamon Official manufactures premium leather and rexine footwear for global B2B buyers. Bulk orders, custom branding, and reliable worldwide shipping.",
+  tagline: "International-Grade Materials. Custom Branding. Wholesale Scale.",
+  taglineUrdu: "بین الاقوامی معیار کا چمڑا اور ریگزین · کسٹم برانڈنگ · ہول سیل پیمانہ",
+  aboutShort:
+    "Anamon Official is a trusted manufacturer of leather and rexine footwear serving wholesale buyers, retailers, and emerging footwear brands across international markets.",
+  aboutFull:
+    "Anamon Official is a trusted manufacturer of leather and rexine footwear serving wholesale buyers, retailers, and emerging footwear brands across international markets. Backed by skilled craftsmanship, quality-controlled production, and material sourcing that meets global standards, we help businesses scale with competitive pricing, custom manufacturing options, and dependable delivery — from first sample to full container order.",
+  keywords: [
+    "B2B leather shoe manufacturer",
+    "wholesale leather footwear supplier",
+    "rexine shoes bulk order",
+    "custom private label footwear",
+    "leather shoe exporter",
+    "OEM shoe manufacturing",
+  ],
   phone: "0343-2178305",
   phoneHref: "tel:+923432178305",
   whatsapp: "923432178305",

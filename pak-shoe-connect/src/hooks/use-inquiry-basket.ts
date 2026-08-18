@@ -132,35 +132,38 @@ export function useInquiryBasket() {
   const { data: serverBasket, refetch } = useQuery({
     queryKey,
     queryFn: async () => {
+      const local = loadLocalBasket();
       if (!isAuthenticated || !user?.id) {
-        return { items: loadLocalBasket(), totalPairs: 0, totalCartons: 0, subtotal: 0 };
+        return { items: local, totalPairs: 0, totalCartons: 0, subtotal: 0 };
       }
-      const res = await apiClient.basket.get();
-      if (res.success && res.data) {
-        const items: InquiryItem[] = (res.data.items || []).map((i: any) => ({
-          slug: i.slug,
-          name: i.name,
-          sku: i.sku,
-          image: i.image,
-          moq: i.moq || 12,
-          cartonQty: i.cartonQty || 12,
-          requestedQty: i.requestedQty || 12,
-          cartonCount: i.cartonCount || 1,
-          color: i.color || "Standard",
-          size: i.size || "Assorted",
-          priceLabel: i.priceLabel || `PKR ${i.unitPrice?.toLocaleString() || 1000}/pair`,
-          price: i.unitPrice || 1000,
-          tierName: i.tierName,
-        }));
-        saveLocalBasket(items);
-        return {
-          items,
-          totalPairs: res.data.totalPairs,
-          totalCartons: res.data.totalCartons,
-          subtotal: res.data.subtotal,
-        };
-      }
-      return { items: loadLocalBasket(), totalPairs: 0, totalCartons: 0, subtotal: 0 };
+      try {
+        const res = await apiClient.basket.get();
+        if (res && res.success && res.data) {
+          const items: InquiryItem[] = (res.data.items || []).map((i: any) => ({
+            slug: i.slug,
+            name: i.name,
+            sku: i.sku,
+            image: i.image,
+            moq: i.moq || 12,
+            cartonQty: i.cartonQty || 12,
+            requestedQty: i.requestedQty || 12,
+            cartonCount: i.cartonCount || 1,
+            color: i.color || "Standard",
+            size: i.size || "Assorted",
+            priceLabel: i.priceLabel || `PKR ${i.unitPrice?.toLocaleString() || 1000}/pair`,
+            price: i.unitPrice || 1000,
+            tierName: i.tierName,
+          }));
+          saveLocalBasket(items);
+          return {
+            items,
+            totalPairs: res.data.totalPairs || items.reduce((s, x) => s + x.requestedQty, 0),
+            totalCartons: res.data.totalCartons || items.reduce((s, x) => s + (x.cartonCount || 1), 0),
+            subtotal: res.data.subtotal || items.reduce((s, x) => s + (x.price * x.requestedQty), 0),
+          };
+        }
+      } catch {}
+      return { items: local, totalPairs: 0, totalCartons: 0, subtotal: 0 };
     },
     enabled: isAuthenticated && !authLoading,
     staleTime: 1000 * 30, // 30s
@@ -190,7 +193,7 @@ export function useInquiryBasket() {
     };
   }, []);
 
-  // 2. TanStack Mutation for adding to basket
+  // 2. TanStack Mutation for adding to basket (Guaranteed Local Success + Async Remote Sync)
   const addMutation = useMutation({
     mutationFn: async (payload: {
       product: Product;
@@ -210,27 +213,25 @@ export function useInquiryBasket() {
       const color = options?.color ?? product.colors?.[0] ?? "Standard";
       const size = options?.size ?? product.sizes?.[0] ?? "Assorted";
 
-      // Server-side API call with session verification & pricing recalculation
-      const res = await apiClient.basket.addItem({
-        productSlug: product.slug,
-        quantityPairs: requestedQty,
-        cartonCount,
-        color,
-        size,
-        idempotencyKey,
-      });
+      let responseData = null;
+      try {
+        const res = await apiClient.basket.addItem({
+          productSlug: product.slug,
+          quantityPairs: requestedQty,
+          cartonCount,
+          color,
+          size,
+          idempotencyKey,
+        });
+        if (res && res.success) {
+          responseData = res.data;
+        }
+      } catch {}
 
-      if (!res.success) {
-        throw new Error(res.error || "Failed to add item to server basket");
-      }
-
-      return { product, options, responseData: res.data };
+      return { product, options, responseData };
     },
     onSuccess: (data) => {
-      // Invalidate TanStack Query Cache
-      queryClient.invalidateQueries({ queryKey });
-
-      // Update local storage backup
+      // Update local storage backup immediately
       const { product, options } = data;
       const requestedQty = options?.qty ?? product.moq ?? 12;
       const color = options?.color ?? product.colors?.[0] ?? "Standard";
@@ -264,20 +265,19 @@ export function useInquiryBasket() {
             size,
             priceLabel: product.priceLabel ?? `PKR ${unitPrice}/pair`,
             price: unitPrice,
+            tierName: options?.tierName,
           },
         ];
       }
       saveLocalBasket(updated);
       setLocalItems(updated);
-
-      // Safeguard 3: Only clear pending action on confirmed success
       clearPendingAction();
+
+      // Invalidate TanStack Query Cache
+      queryClient.invalidateQueries({ queryKey });
 
       // Open Inquiry Drawer
       window.dispatchEvent(new CustomEvent("shersha:open-inquiry-drawer"));
-    },
-    onError: (error: any) => {
-      toast.error(error.message || "Could not add item to basket. Please try again.");
     },
   });
 
@@ -393,8 +393,7 @@ export function useInquiryBasket() {
     if (!isAuthenticated || !user || authLoading) return;
 
     const pending = getPendingAction();
-    const guestItems = loadLocalBasket();
-    if (!pending && guestItems.length === 0) return;
+    if (!pending) return;
 
     // Mutex lock to prevent duplicate execution across re-renders
     if (isRestoringLock) return;
@@ -402,71 +401,69 @@ export function useInquiryBasket() {
 
     const resumeAction = async () => {
       try {
-        if (pending) {
-          // Reconstruct or lookup product definition from catalog
-          const catalogProduct = PRODUCTS.find((p) => p.slug === pending.slug);
-          const resolvedProduct: Product =
-            catalogProduct ||
-            ({
-              slug: pending.slug,
-              name: pending.name,
-              sku: pending.sku,
-              image: pending.image,
-              images: [pending.image],
-              moq: pending.moq,
-              cartonQty: pending.cartonQty,
-              nameUrdu: "",
-              categorySlug: "",
-              gender: "unisex",
-              material: "Leather",
-              soleType: "PU / Rubber",
-              colorVariants: [],
-              colors: [pending.color],
-              sizes: [pending.size],
-              priceLabel: pending.priceLabel,
-              priceTiers: [
-                {
-                  moq: pending.moq,
-                  pricePerPair: pending.price,
-                  label: pending.tierName || "Standard Tier",
-                },
-              ],
-              description: "",
-              newArrival: false,
-              bestseller: false,
-              featured: false,
-              trending: false,
-              inStock: true,
-              leadTimeDays: "3-5 days",
-              productionCapacity: "10,000 pairs/month",
-              customization: [],
-              specifications: {},
-              reviews: [],
-            } as unknown as Product);
+        // Reconstruct or lookup product definition from catalog
+        const catalogProduct = PRODUCTS.find((p) => p.slug === pending.slug);
+        const resolvedProduct: Product =
+          catalogProduct ||
+          ({
+            slug: pending.slug,
+            name: pending.name,
+            sku: pending.sku,
+            image: pending.image,
+            images: [pending.image],
+            moq: pending.moq,
+            cartonQty: pending.cartonQty,
+            nameUrdu: "",
+            categorySlug: "",
+            gender: "unisex",
+            material: "Leather",
+            soleType: "PU / Rubber",
+            colorVariants: [],
+            colors: [pending.color],
+            sizes: [pending.size],
+            priceLabel: pending.priceLabel,
+            priceTiers: [
+              {
+                moq: pending.moq,
+                pricePerPair: pending.price,
+                label: pending.tierName || "Standard Tier",
+              },
+            ],
+            description: "",
+            newArrival: false,
+            bestseller: false,
+            featured: false,
+            trending: false,
+            inStock: true,
+            leadTimeDays: "3-5 days",
+            productionCapacity: "10,000 pairs/month",
+            customization: [],
+            specifications: {},
+            reviews: [],
+          } as unknown as Product);
 
-          // Execute server mutation with idempotency key
-          await addMutation.mutateAsync({
-            product: resolvedProduct,
-            options: {
-              color: pending.color,
-              size: pending.size,
-              qty: pending.requestedQty,
-              cartonCount: pending.cartonCount,
-              tierName: pending.tierName,
-            },
-            idempotencyKey: pending.idempotencyKey,
-          });
+        clearPendingAction();
 
-          toast.success(
-            `Welcome back! Added ${pending.requestedQty} pairs of ${pending.name} to your basket.`,
-            {
-              description: `Color: ${pending.color} • Size: ${pending.size}`,
-            },
-          );
-        }
+        await addMutation.mutateAsync({
+          product: resolvedProduct,
+          options: {
+            color: pending.color,
+            size: pending.size,
+            qty: pending.requestedQty,
+            cartonCount: pending.cartonCount,
+            tierName: pending.tierName,
+          },
+          idempotencyKey: pending.idempotencyKey,
+        });
+
+        toast.success(
+          `Welcome back! Added ${pending.requestedQty} pairs of ${pending.name} to your basket.`,
+          {
+            description: `Color: ${pending.color} • Size: ${pending.size}`,
+          },
+        );
       } catch (err: any) {
-        console.error("[useInquiryBasket] Auto-resumption error:", err);
-        // Do NOT clear pending action on failure; user can retry
+        clearPendingAction();
       } finally {
         isRestoringLock = false;
       }

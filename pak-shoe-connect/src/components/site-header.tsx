@@ -16,16 +16,32 @@ import {
   PhoneCall,
   UserCheck,
   ShieldCheck,
+  User,
+  LogIn,
+  UserPlus,
+  LogOut,
+  LayoutDashboard,
+  Settings,
 } from "lucide-react";
 import { NAV, SITE, CATEGORY_NAV } from "@/lib/site";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
 import { useAuth } from "@/hooks/use-auth";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { SearchCommand } from "./search-command";
 import { InquiryDrawer } from "./inquiry-drawer";
 
 export function SiteHeader() {
-  const { isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [open, setOpen] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
   const [inquiryOpen, setInquiryOpen] = useState(false);
@@ -35,32 +51,40 @@ export function SiteHeader() {
   const { count: wishlistCount } = useWishlist();
   const { count: inquiryCount } = useInquiryBasket();
 
+  const handleOpenAuth = (mode: "signin" | "signup" = "signin") => {
+    window.dispatchEvent(
+      new CustomEvent("shersha:open-auth-modal", {
+        detail: {
+          mode,
+          title: mode === "signup" ? "Create Wholesale Account" : "Sign in to Wholesale Account",
+          description:
+            mode === "signup"
+              ? "Register as a footwear retailer or distributor to access factory rates & MOQs."
+              : "Sign in to access your wholesale catalog, inquiry basket, and direct orders.",
+        },
+      }),
+    );
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Signed out successfully");
+    } catch {
+      toast.success("Signed out");
+    }
+  };
+
   const handleWishlistClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {
       e.preventDefault();
-      window.dispatchEvent(
-        new CustomEvent("shersha:open-auth-modal", {
-          detail: {
-            title: "Sign in to your Wishlist",
-            description:
-              "Sign in or create your wholesale buyer account to save and manage your bookmarked footwear designs.",
-          },
-        }),
-      );
+      handleOpenAuth("signin");
     }
   };
 
   const handleBasketClick = () => {
     if (!isAuthenticated) {
-      window.dispatchEvent(
-        new CustomEvent("shersha:open-auth-modal", {
-          detail: {
-            title: "Sign in to access your Basket",
-            description:
-              "Sign in to your wholesale account to review your inquiry basket, manage items, and request factory quotes.",
-          },
-        }),
-      );
+      handleOpenAuth("signin");
     } else {
       setInquiryOpen(true);
     }
@@ -107,9 +131,8 @@ export function SiteHeader() {
   return (
     <>
       <header
-        className={`sticky top-0 z-[100] w-full max-w-full border-b-2 border-gold bg-white transition-shadow duration-200 ${
-          scrolled ? "shadow-md" : "shadow-xs"
-        }`}
+        className={`fixed top-0 left-0 right-0 z-[100] w-full max-w-full border-b-2 border-gold bg-white transition-shadow duration-200 ${scrolled ? "shadow-md" : "shadow-xs"
+          }`}
       >
         {/* ── Slim 28px Announcement Bar ── */}
         <div className="w-full bg-[#0F1A13] text-[#FAF7F2] text-[11px] font-medium tracking-wide safe-top border-b border-white/10">
@@ -189,9 +212,8 @@ export function SiteHeader() {
                 <Link
                   to="/products"
                   search={{ category: undefined, gender: undefined }}
-                  className={`flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-semibold text-foreground/80 hover:bg-black/5 hover:text-foreground transition-all ${
-                    megaMenuOpen ? "text-[#1B4332] bg-[#1B4332]/10" : ""
-                  }`}
+                  className={`flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-semibold text-foreground/80 hover:bg-black/5 hover:text-foreground transition-all ${megaMenuOpen ? "text-[#1B4332] bg-[#1B4332]/10" : ""
+                    }`}
                 >
                   <span>Wholesale Catalog</span>
                   <ChevronDown
@@ -326,6 +348,126 @@ export function SiteHeader() {
                 )}
               </button>
 
+              {/* Account & Sourcing Portal Dropdown (Sign In, Sign Up, Profile, Logout) */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="relative flex h-11 w-11 items-center justify-center text-foreground/70 hover:text-primary hover:bg-black/5 rounded-full transition-all cursor-pointer"
+                    title={isAuthenticated ? "Wholesale Buyer Account" : "Sign In / Register Account"}
+                    aria-label="User Account Menu"
+                  >
+                    <User className="h-5 w-5 text-[#0F1A13]" />
+                    {isAuthenticated && (
+                      <span className="absolute top-2 right-2 flex h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white shadow-xs" />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-64 bg-white border border-[#E0D9CE] shadow-2xl p-2 rounded-2xl z-[150]"
+                >
+                  {isAuthenticated ? (
+                    <>
+                      <DropdownMenuLabel className="p-2.5 font-normal border-b border-border/70 mb-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#8B5E3C]">
+                            Wholesale Buyer
+                          </span>
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            Active
+                          </span>
+                        </div>
+                        <div className="font-bold text-xs text-[#0F1A13] truncate mt-1">
+                          {user?.user_metadata?.business_name || user?.email}
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/dashboard/buyer"
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-[#0F1A13] rounded-lg hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                        >
+                          <LayoutDashboard className="h-4 w-4 text-[#1B4332]" />
+                          <span>Buyer Dashboard</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/profile"
+                          className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-[#0F1A13] rounded-lg hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                        >
+                          <Settings className="h-4 w-4 text-[#1B4332]" />
+                          <span>Account Settings</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={handleBasketClick}
+                        className="flex items-center justify-between px-3 py-2 text-xs font-bold text-[#0F1A13] rounded-lg hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <Package className="h-4 w-4 text-[#1B4332]" />
+                          <span>Inquiry Basket</span>
+                        </div>
+                        {inquiryCount > 0 && (
+                          <span className="rounded-full bg-[#1B4332] px-1.5 py-0.5 text-[9px] font-bold text-white">
+                            {inquiryCount}
+                          </span>
+                        )}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link
+                          to="/dashboard/buyer"
+                          className="flex items-center justify-between px-3 py-2 text-xs font-bold text-[#0F1A13] rounded-lg hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <Heart className="h-4 w-4 text-rose-500" />
+                            <span>Saved Wishlist</span>
+                          </div>
+                          {wishlistCount > 0 && (
+                            <span className="rounded-full bg-rose-500 px-1.5 py-0.5 text-[9px] font-bold text-white">
+                              {wishlistCount}
+                            </span>
+                          )}
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-[#E0D9CE]/70 my-1" />
+                      <DropdownMenuItem
+                        onClick={handleSignOut}
+                        className="flex items-center gap-2.5 px-3 py-2 text-xs font-bold text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        <span>Sign Out</span>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuLabel className="p-2.5 font-normal border-b border-border/70 mb-1.5">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-[#8B5E3C]">
+                          Wholesale Sourcing Portal
+                        </div>
+                        <div className="font-bold text-xs text-[#0F1A13] mt-0.5">
+                          Sign in to access factory direct prices & bulk quotes
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => handleOpenAuth("signin")}
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-xs font-bold text-[#0F1A13] rounded-lg hover:bg-[#FAF7F2] transition-colors cursor-pointer"
+                      >
+                        <LogIn className="h-4 w-4 text-[#1B4332]" />
+                        <span>Sign In</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleOpenAuth("signup")}
+                        className="flex items-center gap-2.5 px-3 py-2.5 text-xs font-bold text-[#1B4332] rounded-lg bg-[#1B4332]/5 hover:bg-[#1B4332]/10 transition-colors cursor-pointer mt-1"
+                      >
+                        <UserPlus className="h-4 w-4 text-[#1B4332]" />
+                        <span>Create Wholesale Account</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+
               {/* Mobile Menu Hamburger (44px target) */}
               <button
                 onClick={() => setOpen((v) => !v)}
@@ -378,6 +520,86 @@ export function SiteHeader() {
                     <span>Search all 200+ footwear models...</span>
                   </Link>
                 </div>
+
+                {/* 1b. Mobile Account Card */}
+                {isAuthenticated ? (
+                  <div className="rounded-xl border border-[#E0D9CE] bg-[#FAF7F2] p-3.5 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5">
+                        <div className="grid h-9 w-9 place-items-center rounded-full bg-[#1B4332] text-[#FAF7F2]">
+                          <User className="h-4 w-4" />
+                        </div>
+                        <div className="leading-tight">
+                          <div className="text-[10px] font-bold uppercase tracking-wider text-[#8B5E3C]">
+                            Wholesale Buyer
+                          </div>
+                          <div className="text-xs font-bold text-[#0F1A13] truncate max-w-[170px]">
+                            {user?.user_metadata?.business_name || user?.email}
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          handleSignOut();
+                        }}
+                        className="flex items-center gap-1 text-[11px] font-bold text-rose-600 hover:text-rose-700 px-2 py-1 rounded-md hover:bg-rose-50 cursor-pointer"
+                      >
+                        <LogOut className="h-3.5 w-3.5" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 pt-1 border-t border-[#E0D9CE]">
+                      <Link
+                        to="/dashboard/buyer"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center justify-center gap-1.5 rounded-lg bg-white p-2 text-xs font-bold text-[#0F1A13] border border-[#E0D9CE]"
+                      >
+                        <LayoutDashboard className="h-3.5 w-3.5 text-[#1B4332]" />
+                        <span>Dashboard</span>
+                      </Link>
+                      <Link
+                        to="/profile"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center justify-center gap-1.5 rounded-lg bg-white p-2 text-xs font-bold text-[#0F1A13] border border-[#E0D9CE]"
+                      >
+                        <Settings className="h-3.5 w-3.5 text-[#1B4332]" />
+                        <span>Settings</span>
+                      </Link>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-[#E0D9CE] bg-[#FAF7F2] p-3.5 space-y-2.5">
+                    <div className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#8B5E3C]">
+                      Wholesale Buyer Portal
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          handleOpenAuth("signin");
+                        }}
+                        className="flex items-center justify-center gap-1.5 rounded-lg bg-[#1B4332] p-2.5 text-xs font-bold text-white shadow-xs cursor-pointer"
+                      >
+                        <LogIn className="h-3.5 w-3.5" />
+                        <span>Sign In</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          handleOpenAuth("signup");
+                        }}
+                        className="flex items-center justify-center gap-1.5 rounded-lg bg-white p-2.5 text-xs font-bold text-[#1B4332] border border-[#1B4332]/30 hover:bg-[#FAF7F2] cursor-pointer"
+                      >
+                        <UserPlus className="h-3.5 w-3.5" />
+                        <span>Register</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* 2. Shop by Category Thumbnails */}
                 <div>

@@ -367,12 +367,12 @@
 
 /* ==================== PHASE 1: GLOBAL DESIGN SYSTEM & CSS POLISH ==================== */
 
-/* WhatsApp Floating Action Button (Mobile-Safe, Non-Obstructing) */
+/* WhatsApp Floating Action Button (100px clearance on mobile) */
 .whatsapp-fab {
   position: fixed;
-  bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  bottom: calc(100px + env(safe-area-inset-bottom, 0px));
   right: 1.25rem;
-  z-index: 30;
+  z-index: 45;
   display: grid;
   place-items: center;
   width: 52px;
@@ -381,10 +381,18 @@
   background: #25d366;
   color: white;
   box-shadow:
-    0 4px 14px rgba(37, 211, 102, 0.4),
-    0 2px 6px rgba(0, 0, 0, 0.15);
+    0 4px 16px rgba(37, 211, 102, 0.45),
+    0 2px 8px rgba(0, 0, 0, 0.2);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   animation: pulse-ring 2.5s ease-in-out infinite;
+}
+@media (min-width: 640px) {
+  .whatsapp-fab {
+    bottom: 2rem;
+    right: 2rem;
+    width: 56px;
+    height: 56px;
+  }
 }
 .whatsapp-fab:hover {
   transform: scale(1.08) translateY(-2px);

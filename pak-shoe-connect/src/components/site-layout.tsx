@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 import { AuthModal } from "./auth/auth-modal";
+import { MobileBottomNav } from "./mobile-bottom-nav";
 import { MessageCircle } from "lucide-react";
 import { SITE } from "@/lib/site";
 import { useScroll, useTransform, motion } from "framer-motion";
@@ -14,6 +15,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
     hasPendingItem?: boolean;
     title?: string;
     description?: string;
+    mode?: "signin" | "signup";
   }>({});
 
   useEffect(() => {
@@ -26,7 +28,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="relative flex min-h-screen flex-col w-full max-w-full bg-[#FAF7F2]">
+    <div className="relative flex min-h-screen flex-col w-full max-w-full overflow-x-hidden bg-[#FAF7F2]">
       {/* Scroll progress indicator */}
       <motion.div
         style={{ scaleX, transformOrigin: "left" }}
@@ -34,6 +36,9 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       />
 
       <SiteHeader />
+
+      {/* Header spacer to prevent page content from hiding behind fixed header */}
+      <div className="h-[92px] sm:h-[100px] w-full shrink-0" aria-hidden="true" />
 
       {/* Main content with bottom padding clearance for floating WhatsApp button */}
       <main className="flex-1 w-full max-w-full pb-20 md:pb-8">{children}</main>
@@ -47,6 +52,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
         hasPendingItem={authModalDetail.hasPendingItem}
         title={authModalDetail.title}
         description={authModalDetail.description}
+        initialMode={authModalDetail.mode}
       />
 
       {/* Global WhatsApp FAB (Mobile-safe, non-obstructing) */}
@@ -59,6 +65,9 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       >
         <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
       </a>
+
+      {/* Global Mobile Bottom App Navigation Bar (Thumb Zone HCI) */}
+      <MobileBottomNav />
     </div>
   );
 }

@@ -89,18 +89,17 @@ export function SiteFooter() {
               </div>
               <div className="leading-none">
                 <span className="font-display text-2xl font-bold tracking-tight text-white">
-                  {SITE.brand}
+                  {SITE.fullName || "Anamon Official"}
                 </span>
                 <span className="block text-[9px] font-bold uppercase tracking-[0.2em] text-[#C9A84C] mt-0.5">
-                  B2B Footwear Wholesale
+                  B2B Wholesale Footwear Manufacturer
                 </span>
               </div>
             </div>
 
             <p className="text-xs sm:text-sm text-[#FAF7F2]/80 leading-relaxed max-w-sm">
-              Pakistan's premier direct-from-factory footwear sourcing hub. Supplying 1,200+
-              verified retailers, distributors, and private-label brands across Karachi, Lahore,
-              Rawalpindi, Peshawar, and Quetta.
+              Anamon Official manufactures premium leather and rexine footwear for global B2B buyers.
+              Bulk orders, custom branding, and reliable worldwide shipping.
             </p>
 
             {/* Direct Contact Pills */}
@@ -336,18 +335,20 @@ export function SiteFooter() {
       </div>
 
       {/* ── Legal & Copyright Bar ── */}
-      <div className="border-t border-white/10 bg-black/30">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-4 py-5 text-xs text-[#FAF7F2]/70 sm:flex-row">
-          <div className="flex flex-col sm:flex-row items-center gap-1 sm:gap-3 text-center sm:text-left">
-            <p>
-              © {new Date().getFullYear()} {SITE.brand} Footwear Industries Pakistan. All rights
-              reserved.
+      <div className="border-t border-white/10 bg-black/40">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 pt-6 pb-28 sm:pb-8 text-xs text-[#FAF7F2]/70 sm:flex-row">
+          <div className="flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left">
+            <p className="text-xs text-[#FAF7F2]/80">
+              © {new Date().getFullYear()} {SITE.fullName || SITE.brand} Footwear Industries. All rights reserved.
             </p>
             <span className="hidden sm:inline text-white/30">•</span>
-            <p className="text-[11px] font-medium text-[#FAF7F2]/80">
-              Made with <span className="text-white">🤍</span> by{" "}
-              <span className="font-semibold text-[#C9A84C]">Barkat</span>
-            </p>
+            {/* Dedicated 50px Height Badge for Made with White Heart by Barkat */}
+            <div className="min-h-[50px] h-[50px] px-4 py-2 rounded-xl bg-white/10 border border-white/15 inline-flex items-center justify-center gap-1.5 shadow-sm">
+              <span className="text-xs font-semibold text-[#FAF7F2]">Made with</span>
+              <span className="text-base leading-none text-white">🤍</span>
+              <span className="text-xs font-semibold text-[#FAF7F2]">by</span>
+              <span className="text-sm font-bold text-[#C9A84C] tracking-wide">Barkat</span>
+            </div>
           </div>
           <div className="flex items-center gap-4 text-xs">
             <Link to="/about" className="hover:text-white transition-colors">

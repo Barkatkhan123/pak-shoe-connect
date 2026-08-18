@@ -79,22 +79,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Anamon — Pakistan's Wholesale Footwear Manufacturer" },
+      { title: "Anamon Official | B2B Wholesale Leather Shoes Manufacturer" },
       {
         name: "description",
         content:
-          "Anamon manufactures wholesale footwear in Pakistan — men, women & kids. Peshawari, formal, sneakers, khussa, heels, school shoes. Private label, bulk orders, nationwide delivery.",
+          "Anamon Official manufactures premium leather and rexine footwear for global B2B buyers. Bulk orders, custom branding, and reliable worldwide shipping.",
       },
-      { property: "og:title", content: "Anamon — Wholesale Footwear Manufacturer" },
+      {
+        name: "keywords",
+        content:
+          "B2B leather shoe manufacturer, wholesale leather footwear supplier, rexine shoes bulk order, custom private label footwear, leather shoe exporter, OEM shoe manufacturing",
+      },
+      { property: "og:title", content: "Anamon Official | B2B Wholesale Leather Shoes Manufacturer" },
       {
         property: "og:description",
         content:
-          "B2B footwear manufacturing for retailers, distributors & online sellers across Pakistan.",
+          "Anamon Official manufactures premium leather and rexine footwear for global B2B buyers. Bulk orders, custom branding, and reliable worldwide shipping.",
       },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://anamonofficial.com" },
-      { property: "og:site_name", content: "Anamon Wholesale" },
+      { property: "og:site_name", content: "Anamon Official" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Anamon Official | B2B Wholesale Leather Shoes Manufacturer" },
+      {
+        name: "twitter:description",
+        content:
+          "Anamon Official manufactures premium leather and rexine footwear for global B2B buyers. Bulk orders, custom branding, and reliable worldwide shipping.",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },

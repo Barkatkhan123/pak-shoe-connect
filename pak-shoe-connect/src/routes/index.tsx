@@ -30,11 +30,22 @@ export const Route = createFileRoute("/")({
   component: Home,
   head: () => ({
     meta: [
-      { title: "Anamon — Pakistan's Wholesale Footwear Marketplace" },
+      { title: "Anamon Official | B2B Wholesale Leather Shoes Manufacturer" },
       {
         name: "description",
         content:
-          "Anamon is Pakistan's premier B2B wholesale footwear marketplace. Direct factory sourcing for retailers nationwide. Men, women & kids. Low MOQ, bulk orders.",
+          "Anamon Official manufactures premium leather and rexine footwear for global B2B buyers. Bulk orders, custom branding, and reliable worldwide shipping.",
+      },
+      {
+        name: "keywords",
+        content:
+          "B2B leather shoe manufacturer, wholesale leather footwear supplier, rexine shoes bulk order, custom private label footwear, leather shoe exporter, OEM shoe manufacturing",
+      },
+      { property: "og:title", content: "Anamon Official | B2B Wholesale Leather Shoes Manufacturer" },
+      {
+        property: "og:description",
+        content:
+          "Anamon Official manufactures premium leather and rexine footwear for global B2B buyers. Bulk orders, custom branding, and reliable worldwide shipping.",
       },
     ],
   }),
@@ -42,31 +53,33 @@ export const Route = createFileRoute("/")({
 
 const HERO_SLIDES = [
   {
-    image: CATEGORIES.find((c) => c.slug === "men-peshawari")?.image,
-    eyebrow: "Factory Direct Sourcing",
-    title: "Source Premium\nFootwear Direct",
+    image: CATEGORIES.find((c) => c.slug === "men-formal")?.image || CATEGORIES.find((c) => c.slug === "men-peshawari")?.image,
+    eyebrow: "International-Grade Materials. Custom Branding. Wholesale Scale.",
+    title: "Premium Leather & Rexine Footwear\nManufacturing for Global Wholesale Buyers",
     subtitle:
-      "Verified Pakistan manufacturers. Handcrafted Peshawari to formal Oxfords — zero middlemen.",
-    cta: "Browse Wholesale Catalog",
-    ctaSecondary: "Request Quote",
+      "Anamon Official supplies international-grade leather and rexine shoes to brands, retailers, and distributors worldwide — built for quality, scale, and speed.",
+    cta: "Explore Wholesale Catalog",
+    ctaSecondary: "Request a Bulk Quote",
+    link: "/products",
+  },
+  {
+    image: CATEGORIES.find((c) => c.slug === "men-peshawari")?.image,
+    eyebrow: "Custom Manufacturing (Private Label & OEM)",
+    title: "Tailored Footwear Production\n& Private Label Solutions",
+    subtitle:
+      "From private-label branding to custom colorways, logos, and design specifications, our production line adapts to your exact requirements at scale.",
+    cta: "Explore Wholesale Catalog",
+    ctaSecondary: "Request a Bulk Quote",
     link: "/products",
   },
   {
     image: CATEGORIES.find((c) => c.slug === "women-heels")?.image,
-    eyebrow: "Women's Trade Collection",
-    title: "Fashion Forward\nWholesale Range",
-    subtitle: "High-margin heels, flats and khussas designed for boutiques and retail chains.",
-    cta: "Explore Women's Range",
-    ctaSecondary: "Talk to Sales",
-    link: "/products",
-  },
-  {
-    image: CATEGORIES.find((c) => c.slug === "kids-boys")?.image,
-    eyebrow: "School & Institutional Rates",
-    title: "School & Kids\nBulk Orders",
-    subtitle: "Durable school shoes with flexible MOQs starting at 12 pairs (multiples of 12).",
-    cta: "View Kids Collection",
-    ctaSecondary: "Request Samples",
+    eyebrow: "Dependable Global Logistics",
+    title: "Export-Ready Footwear\nShipped Across the World",
+    subtitle:
+      "Secure, export-ready packaging and time-tested international shipping partnerships ensure your bulk orders arrive on schedule, anywhere in the world.",
+    cta: "Explore Wholesale Catalog",
+    ctaSecondary: "Request a Bulk Quote",
     link: "/products",
   },
 ];
@@ -261,9 +274,9 @@ function Home() {
             </div>
           )}
 
-          {/* Product Grid (1 col mobile, 2 col tablet, 3-4 col desktop) */}
+          {/* Product Grid (2 col mobile, 2 col tablet, 3-4 col desktop) */}
           {homeProducts.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-5">
               {homeProducts.map((product, idx) => (
                 <ProductCard
                   key={product.slug}
@@ -474,59 +487,102 @@ function Home() {
       </section>
 
       {/* ════════════════════════════════════════════════
-          5. FACTORY INFORMATION — last content section before footer
+          5. WHY CHOOSE US & ABOUT ANAMON OFFICIAL
       ═══════════════════════════════════════════════ */}
-      <section className="py-12 sm:py-16 bg-white border-b border-border">
+      <section className="py-14 sm:py-20 bg-white border-b border-border">
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
-          <div className="text-center mb-10 max-w-2xl mx-auto">
+          {/* Why Choose Us Header */}
+          <div className="text-center mb-12 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-leather mb-2">
               <Award className="h-3.5 w-3.5" />
-              <span>Verified Manufacturer Status</span>
+              <span>International Wholesale Standard</span>
             </div>
-            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-ink">
-              Anamon Production Facilities
+            <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-ink">
+              Why Choose Us
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-2 font-medium">
-              We own and operate dual high-capacity footwear factories in Rawalpindi & Lahore, 
-              delivering handcrafted traditional craftsmanship and industrial precision under one roof.
+            <p className="text-xs sm:text-sm md:text-base text-muted-foreground mt-2 font-medium">
+              "International-Grade Materials. Custom Branding. Wholesale Scale."
             </p>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-10">
-            <div className="rounded-xl border border-border bg-background p-5 text-center">
-              <div className="font-display text-2xl sm:text-3xl font-bold text-primary">15,000+ Pairs</div>
-              <div className="text-xs font-bold text-ink mt-1">Monthly Production Capacity</div>
+          {/* 3 Pillars */}
+          <div className="grid gap-6 md:grid-cols-3 mb-16">
+            {/* Pillar 1 */}
+            <div className="rounded-2xl border border-border bg-background p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-all">
+              <div>
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-gold mb-5 shadow-xs">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-2.5">
+                  Genuine & Premium Materials
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-medium">
+                  Every pair is crafted using internationally certified leather and high-grade rexine, engineered for durability, comfort, and a refined finish that meets global quality standards.
+                </p>
+              </div>
             </div>
-            <div className="rounded-xl border border-border bg-background p-5 text-center">
-              <div className="font-display text-2xl sm:text-3xl font-bold text-primary">2 Active Plants</div>
-              <div className="text-xs font-bold text-ink mt-1">Rawalpindi & Lahore</div>
+
+            {/* Pillar 2 */}
+            <div className="rounded-2xl border border-border bg-background p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-all">
+              <div>
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-gold mb-5 shadow-xs">
+                  <Sparkles className="h-6 w-6" />
+                </div>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-2.5">
+                  Custom Manufacturing (Private Label & OEM)
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-medium">
+                  From private-label branding to custom colorways, logos, and design specifications, our production line adapts to your brand's exact requirements — at scale.
+                </p>
+              </div>
             </div>
-            <div className="rounded-xl border border-border bg-background p-5 text-center">
-              <div className="font-display text-2xl sm:text-3xl font-bold text-primary">3-Stage QC</div>
-              <div className="text-xs font-bold text-ink mt-1">In-House Quality Control</div>
-            </div>
-            <div className="rounded-xl border border-border bg-background p-5 text-center">
-              <div className="font-display text-2xl sm:text-3xl font-bold text-primary">10–14 Days</div>
-              <div className="text-xs font-bold text-ink mt-1">Standard B2B Lead Time</div>
+
+            {/* Pillar 3 */}
+            <div className="rounded-2xl border border-border bg-background p-6 sm:p-8 flex flex-col justify-between hover:shadow-md transition-all">
+              <div>
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-primary text-gold mb-5 shadow-xs">
+                  <Globe className="h-6 w-6" />
+                </div>
+                <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-2.5">
+                  Dependable Global Logistics
+                </h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-medium">
+                  Secure, export-ready packaging and time-tested international shipping partnerships ensure your bulk orders arrive on schedule, anywhere in the world.
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-xl border border-border p-6 sm:p-8 bg-background">
-              <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-3">Our Craftsmanship & Materials</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-medium">
-                Every pair is built using premium full-grain buffalo and cow leather sourced from local tanneries, 
-                combined with high-durability PU, TPR, and vulcanized rubber sole moulding. Our skilled 
-                artisans hand-sew upper stitching lines, ensuring maximum lifespan and premium comfort.
-              </p>
-            </div>
-            <div className="rounded-xl border border-border p-6 sm:p-8 bg-background">
-              <h3 className="font-display text-lg sm:text-xl font-bold text-ink mb-3">Anamon Trade Assurance</h3>
-              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed font-medium">
-                We guarantee order accuracy, direct factory-wholesale pricing, and secure escrow payment collection. 
-                All batches go through material inspection, stitching line audit, and pre-pack checking before 
-                dispatching via TCS/Leopards freight networks.
-              </p>
+          {/* About Us Featured Block */}
+          <div className="rounded-2xl border border-[#E0D9CE] bg-gradient-to-br from-[#FAF7F2] to-white p-6 sm:p-10 lg:p-12 shadow-xs">
+            <div className="grid gap-8 lg:grid-cols-12 items-center">
+              <div className="lg:col-span-8">
+                <div className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-leather mb-2">
+                  ABOUT ANAMON OFFICIAL
+                </div>
+                <h3 className="font-display text-xl sm:text-3xl font-bold text-ink mb-4 leading-tight">
+                  Trusted Footwear Manufacturing Partner for Global Brands
+                </h3>
+                <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed font-medium">
+                  Anamon Official is a trusted manufacturer of leather and rexine footwear serving wholesale buyers, retailers, and emerging footwear brands across international markets. Backed by skilled craftsmanship, quality-controlled production, and material sourcing that meets global standards, we help businesses scale with competitive pricing, custom manufacturing options, and dependable delivery — from first sample to full container order.
+                </p>
+              </div>
+              <div className="lg:col-span-4 flex flex-col gap-3">
+                <Link
+                  to="/products"
+                  search={{ category: undefined, gender: undefined }}
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 px-6 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-gold hover:text-ink transition-all active:scale-98"
+                >
+                  <span>Explore Wholesale Catalog</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/bulk-order"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white py-3 px-6 text-xs sm:text-sm font-bold text-ink hover:bg-[#FAF7F2] transition-all active:scale-98"
+                >
+                  <span>Request a Bulk Quote</span>
+                </Link>
+              </div>
             </div>
           </div>
         </div>

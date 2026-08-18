@@ -49,10 +49,10 @@ export function SearchCommand() {
       {/* Mobile search button */}
       <button
         onClick={() => setOpen(true)}
-        className="lg:hidden flex h-9 w-9 items-center justify-center rounded-md text-foreground hover:bg-muted"
+        className="lg:hidden flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full text-foreground/70 hover:text-primary hover:bg-black/5 transition-all cursor-pointer"
         aria-label="Search"
       >
-        <Search className="h-5 w-5" />
+        <Search className="h-4 w-4 sm:h-5 sm:w-5" />
       </button>
 
       <CommandDialog open={open} onOpenChange={setOpen}>
