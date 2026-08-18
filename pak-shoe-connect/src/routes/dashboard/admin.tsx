@@ -764,10 +764,10 @@ export function AdminDashboardPage() {
         productionCapacity: updatedFields.productionCapacity || "10,000 pairs/month",
         customization: ["Custom Branding Embossing", "Color Dye Matching", "Custom Inner Sole"],
         inStock: updatedFields.inStock !== false,
-        featured: !!updatedFields.featured,
+        featured: updatedFields.featured !== false,
         bestseller: !!updatedFields.bestseller,
-        trending: !!updatedFields.trending,
-        newArrival: !!updatedFields.newArrival,
+        trending: updatedFields.trending !== false,
+        newArrival: updatedFields.newArrival !== false,
         description:
           updatedFields.description ||
           "High quality footwear manufactured to Anamon wholesale standards.",
@@ -777,13 +777,15 @@ export function AdminDashboardPage() {
           "Minimum Order": `${updatedFields.moq || 12} pairs (1 carton)`,
           Packaging: "12 pairs per carton (Single color)",
         },
-        shippingInfo: "Shipped in standard cartons of 12 pairs. Single color per carton.",
+        shippingInfo:
+          updatedFields.shippingInfo ||
+          "Shipped in standard cartons of 12 pairs. Single color per carton.",
         reviews: [],
         stats: {
-          unitsSold: 450,
-          ordersCompleted: 28,
-          activeBuyers: 14,
-          repeatPurchasePct: 88,
+          unitsSold: 0,
+          ordersCompleted: 0,
+          activeBuyers: 0,
+          repeatPurchasePct: 100,
         },
       };
       const updated = [newProd, ...productsList];

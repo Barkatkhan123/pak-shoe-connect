@@ -5,10 +5,22 @@ import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
 import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/product-card";
+import { QuickViewModal } from "@/components/quick-view-modal";
 import { InquiryDrawer } from "@/components/inquiry-drawer";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Package, Heart, Clock, LogOut, Settings, Bell, LayoutDashboard } from "lucide-react";
+import {
+  Package,
+  Heart,
+  Clock,
+  LogOut,
+  Settings,
+  Bell,
+  LayoutDashboard,
+  Grid,
+  Search,
+} from "lucide-react";
+import type { Product } from "@/data/products";
 
 export const Route = createFileRoute("/dashboard/buyer")({
   loader: async () => {
@@ -39,8 +51,20 @@ function BuyerDashboard() {
 
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [catalogSearch, setCatalogSearch] = useState("");
 
   const wishlistedProducts = products.filter((p) => wishlistItems.some((w) => w.slug === p.slug));
+
+  const filteredCatalog = products.filter((p) => {
+    if (!catalogSearch.trim()) return true;
+    const q = catalogSearch.toLowerCase();
+    return (
+      p.name.toLowerCase().includes(q) ||
+      p.sku.toLowerCase().includes(q) ||
+      p.categorySlug.toLowerCase().includes(q)
+    );
+  });
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -63,7 +87,7 @@ function BuyerDashboard() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setInquiryOpen(true)}
-                className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-emerald-deep transition"
+                className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-emerald-deep transition cursor-pointer"
               >
                 <Package className="h-4 w-4" />
                 Active Inquiry ({inquiryCount})
@@ -80,27 +104,51 @@ function BuyerDashboard() {
             <nav className="flex md:flex-col gap-2 overflow-x-auto pb-4 md:pb-0 scrollbar-hide">
               {[
                 { id: "overview", label: "Overview", icon: LayoutDashboard },
-                { id: "wishlist", label: "Saved for Later", icon: Heart },
+                {
+                  id: "catalog",
+                  label: "Wholesale Catalog",
+                  icon: Grid,
+                  badge: products.length,
+                },
+                {
+                  id: "wishlist",
+                  label: "Saved for Later",
+                  icon: Heart,
+                  badge: wishlistItems.length,
+                },
                 { id: "history", label: "Browsing History", icon: Clock },
                 { id: "settings", label: "Account Settings", icon: Settings },
               ].map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveTab(item.id)}
-                  className={`flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap ${
+                  className={`flex items-center justify-between rounded-lg px-4 py-3 text-sm font-medium transition-colors whitespace-nowrap cursor-pointer ${
                     activeTab === item.id
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
+                  <div className="flex items-center gap-3">
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </div>
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span
+                      className={`text-xs px-2 py-0.5 rounded-full font-mono font-bold ${
+                        activeTab === item.id
+                          ? "bg-white/20 text-white"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
                 </button>
               ))}
               <div className="hidden md:block h-px bg-border my-2" />
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                className="flex items-center gap-3 rounded-lg px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
               >
                 <LogOut className="h-4 w-4" />
                 Sign Out
@@ -120,7 +168,7 @@ function BuyerDashboard() {
                     <div className="text-3xl font-bold text-foreground">{inquiryCount}</div>
                     <button
                       onClick={() => setInquiryOpen(true)}
-                      className="text-xs text-primary font-medium hover:underline mt-2"
+                      className="text-xs text-primary font-medium hover:underline mt-2 cursor-pointer"
                     >
                       View current draft
                     </button>
@@ -132,17 +180,52 @@ function BuyerDashboard() {
                     <div className="text-3xl font-bold text-foreground">{wishlistItems.length}</div>
                     <button
                       onClick={() => setActiveTab("wishlist")}
-                      className="text-xs text-primary font-medium hover:underline mt-2"
+                      className="text-xs text-primary font-medium hover:underline mt-2 cursor-pointer"
                     >
                       View wishlist
                     </button>
                   </div>
                   <div className="rounded-xl border border-border bg-card p-5">
                     <div className="text-sm font-medium text-muted-foreground mb-1">
-                      Past Orders
+                      Available Models
                     </div>
-                    <div className="text-3xl font-bold text-foreground">0</div>
-                    <div className="text-xs text-muted-foreground mt-2">No orders yet</div>
+                    <div className="text-3xl font-bold text-foreground">{products.length}</div>
+                    <button
+                      onClick={() => setActiveTab("catalog")}
+                      className="text-xs text-primary font-medium hover:underline mt-2 cursor-pointer"
+                    >
+                      Browse wholesale catalog
+                    </button>
+                  </div>
+                </div>
+
+                {/* Featured Catalog Products */}
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h2 className="text-xl font-display font-bold">
+                        Wholesale Products & New Listings
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        Direct factory rates, MOQ starting at 12 pairs (1 carton)
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setActiveTab("catalog")}
+                      className="text-xs text-primary font-bold hover:underline cursor-pointer"
+                    >
+                      View All ({products.length}) →
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {products.slice(0, 8).map((p, i) => (
+                      <ProductCard
+                        key={p.slug}
+                        product={p}
+                        index={i}
+                        onQuickView={(prod) => setQuickViewProduct(prod)}
+                      />
+                    ))}
                   </div>
                 </div>
 
@@ -152,18 +235,58 @@ function BuyerDashboard() {
                       <h2 className="text-xl font-display font-bold">Recently Viewed</h2>
                       <button
                         onClick={() => setActiveTab("history")}
-                        className="text-sm text-primary font-medium hover:underline"
+                        className="text-sm text-primary font-medium hover:underline cursor-pointer"
                       >
                         View all
                       </button>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                       {recentProducts.slice(0, 4).map((p, i) => (
-                        <ProductCard key={p.slug} product={p} index={i} />
+                        <ProductCard
+                          key={p.slug}
+                          product={p}
+                          index={i}
+                          onQuickView={(prod) => setQuickViewProduct(prod)}
+                        />
                       ))}
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* FULL WHOLESALE CATALOG TAB */}
+            {activeTab === "catalog" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-2xl font-display font-bold">Wholesale Catalog</h2>
+                    <p className="text-xs text-muted-foreground">
+                      Explore all footwear models available for bulk factory orders
+                    </p>
+                  </div>
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="text"
+                      value={catalogSearch}
+                      onChange={(e) => setCatalogSearch(e.target.value)}
+                      placeholder="Search shoes by name, SKU..."
+                      className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-border bg-background outline-none focus:border-primary"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {filteredCatalog.map((p, i) => (
+                    <ProductCard
+                      key={p.slug}
+                      product={p}
+                      index={i}
+                      onQuickView={(prod) => setQuickViewProduct(prod)}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -281,6 +404,14 @@ function BuyerDashboard() {
       </div>
 
       <InquiryDrawer isOpen={inquiryOpen} onClose={() => setInquiryOpen(false)} />
+
+      {quickViewProduct && (
+        <QuickViewModal
+          product={quickViewProduct}
+          isOpen={!!quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
     </SiteLayout>
   );
 }

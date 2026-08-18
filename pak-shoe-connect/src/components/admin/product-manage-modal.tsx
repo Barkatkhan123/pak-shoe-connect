@@ -195,11 +195,20 @@ export function ProductManageModal({
       setNameUrdu("");
       setSku(`SHR-${Math.floor(100 + Math.random() * 900)}`);
       setCategorySlug("men-formal");
+      setGender("men");
+      setMaterial("Full-grain genuine leather");
+      setSoleType("Rubber");
       setDescription("");
       setSampleAvailable(true);
       setSamplePrice(2500);
       setSampleLeadDays("2–4 days express courier");
       setSampleRefundable(true);
+      setInStock(true);
+      setFeatured(true);
+      setNewArrival(true);
+      setTrending(true);
+      setBestseller(false);
+      setIsPublished(true);
       setMainImage(
         "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800&auto=format&fit=crop",
       );

@@ -1,10 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Package, FileText, MessageCircle, LogOut, User, ShoppingBag } from "lucide-react";
+import { Package, FileText, MessageCircle, LogOut, User, ShoppingBag, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { SiteLayout } from "@/components/site-layout";
 import { SITE } from "@/lib/site";
+import { useProducts } from "@/hooks/use-products";
+import { ProductCard } from "@/components/product-card";
+import { QuickViewModal } from "@/components/quick-view-modal";
+import type { Product } from "@/data/products";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
@@ -22,8 +26,10 @@ type Profile = {
 function Dashboard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { products } = useProducts();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [email, setEmail] = useState("");
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -61,7 +67,7 @@ function Dashboard() {
           </div>
           <button
             onClick={signOut}
-            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted"
+            className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm hover:bg-muted cursor-pointer"
           >
             <LogOut className="h-4 w-4" /> Sign out
           </button>
@@ -122,7 +128,48 @@ function Dashboard() {
             </p>
           </div>
         </div>
+
+        {/* ── Wholesale Products & New Listings Showcase ── */}
+        <div className="mt-12 space-y-5 border-t border-border pt-10">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <h2 className="font-display text-2xl font-bold text-foreground">
+                Wholesale Catalog & Latest Listings
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Direct factory rates, MOQ from 12 pairs, and instant inquiry booking
+              </p>
+            </div>
+            <Link
+              to="/products"
+              search={{ category: undefined, gender: undefined }}
+              className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+            >
+              <span>Explore All {products.length} Models</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {products.slice(0, 8).map((p, idx) => (
+              <ProductCard
+                key={p.slug}
+                product={p}
+                index={idx}
+                onQuickView={(prod) => setQuickViewProduct(prod)}
+              />
+            ))}
+          </div>
+        </div>
       </section>
+
+      {quickViewProduct && (
+        <QuickViewModal
+          product={quickViewProduct}
+          isOpen={!!quickViewProduct}
+          onClose={() => setQuickViewProduct(null)}
+        />
+      )}
     </SiteLayout>
   );
 }
