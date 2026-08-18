@@ -1028,18 +1028,20 @@ export const DEFAULT_PRODUCTS: Product[] = [
 const PRODUCTS_STORAGE_KEY = "shersha_catalog_products";
 const PRODUCTS_UPDATE_EVENT = "shersha_products_update";
 
+let inMemoryProducts: Product[] | null = null;
+
 /**
  * Retrieves the currently active product list from localStorage if available,
  * falling back to the initial default product catalogue.
  */
 export function getStoredProducts(): Product[] {
   if (typeof window === "undefined") {
-    return DEFAULT_PRODUCTS;
+    return inMemoryProducts || DEFAULT_PRODUCTS;
   }
   try {
     const raw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
     if (!raw) {
-      return DEFAULT_PRODUCTS;
+      return inMemoryProducts || DEFAULT_PRODUCTS;
     }
     const parsed = JSON.parse(raw);
     if (Array.isArray(parsed) && parsed.length > 0) {
@@ -1048,7 +1050,7 @@ export function getStoredProducts(): Product[] {
   } catch (err) {
     console.warn("Failed to load products from storage:", err);
   }
-  return DEFAULT_PRODUCTS;
+  return inMemoryProducts || DEFAULT_PRODUCTS;
 }
 
 /**
@@ -1056,6 +1058,7 @@ export function getStoredProducts(): Product[] {
  * to all components and browser tabs.
  */
 export function saveStoredProducts(products: Product[]): void {
+  inMemoryProducts = products;
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
@@ -1068,9 +1071,17 @@ export function saveStoredProducts(products: Product[]): void {
 /**
  * Updates a single product by slug or sku and notifies all listeners.
  */
-export function updateStoredProduct(slug: string, updates: Partial<Product>): Product[] {
+export function updateStoredProduct(slugOrSku: string, updates: Partial<Product>): Product[] {
+  if (!slugOrSku) return getStoredProducts();
   const current = getStoredProducts();
-  const next = current.map((p) => (p.slug === slug ? ({ ...p, ...updates } as Product) : p));
+  const cleanTarget = slugOrSku.toLowerCase().trim();
+  const next = current.map((p) => {
+    const matches =
+      p.slug.toLowerCase() === cleanTarget ||
+      p.sku.toLowerCase() === cleanTarget ||
+      p.slug.toLowerCase() === cleanTarget.replace(/[^a-z0-9]+/g, "-");
+    return matches ? ({ ...p, ...updates } as Product) : p;
+  });
   saveStoredProducts(next);
   return next;
 }
@@ -1080,8 +1091,12 @@ export function updateStoredProduct(slug: string, updates: Partial<Product>): Pr
  */
 export function addStoredProduct(newProduct: Product): Product[] {
   const current = getStoredProducts();
-  // Ensure no duplicate slug
-  const filtered = current.filter((p) => p.slug !== newProduct.slug);
+  // Ensure no duplicate slug or sku
+  const cleanSlug = (newProduct.slug || "").toLowerCase();
+  const cleanSku = (newProduct.sku || "").toLowerCase();
+  const filtered = current.filter(
+    (p) => p.slug.toLowerCase() !== cleanSlug && (!cleanSku || p.sku.toLowerCase() !== cleanSku),
+  );
   const next = [newProduct, ...filtered];
   saveStoredProducts(next);
   return next;
@@ -1090,9 +1105,16 @@ export function addStoredProduct(newProduct: Product): Product[] {
 /**
  * Deletes a product from the stored catalog and notifies all listeners.
  */
-export function deleteStoredProduct(slug: string): Product[] {
+export function deleteStoredProduct(slugOrSku: string): Product[] {
+  if (!slugOrSku) return getStoredProducts();
   const current = getStoredProducts();
-  const next = current.filter((p) => p.slug !== slug);
+  const cleanTarget = slugOrSku.toLowerCase().trim();
+  const next = current.filter(
+    (p) =>
+      p.slug.toLowerCase() !== cleanTarget &&
+      p.sku.toLowerCase() !== cleanTarget &&
+      p.slug.toLowerCase() !== cleanTarget.replace(/[^a-z0-9]+/g, "-"),
+  );
   saveStoredProducts(next);
   return next;
 }
@@ -1101,7 +1123,8 @@ export function deleteStoredProduct(slug: string): Product[] {
  * Resets the product catalog to default factory definitions.
  */
 export function resetStoredProducts(): Product[] {
-  if (typeof window === "undefined") return DEFAULT_PRODUCTS;
+  inMemoryProducts = [...DEFAULT_PRODUCTS];
+  if (typeof window === "undefined") return inMemoryProducts;
   try {
     localStorage.removeItem(PRODUCTS_STORAGE_KEY);
     saveStoredProducts(DEFAULT_PRODUCTS);
@@ -1109,8 +1132,18 @@ export function resetStoredProducts(): Product[] {
   return DEFAULT_PRODUCTS;
 }
 
-export const getProduct = (slug: string): Product | undefined =>
-  getStoredProducts().find((p) => p.slug === slug);
+export const getProduct = (slugOrSku: string): Product | undefined => {
+  if (!slugOrSku) return undefined;
+  const clean = decodeURIComponent(slugOrSku).trim().toLowerCase();
+  const cleanDashed = clean.replace(/[^a-z0-9]+/g, "-");
+  return getStoredProducts().find(
+    (p) =>
+      p.slug.toLowerCase() === clean ||
+      p.sku.toLowerCase() === clean ||
+      p.slug.toLowerCase() === cleanDashed ||
+      p.sku.toLowerCase().replace(/[^a-z0-9]+/g, "-") === cleanDashed,
+  );
+};
 
 export const relatedProducts = (p: Product, n = 4): Product[] =>
   getStoredProducts()
@@ -1127,6 +1160,15 @@ export const getCategory = (slug: string) => CATEGORIES.find((c) => c.slug === s
 export const getProductsByCategory = (slug: string): Product[] =>
   getStoredProducts().filter((p) => p.categorySlug === slug);
 
+export function getCategoriesWithCounts(): Category[] {
+  const products = getStoredProducts();
+  return CATEGORIES.map((c) => ({
+    ...c,
+    productCount: products.filter((p) => p.categorySlug === c.slug).length,
+  }));
+}
+
 // Backward compatibility
 export const CATEGORIES_COMPAT = CATEGORIES;
+
 

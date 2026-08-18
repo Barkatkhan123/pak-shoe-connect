@@ -78,14 +78,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { toast } from "sonner";
 import {
   PRODUCTS,
   Product,
@@ -713,18 +707,24 @@ export function AdminDashboardPage() {
     }
 
     if (isEdit) {
+      const targetSlug = productToEdit.slug;
       const updated = productsList.map((p) =>
-        p.slug === productToEdit.slug ? ({ ...p, ...updatedFields } as Product) : p,
+        p.slug === targetSlug || p.sku === productToEdit.sku
+          ? ({ ...p, ...updatedFields } as Product)
+          : p,
       );
       setProductsList(updated);
       saveStoredProducts(updated);
+      toast.success(`Product "${updatedFields.name || productToEdit.name}" updated successfully`);
     } else {
+      const generatedSlug =
+        updatedFields.slug ||
+        (updatedFields.sku
+          ? updatedFields.sku.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+          : `prod-${Date.now()}`);
+
       const newProd: Product = {
-        slug:
-          updatedFields.slug ||
-          (updatedFields.sku
-            ? updatedFields.sku.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-            : `prod-${Date.now()}`),
+        slug: generatedSlug,
         sku: updatedFields.sku || `SHR-PROD-${Math.floor(100 + Math.random() * 900)}`,
         name: updatedFields.name || "New Wholesale Footwear",
         nameUrdu: updatedFields.nameUrdu || "",
@@ -762,7 +762,15 @@ export function AdminDashboardPage() {
         leadTimeDays: updatedFields.leadTimeDays || "10–14 days",
         priceLabel: updatedFields.priceLabel || "PKR 1,250–1,850",
         productionCapacity: updatedFields.productionCapacity || "10,000 pairs/month",
-        customization: ["Custom Branding Embossing", "Color Dye Matching", "Custom Inner Sole"],
+        sampleAvailable: updatedFields.sampleAvailable !== false,
+        samplePrice: updatedFields.samplePrice || 2500,
+        sampleLeadDays: updatedFields.sampleLeadDays || "2–4 days express courier",
+        sampleRefundable: updatedFields.sampleRefundable !== false,
+        customization: updatedFields.customization || [
+          "Custom Branding Embossing",
+          "Color Dye Matching",
+          "Custom Inner Sole",
+        ],
         inStock: updatedFields.inStock !== false,
         featured: updatedFields.featured !== false,
         bestseller: !!updatedFields.bestseller,
@@ -780,17 +788,18 @@ export function AdminDashboardPage() {
         shippingInfo:
           updatedFields.shippingInfo ||
           "Shipped in standard cartons of 12 pairs. Single color per carton.",
-        reviews: [],
-        stats: {
+        reviews: updatedFields.reviews || [],
+        stats: updatedFields.stats || {
           unitsSold: 0,
           ordersCompleted: 0,
           activeBuyers: 0,
           repeatPurchasePct: 100,
         },
       };
-      const updated = [newProd, ...productsList];
+      const updated = [newProd, ...productsList.filter((p) => p.slug !== newProd.slug)];
       setProductsList(updated);
       saveStoredProducts(updated);
+      toast.success(`New product "${newProd.name}" created and published!`);
     }
 
     setAuditLogs(adminSecurityEngine.getAuditLogs());

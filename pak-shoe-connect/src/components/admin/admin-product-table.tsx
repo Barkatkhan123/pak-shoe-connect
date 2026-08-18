@@ -37,7 +37,7 @@ import {
   Package,
 } from "lucide-react";
 
-import { Product } from "@/data/products";
+import { Product, CATEGORIES } from "@/data/products";
 
 interface AdminProductTableProps {
   products: Product[];
@@ -110,10 +110,11 @@ export function AdminProductTable({
             className="h-10 bg-slate-950 border border-slate-800 rounded-xl px-3 text-xs text-slate-300 focus:outline-none"
           >
             <option value="ALL">All Categories</option>
-            <option value="men-formal">Men's Formal</option>
-            <option value="casual-sneakers">Casual Sneakers</option>
-            <option value="traditional-chappal">Traditional Chappal</option>
-            <option value="women-heels">Women's Heels</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.slug} value={c.slug}>
+                {c.name} ({c.gender})
+              </option>
+            ))}
           </select>
 
           {/* Status Filter */}

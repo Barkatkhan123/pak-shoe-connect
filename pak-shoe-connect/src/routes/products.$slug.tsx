@@ -1,6 +1,14 @@
 import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
-import { getProduct, relatedProducts, CATEGORIES } from "@/data/products";
+import {
+  type Product,
+  type Review,
+  type PriceTier,
+  type ColorVariant,
+  getProduct,
+  relatedProducts,
+  CATEGORIES,
+} from "@/data/products";
 import { useState, useCallback } from "react";
 import { toast } from "sonner";
 import {
@@ -174,7 +182,10 @@ function ProductDetail() {
   /* Derived */
   const avgRating =
     product.reviews.length > 0
-      ? (product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length).toFixed(1)
+      ? (
+          product.reviews.reduce((s: number, r: Review) => s + r.rating, 0) /
+          product.reviews.length
+        ).toFixed(1)
       : "4.8";
 
   /* Handlers */
@@ -225,7 +236,7 @@ function ProductDetail() {
       : {}),
   };
 
-  const selectedColorIndex = product.colorVariants.findIndex((c) => c.name === selectedColor);
+  const selectedColorIndex = product.colorVariants.findIndex((c: ColorVariant) => c.name === selectedColor);
   const selectedColorImage =
     selectedColorIndex >= 0 && product.images[selectedColorIndex]
       ? product.images[selectedColorIndex]
@@ -511,7 +522,7 @@ function ProductDetail() {
                         OEM/ODM Capabilities
                       </h4>
                       <ul className="space-y-2">
-                        {product.customization.map((c, i) => (
+                        {product.customization.map((c: string, i: number) => (
                           <li
                             key={i}
                             className="flex items-center gap-2 text-sm text-muted-foreground"
@@ -530,7 +541,7 @@ function ProductDetail() {
                   Product Showcase
                 </h4>
                 <div className="flex flex-col gap-4 items-center">
-                  {product.images.slice(0, 4).map((img, i) => (
+                  {product.images.slice(0, 4).map((img: string, i: number) => (
                     <div
                       key={i}
                       className="w-full max-w-[720px] bg-muted/40 rounded-xl overflow-hidden flex items-center justify-center p-2"
@@ -674,8 +685,8 @@ function ProductDetail() {
                         </p>
 
                         <div className="mt-6 space-y-2">
-                          {[5, 4, 3, 2, 1].map((rating) => {
-                            const count = product.reviews.filter((r) => r.rating === rating).length;
+                          {[5, 4, 3, 2, 1].map((rating: number) => {
+                            const count = product.reviews.filter((r: Review) => r.rating === rating).length;
                             const percent = (count / product.reviews.length) * 100;
                             return (
                               <div key={rating} className="flex items-center gap-2 text-sm">
@@ -709,8 +720,8 @@ function ProductDetail() {
                         >
                           All ({product.reviews.length})
                         </button>
-                        {[5, 4, 3, 2, 1].map((star) => {
-                          const count = product.reviews.filter((r) => r.rating === star).length;
+                        {[5, 4, 3, 2, 1].map((star: number) => {
+                          const count = product.reviews.filter((r: Review) => r.rating === star).length;
                           return (
                             <button
                               key={star}
@@ -724,9 +735,9 @@ function ProductDetail() {
                       </div>
 
                       {(reviewFilter
-                        ? product.reviews.filter((r) => r.rating === reviewFilter)
+                        ? product.reviews.filter((r: Review) => r.rating === reviewFilter)
                         : product.reviews
-                      ).map((r) => (
+                      ).map((r: Review) => (
                         <ReviewCard key={r.id} review={r} />
                       ))}
                     </div>

@@ -130,6 +130,22 @@ function buildSyntheticSession(user: User): Session {
   };
 }
 
+class NoopWebSocket {
+  static CONNECTING = 0;
+  static OPEN = 1;
+  static CLOSING = 2;
+  static CLOSED = 3;
+  readyState = 3;
+  onopen: any = null;
+  onclose: any = null;
+  onerror: any = null;
+  onmessage: any = null;
+  send() {}
+  close() {}
+  addEventListener() {}
+  removeEventListener() {}
+}
+
 function createSupabaseClient() {
   const SUPABASE_URL =
     (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) ||
@@ -148,6 +164,9 @@ function createSupabaseClient() {
       storage: typeof window !== "undefined" ? localStorage : undefined,
       persistSession: true,
       autoRefreshToken: true,
+    },
+    realtime: {
+      transport: typeof WebSocket !== "undefined" ? WebSocket : (NoopWebSocket as any),
     },
   });
 

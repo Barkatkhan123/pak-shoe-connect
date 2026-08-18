@@ -5,6 +5,15 @@
 
 import { adminSecurityEngine, MASTER_ADMIN_EMAIL } from "./admin-auth";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  getStoredProducts,
+  getProduct,
+  getCategoriesWithCounts,
+  addStoredProduct,
+  updateStoredProduct,
+  deleteStoredProduct,
+  Product,
+} from "@/data/products";
 
 const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
@@ -88,11 +97,11 @@ async function request<T = any>(
       const data = await res.json();
       return data;
     }
-    const text = await res.text();
-    if (!res.ok) {
-      return { success: false, error: text || `HTTP ${res.status} ${res.statusText}` };
-    }
-    return { success: true, data: text as unknown as T };
+    // If response is HTML or plain text (e.g. dev server SPA route fallback), treat as unhandled API route
+    return {
+      success: false,
+      error: `Non-JSON response received: ${contentType || "unknown"}`,
+    };
   } catch (err: any) {
     return {
       success: false,
@@ -120,7 +129,7 @@ function getLocalBasketData() {
 export const apiClient = {
   // 1. Catalog & Search
   catalog: {
-    list: (params?: {
+    list: async (params?: {
       category?: string;
       gender?: string;
       search?: string;
@@ -128,14 +137,64 @@ export const apiClient = {
       page?: number;
       limit?: number;
       sort?: string;
-    }) => request("/api/v1/catalog/products", { params }),
+    }) => {
+      try {
+        const res = await request("/api/v1/catalog/products", { params });
+        if (res && res.success && res.data) return res;
+      } catch {}
+      let prods = getStoredProducts();
+      if (params?.category) {
+        prods = prods.filter((p) => p.categorySlug === params.category);
+      }
+      if (params?.gender && params.gender !== "all") {
+        prods = prods.filter((p) => p.gender === params.gender);
+      }
+      if (params?.search) {
+        const q = params.search.toLowerCase().trim();
+        prods = prods.filter(
+          (p) =>
+            p.name.toLowerCase().includes(q) ||
+            p.sku.toLowerCase().includes(q) ||
+            (p.description && p.description.toLowerCase().includes(q)),
+        );
+      }
+      return { success: true, data: { products: prods, total: prods.length } };
+    },
 
-    get: (slugOrId: string) => request(`/api/v1/catalog/products/${slugOrId}`),
+    get: async (slugOrId: string) => {
+      try {
+        const res = await request(`/api/v1/catalog/products/${slugOrId}`);
+        if (res && res.success && res.data) return res;
+      } catch {}
+      const prod = getProduct(slugOrId);
+      if (prod) return { success: true, data: prod };
+      return { success: false, error: "Product not found" };
+    },
 
-    search: (query: string, filters?: any) =>
-      request("/api/v1/catalog/search", { params: { q: query, ...filters } }),
+    search: async (query: string, filters?: any) => {
+      try {
+        const res = await request("/api/v1/catalog/search", { params: { q: query, ...filters } });
+        if (res && res.success && res.data) return res;
+      } catch {}
+      const q = (query || "").toLowerCase().trim();
+      const results = getStoredProducts().filter(
+        (p) =>
+          !q ||
+          p.name.toLowerCase().includes(q) ||
+          p.sku.toLowerCase().includes(q) ||
+          (p.description && p.description.toLowerCase().includes(q)) ||
+          p.categorySlug.toLowerCase().includes(q),
+      );
+      return { success: true, data: results };
+    },
 
-    categories: () => request("/api/v1/catalog/categories"),
+    categories: async () => {
+      try {
+        const res = await request("/api/v1/catalog/categories");
+        if (res && res.success && res.data) return res;
+      } catch {}
+      return { success: true, data: getCategoriesWithCounts() };
+    },
   },
 
   // 2. Wholesale Pricing & Cart Engine
@@ -366,6 +425,19 @@ export const apiClient = {
           success: false,
           error: "HTTP 403 Forbidden: Only anamoontotrade@gmail.com can manage catalog items.",
         };
+      }
+
+      // Apply changes to local repository atomically
+      try {
+        if (action === "CREATE") {
+          addStoredProduct(productData as Product);
+        } else if (action === "UPDATE") {
+          updateStoredProduct(productData.slug || productData.sku, productData);
+        } else if (action === "DELETE") {
+          deleteStoredProduct(productData.slug || productData.sku);
+        }
+      } catch (err) {
+        console.warn("Storage sync warning on action:", err);
       }
 
       adminSecurityEngine.logActivity({

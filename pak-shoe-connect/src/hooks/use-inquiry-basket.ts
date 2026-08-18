@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useQueryClient, useMutation, useQuery } from "@tanstack/react-query";
-import { type Product, PRODUCTS } from "@/data/products";
+import { type Product, getProduct } from "@/data/products";
 import { useAuth } from "./use-auth";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
@@ -402,7 +402,7 @@ export function useInquiryBasket() {
     const resumeAction = async () => {
       try {
         // Reconstruct or lookup product definition from catalog
-        const catalogProduct = PRODUCTS.find((p) => p.slug === pending.slug);
+        const catalogProduct = getProduct(pending.slug);
         const resolvedProduct: Product =
           catalogProduct ||
           ({
@@ -540,6 +540,7 @@ export function useInquiryBasket() {
     clearBasket: clear,
     count: items.length,
     totalItems,
+    totalPairs: totalItems,
     isAdding: isAdding || addMutation.isPending,
     isAuthenticated,
     hasPendingAction: !!getPendingAction(),

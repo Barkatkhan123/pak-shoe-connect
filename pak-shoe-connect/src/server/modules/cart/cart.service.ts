@@ -1,6 +1,6 @@
 import { PricingService } from "../../services/pricing.service";
 import { CalculateCartInput, AddBasketItemInput, ServerBasketItem } from "./cart.schema";
-import { PRODUCTS } from "../../../data/products";
+import { PRODUCTS, getProduct } from "../../../data/products";
 import { prisma } from "../../db";
 
 // In-memory server basket store keyed by userId (persists for session lifetime across serverless/node requests)
@@ -44,7 +44,7 @@ export class CartService {
     }
 
     // 1. Server-side product lookup (trusted source)
-    const product = PRODUCTS.find((p) => p.slug === input.productSlug);
+    const product = getProduct(input.productSlug) || PRODUCTS.find((p) => p.slug === input.productSlug);
     if (!product) {
       throw new Error(`Product not found with slug: ${input.productSlug}`);
     }
@@ -178,7 +178,7 @@ export class CartService {
     requestedQty: number,
   ): Promise<ServerBasketItem[]> {
     const currentBasket = userBaskets.get(userId) || [];
-    const product = PRODUCTS.find((p) => p.slug === slug);
+    const product = getProduct(slug) || PRODUCTS.find((p) => p.slug === slug);
     const cartonQty = product?.cartonQty || 12;
 
     const updated = currentBasket.map((item) => {

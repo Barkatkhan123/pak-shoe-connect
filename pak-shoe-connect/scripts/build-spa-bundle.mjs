@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 
 async function build() {
-  const version = "app-v7";
+  const version = "app-v8";
   const buildTimestamp = Date.now();
   console.log(`🔨 Building production client SPA bundle (${version}.js)...`);
   
@@ -48,8 +48,9 @@ async function build() {
     },
   });
 
-  // Mirror to app-v6.js, app-v5.js, app-v4.js, and app-v3.js as well for any legacy cached requests
+  // Mirror to previous version filenames as well for any legacy cached requests
   if (fs.existsSync(`dist/client/assets/${version}.js`)) {
+    fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v7.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v6.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v5.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v4.js");
@@ -57,6 +58,7 @@ async function build() {
     
     // Also copy to root assets if needed
     fs.copyFileSync(`dist/client/assets/${version}.js`, `dist/client/${version}.js`);
+    fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/app-v7.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/app-v6.js");
   }
 

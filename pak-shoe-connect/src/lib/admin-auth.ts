@@ -80,6 +80,7 @@ const SESSION_STORAGE_KEY = "shersha_master_admin_session_v3";
 const AUDIT_LOGS_STORAGE_KEY = "shersha_admin_audit_logs_v3";
 const FAILED_ATTEMPTS_KEY = "shersha_admin_failed_attempts_v3";
 const ACTIVE_OTP_KEY = "shersha_admin_active_otp_v3";
+let memoryAdminSession: AdminUserSession | null = null;
 
 // Initial Immutable Audit Trail
 const INITIAL_AUDIT_LOGS: AuditLogEntry[] = [
@@ -270,7 +271,7 @@ export const adminSecurityEngine = {
    * 4. Session Persistence, Refresh Tokens & CSRF Double-Submit Guard
    */
   getStoredSession(): AdminUserSession | null {
-    if (typeof window === "undefined") return null;
+    if (typeof window === "undefined") return memoryAdminSession;
     try {
       const raw = localStorage.getItem(SESSION_STORAGE_KEY);
       if (!raw) return null;
@@ -344,6 +345,7 @@ export const adminSecurityEngine = {
       permissions: MASTER_ADMIN_PERMISSIONS,
     };
 
+    memoryAdminSession = session;
     if (typeof window !== "undefined") {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
     }
@@ -363,6 +365,7 @@ export const adminSecurityEngine = {
   },
 
   clearSession() {
+    memoryAdminSession = null;
     if (typeof window !== "undefined") {
       // BUG-14 FIX: Read the raw stored session directly instead of calling
       // getStoredSession(), which itself can call clearSession() on invalid
