@@ -157,7 +157,7 @@ function Home() {
           return (b.newArrival ? 1 : 0) - (a.newArrival ? 1 : 0);
       }
     });
-  }, [selectedCats, selectedGender, sort]);
+  }, [products, selectedCats, selectedGender, sort]);
 
   // Homepage selection list (first 12 items of the filtered set)
   const homeProducts = useMemo(() => {

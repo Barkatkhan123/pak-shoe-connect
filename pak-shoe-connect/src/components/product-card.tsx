@@ -39,25 +39,26 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
           ? BADGE_CONFIG.featured
           : null;
 
+  const reviews = product.reviews || [];
   const avgRating =
-    product.reviews.length > 0
-      ? product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length
+    reviews.length > 0
+      ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
       : 4.8;
 
   // Normalized low -> high wholesale price
   const { minPrice, maxPrice, formattedPrice } = useMemo(() => {
     if (!product.priceTiers || product.priceTiers.length === 0) {
-      return { minPrice: 0, maxPrice: 0, formattedPrice: "PKR Quote on Request" };
+      return { minPrice: 0, maxPrice: 0, formattedPrice: product.priceLabel || "PKR Quote on Request" };
     }
     const prices = product.priceTiers.map((t) => t.pricePerPair).sort((a, b) => a - b);
-    const min = prices[0];
-    const max = prices[prices.length - 1];
+    const min = prices[0] ?? 0;
+    const max = prices[prices.length - 1] ?? 0;
     const formatted =
       min === max
         ? `PKR ${min.toLocaleString()}`
         : `PKR ${min.toLocaleString()} – ${max.toLocaleString()}`;
     return { minPrice: min, maxPrice: max, formattedPrice: formatted };
-  }, [product.priceTiers]);
+  }, [product.priceTiers, product.priceLabel]);
 
   return (
     <div className="group relative flex flex-col product-card-premium h-full bg-white rounded-xl border border-[#E0D9CE] overflow-hidden shadow-xs hover:shadow-md transition-all duration-300">
@@ -230,7 +231,7 @@ export function ProductCard({ product, index = 0, onQuickView }: Props) {
             ))}
           </div>
           <span className="text-[9px] sm:text-[10px] font-semibold text-muted-foreground">
-            ({product.reviews?.length || 8})
+            ({reviews.length || 8})
           </span>
         </div>
 

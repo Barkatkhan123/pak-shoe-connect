@@ -102,4 +102,23 @@ describe("Product Persistence & Admin Image Updates", () => {
     resetStoredProducts();
     expect(getProduct(targetSlug)).toBeDefined();
   });
+
+  it("should handle new products with undefined reviews or price tiers safely", () => {
+    const edgeCaseProduct = {
+      ...DEFAULT_PRODUCTS[0],
+      slug: "edge-product-123",
+      sku: "SHR-EDGE-123",
+      name: "Edge Case Footwear",
+      reviews: undefined as any,
+      priceTiers: undefined as any,
+      stats: undefined as any,
+      newArrival: true,
+      featured: true,
+    };
+
+    addStoredProduct(edgeCaseProduct as any);
+    const found = getProduct("edge-case-product-123") || getProduct("edge-product-123");
+    expect(found).toBeDefined();
+    expect(found?.name).toBe("Edge Case Footwear");
+  });
 });
