@@ -96,6 +96,16 @@ function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [heroHovered, setHeroHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Filter/Sort state variables (Reused from products.tsx)
   const [selectedCats, setSelectedCats] = useState<string[]>([]);
@@ -174,7 +184,10 @@ function Home() {
       {/* ════════════════════════════════════════════════
           1. PRODUCTS SECTION — Rendered immediately below header
       ═══════════════════════════════════════════════ */}
-      <section className="py-8 sm:py-12 bg-background border-b border-border">
+      <section 
+        style={{ marginTop: isMobile ? "24px" : "0px" }}
+        className="py-8 sm:py-12 bg-background border-b border-border"
+      >
         <div className="mx-auto max-w-7xl px-3 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="mb-6">
