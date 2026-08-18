@@ -17,6 +17,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
     description?: string;
     mode?: "signin" | "signup";
   }>({});
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const onOpenAuth = (e: any) => {
@@ -25,6 +26,15 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
     };
     window.addEventListener("shersha:open-auth-modal", onOpenAuth);
     return () => window.removeEventListener("shersha:open-auth-modal", onOpenAuth);
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
@@ -41,7 +51,7 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
       <div className="h-[92px] sm:h-[100px] w-full shrink-0" aria-hidden="true" />
 
       {/* Main content with bottom padding clearance for floating WhatsApp button */}
-      <main className="flex-1 w-full max-w-full pb-20 md:pb-8">{children}</main>
+      <main className="flex-1 w-full max-w-full pb-24 md:pb-8">{children}</main>
 
       <SiteFooter />
 
@@ -55,15 +65,29 @@ export function SiteLayout({ children }: { children: React.ReactNode }) {
         initialMode={authModalDetail.mode}
       />
 
-      {/* Global WhatsApp FAB (Mobile-safe, non-obstructing) */}
+      {/* Global WhatsApp FAB (Guaranteed 100px mobile bottom clearance via inline style) */}
       <a
         href={SITE.whatsappHref}
         target="_blank"
         rel="noopener noreferrer"
-        className="whatsapp-fab"
         aria-label="Chat with Sales Team on WhatsApp"
+        style={{
+          position: "fixed",
+          bottom: isMobile ? "110px" : "32px",
+          right: isMobile ? "20px" : "32px",
+          zIndex: 99,
+          display: "grid",
+          placeItems: "center",
+          width: isMobile ? "54px" : "60px",
+          height: isMobile ? "54px" : "60px",
+          borderRadius: "50%",
+          background: "#25D366",
+          color: "white",
+          boxShadow: "0 4px 16px rgba(37, 211, 102, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2)",
+          cursor: "pointer",
+        }}
       >
-        <MessageCircle className="h-6 w-6 sm:h-7 sm:w-7" />
+        <MessageCircle style={{ width: isMobile ? "26px" : "30px", height: isMobile ? "26px" : "30px", color: "white" }} />
       </a>
 
       {/* Global Mobile Bottom App Navigation Bar (Thumb Zone HCI) */}
