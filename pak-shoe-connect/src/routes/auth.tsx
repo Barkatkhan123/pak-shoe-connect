@@ -64,7 +64,13 @@ function AuthPage() {
     setBusy(true);
     const { error } = await supabase.auth.signInWithPassword(parsed.data);
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      const msg =
+        error.message && error.message !== "{}" && error.message !== "[object Object]"
+          ? error.message
+          : "Invalid email or password. Please check your credentials.";
+      return toast.error(msg);
+    }
     toast.success("Welcome back");
     const dest = search.redirect || (getPendingAction() ? "/checkout" : "/dashboard");
     navigate({ to: dest as any, replace: true });
@@ -89,8 +95,14 @@ function AuthPage() {
       },
     });
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Account created");
+    if (error) {
+      const msg =
+        error.message && error.message !== "{}" && error.message !== "[object Object]"
+          ? error.message
+          : "Unable to create account. Please check your details and try again.";
+      return toast.error(msg);
+    }
+    toast.success("Account created successfully!");
     const dest = search.redirect || (getPendingAction() ? "/checkout" : "/dashboard");
     navigate({ to: dest as any, replace: true });
   }

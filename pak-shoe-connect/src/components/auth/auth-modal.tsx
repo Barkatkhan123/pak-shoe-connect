@@ -58,7 +58,11 @@ export function AuthModal({
     setBusy(false);
 
     if (error) {
-      toast.error(error.message || "Failed to sign in. Please check your credentials.");
+      const msg =
+        error.message && error.message !== "{}" && error.message !== "[object Object]"
+          ? error.message
+          : "Failed to sign in. Please check your credentials.";
+      toast.error(msg);
       return;
     }
 
@@ -91,7 +95,11 @@ export function AuthModal({
     setBusy(false);
 
     if (error) {
-      toast.error(error.message || "Failed to create account.");
+      const msg =
+        error.message && error.message !== "{}" && error.message !== "[object Object]"
+          ? error.message
+          : "Failed to create account. Please check your details and try again.";
+      toast.error(msg);
       return;
     }
 
