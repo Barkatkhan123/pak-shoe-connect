@@ -86,8 +86,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { toast } from "sonner";
-import { PRODUCTS, Product } from "@/data/products";
+import {
+  PRODUCTS,
+  Product,
+  getStoredProducts,
+  saveStoredProducts,
+  resetStoredProducts,
+} from "@/data/products";
 import { AdminProductTable } from "@/components/admin/admin-product-table";
 import { ProductManageModal } from "@/components/admin/product-manage-modal";
 import {
@@ -413,7 +418,20 @@ const SYSTEM_SERVICES = [
 
 export function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState("products");
-  const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
+  const [productsList, setProductsList] = useState<Product[]>(() => getStoredProducts());
+
+  useEffect(() => {
+    const handleProductsUpdate = () => {
+      setProductsList(getStoredProducts());
+    };
+    window.addEventListener("shersha_products_update", handleProductsUpdate);
+    window.addEventListener("storage", handleProductsUpdate);
+    return () => {
+      window.removeEventListener("shersha_products_update", handleProductsUpdate);
+      window.removeEventListener("storage", handleProductsUpdate);
+    };
+  }, []);
+
   const [suppliers, setSuppliers] = useState(INITIAL_SUPPLIERS);
   const [ordersList, setOrdersList] = useState(MOCK_ORDERS);
   const [escrowList, setEscrowList] = useState(MOCK_ESCROW_TRANSACTIONS);
@@ -652,7 +670,9 @@ export function AdminDashboardPage() {
       return;
     }
 
-    setProductsList((prev) => prev.filter((p) => p.slug !== productSlug));
+    const updated = productsList.filter((p) => p.slug !== productSlug);
+    setProductsList(updated);
+    saveStoredProducts(updated);
     setAuditLogs(adminSecurityEngine.getAuditLogs());
     toast.success(`Product deleted`);
   };
@@ -665,17 +685,19 @@ export function AdminDashboardPage() {
       return;
     }
 
-    const updated = { ...targetProduct, inStock: !targetProduct.inStock };
-    const apiRes = await apiClient.admin.performProductAction("UPDATE", updated);
+    const updatedProduct = { ...targetProduct, inStock: !targetProduct.inStock };
+    const apiRes = await apiClient.admin.performProductAction("UPDATE", updatedProduct);
 
     if (!apiRes.success) {
       toast.error(apiRes.error || "Access Denied");
       return;
     }
 
-    setProductsList((prev) =>
-      prev.map((p) => (p.slug === productSlug ? { ...p, inStock: !p.inStock } : p)),
+    const updated = productsList.map((p) =>
+      p.slug === productSlug ? { ...p, inStock: !p.inStock } : p,
     );
+    setProductsList(updated);
+    saveStoredProducts(updated);
     setAuditLogs(adminSecurityEngine.getAuditLogs());
     toast.success("Stock status updated");
   };
@@ -691,11 +713,11 @@ export function AdminDashboardPage() {
     }
 
     if (isEdit) {
-      setProductsList((prev) =>
-        prev.map((p) =>
-          p.slug === productToEdit.slug ? ({ ...p, ...updatedFields } as Product) : p,
-        ),
+      const updated = productsList.map((p) =>
+        p.slug === productToEdit.slug ? ({ ...p, ...updatedFields } as Product) : p,
       );
+      setProductsList(updated);
+      saveStoredProducts(updated);
     } else {
       const newProd: Product = {
         slug:
@@ -764,7 +786,9 @@ export function AdminDashboardPage() {
           repeatPurchasePct: 88,
         },
       };
-      setProductsList((prev) => [newProd, ...prev]);
+      const updated = [newProd, ...productsList];
+      setProductsList(updated);
+      saveStoredProducts(updated);
     }
 
     setAuditLogs(adminSecurityEngine.getAuditLogs());
@@ -1117,6 +1141,27 @@ export function AdminDashboardPage() {
                     Create, edit, delete, set volume prices, MOQ rules, color/size runs, and
                     promotional badges
                   </p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      if (
+                        window.confirm(
+                          "Are you sure you want to reset all products to factory defaults? Any custom product pictures or edits will be restored to initial state.",
+                        )
+                      ) {
+                        const defs = resetStoredProducts();
+                        setProductsList(defs);
+                        toast.success("Products reset to factory catalog defaults");
+                      }
+                    }}
+                    className="border-slate-800 hover:bg-slate-900 text-slate-400 hover:text-amber-400 text-xs h-9"
+                    title="Reset to factory catalog defaults"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5 mr-1.5" /> Reset Catalog Defaults
+                  </Button>
                 </div>
               </div>
 

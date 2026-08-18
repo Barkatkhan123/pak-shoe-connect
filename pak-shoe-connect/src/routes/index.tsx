@@ -20,7 +20,8 @@ import {
 } from "lucide-react";
 
 import { SiteLayout } from "@/components/site-layout";
-import { CATEGORIES, PRODUCTS } from "@/data/products";
+import { CATEGORIES } from "@/data/products";
+import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/product-card";
 import { QuickViewModal } from "@/components/quick-view-modal";
 import type { Product } from "@/data/products";
@@ -93,6 +94,7 @@ const COMPACT_TRUST_CHIPS = [
 ];
 
 function Home() {
+  const { products } = useProducts();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [heroHovered, setHeroHovered] = useState(false);
@@ -124,7 +126,7 @@ function Home() {
 
   // Client-side filtering and sorting logic (Reused from products.tsx)
   const filteredProducts = useMemo(() => {
-    let result = PRODUCTS;
+    let result = products;
 
     if (selectedCats.length > 0) {
       result = result.filter((p) => selectedCats.includes(p.categorySlug));

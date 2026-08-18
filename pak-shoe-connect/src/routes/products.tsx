@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteLayout } from "@/components/site-layout";
-import { PRODUCTS, CATEGORIES } from "@/data/products";
+import { CATEGORIES } from "@/data/products";
+import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/product-card";
 import { QuickViewModal } from "@/components/quick-view-modal";
 import { useState, useMemo, useEffect } from "react";
@@ -29,6 +30,7 @@ export const Route = createFileRoute("/products")({
 });
 
 function ProductsPage() {
+  const { products } = useProducts();
   const searchParams = Route.useSearch();
   const category = searchParams?.category;
   const gender = searchParams?.gender;
@@ -66,7 +68,7 @@ function ProductsPage() {
 
   // Filtered & Sorted Products with resilient optional chaining
   const filteredProducts = useMemo(() => {
-    let result = PRODUCTS;
+    let result = products;
 
     if (selectedCats.length > 0) {
       result = result.filter((p) => selectedCats.includes(p.categorySlug));
@@ -107,7 +109,7 @@ function ProductsPage() {
           return (b.newArrival ? 1 : 0) - (a.newArrival ? 1 : 0);
       }
     });
-  }, [selectedCats, selectedGender, searchQuery, sort]);
+  }, [products, selectedCats, selectedGender, searchQuery, sort]);
 
   const toggleCategory = (slug: string) => {
     setSelectedCats((prev) =>
@@ -150,7 +152,7 @@ function ProductsPage() {
               </p>
             </div>
             <div className="text-xs font-bold text-[#8B5E3C] bg-[#FAF7F2] border border-[#E0D9CE] px-3 py-1.5 rounded-lg shrink-0 self-start sm:self-auto">
-              Showing {filteredProducts.length} of {PRODUCTS.length} Models
+              Showing {filteredProducts.length} of {products.length} Models
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { SiteLayout } from "@/components/site-layout";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
 import { useRecentlyViewed } from "@/hooks/use-recently-viewed";
-import { PRODUCTS } from "@/data/products";
+import { useProducts } from "@/hooks/use-products";
 import { ProductCard } from "@/components/product-card";
 import { InquiryDrawer } from "@/components/inquiry-drawer";
 import { useState, useEffect } from "react";
@@ -32,14 +32,15 @@ function BuyerDashboard() {
   const { session } = Route.useLoaderData();
   const userMetadata = session?.user?.user_metadata || {};
 
+  const { products } = useProducts();
   const { items: wishlistItems } = useWishlist();
   const { count: inquiryCount } = useInquiryBasket();
-  const { products: recentProducts } = useRecentlyViewed(PRODUCTS);
+  const { products: recentProducts } = useRecentlyViewed(products);
 
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
 
-  const wishlistedProducts = PRODUCTS.filter((p) => wishlistItems.some((w) => w.slug === p.slug));
+  const wishlistedProducts = products.filter((p) => wishlistItems.some((w) => w.slug === p.slug));
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

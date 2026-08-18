@@ -170,8 +170,17 @@ export function ProductManageModal({
         setSelectedSizes(productToEdit.sizes);
       }
 
-      setMainImage(productToEdit.image || "");
-      setGalleryImages(productToEdit.images || []);
+      const initialMain =
+        productToEdit.image || (productToEdit.images && productToEdit.images[0]) || "";
+      const initialGallery =
+        productToEdit.images && productToEdit.images.length > 0
+          ? productToEdit.images
+          : initialMain
+            ? [initialMain]
+            : [];
+
+      setMainImage(initialMain);
+      setGalleryImages(initialGallery);
       setVideoUrl(productToEdit.video || "");
 
       setInStock(productToEdit.inStock !== false);
@@ -261,52 +270,117 @@ export function ProductManageModal({
     setColorVariants(colorVariants.filter((_, i) => i !== idx));
   };
 
+  // Client-side image compressor & optimizer
+  const optimizeImageFile = async (
+    file: File,
+    maxWidth = 1200,
+    maxHeight = 1200,
+    quality = 0.85,
+  ): Promise<string> => {
+    return new Promise((resolve) => {
+      if (!file.type.startsWith("image/")) {
+        resolve("");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const src = e.target?.result as string;
+        if (!src) {
+          resolve("");
+          return;
+        }
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const mime = file.type === "image/png" ? "image/png" : "image/jpeg";
+            const dataUrl = canvas.toDataURL(mime, quality);
+            resolve(dataUrl);
+          } else {
+            resolve(src);
+          }
+        };
+        img.onerror = () => resolve(src);
+        img.src = src;
+      };
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Handlers for Local Image File Upload & Gallery
-  const handleMainImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMainImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
       toast.error("Please select a valid image file (JPG, PNG, WebP)");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const dataUrl = event.target?.result as string;
-      if (dataUrl) {
-        setMainImage(dataUrl);
-        toast.success(`Main cover picture updated: ${file.name}`);
-      }
-    };
-    reader.readAsDataURL(file);
+    const optimized = await optimizeImageFile(file);
+    if (optimized) {
+      setMainImage(optimized);
+      setGalleryImages((prev) => [optimized, ...prev.filter((x) => x !== optimized)]);
+      toast.success(`Main cover picture updated: ${file.name}`);
+    }
   };
 
-  const handleGalleryFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleGalleryFilesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      if (!file.type.startsWith("image/")) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const dataUrl = event.target?.result as string;
-        if (dataUrl) {
-          setGalleryImages((prev) => [...prev, dataUrl]);
+    const promises = Array.from(files).map((file) => optimizeImageFile(file));
+    const optimizedUrls = (await Promise.all(promises)).filter(Boolean);
+
+    if (optimizedUrls.length > 0) {
+      setGalleryImages((prev) => {
+        const next = [...prev, ...optimizedUrls];
+        if (!mainImage && optimizedUrls[0]) {
+          setMainImage(optimizedUrls[0]);
         }
-      };
-      reader.readAsDataURL(file);
-    });
-    toast.success(`Added ${files.length} picture(s) to product gallery`);
+        return next;
+      });
+      toast.success(`Added ${optimizedUrls.length} picture(s) to product gallery`);
+    }
   };
 
   const handleAddGalleryImage = () => {
-    if (!newImageUrl.trim()) return;
-    setGalleryImages([...galleryImages, newImageUrl.trim()]);
+    const trimmed = newImageUrl.trim();
+    if (!trimmed) return;
+    setGalleryImages((prev) => {
+      const next = [...prev, trimmed];
+      if (!mainImage) {
+        setMainImage(trimmed);
+      }
+      return next;
+    });
     setNewImageUrl("");
     toast.success("Image URL added to gallery");
   };
 
   const handleRemoveGalleryImage = (idx: number) => {
-    setGalleryImages(galleryImages.filter((_, i) => i !== idx));
+    const target = galleryImages[idx];
+    const next = galleryImages.filter((_, i) => i !== idx);
+    setGalleryImages(next);
+    if (mainImage === target) {
+      setMainImage(next[0] || "");
+    }
+    toast.info("Image removed from gallery");
+  };
+
+  const handleSetAsCover = (url: string) => {
+    setMainImage(url);
+    setGalleryImages((prev) => [url, ...prev.filter((x) => x !== url)]);
+    toast.success("Set as main product cover picture");
   };
 
   // Form Submission
@@ -329,6 +403,11 @@ export function ProductManageModal({
     const lowestPrice = priceTiers[priceTiers.length - 1]?.pricePerPair ?? basePrice;
     const highestPrice = priceTiers[0]?.pricePerPair ?? basePrice;
 
+    // Harmonize main image and gallery images without duplicates
+    const cleanMainImage = mainImage.trim() || galleryImages[0] || "";
+    const otherGallery = galleryImages.filter((img) => img && img.trim() !== cleanMainImage);
+    const cleanGallery = cleanMainImage ? [cleanMainImage, ...otherGallery] : otherGallery;
+
     const payload: Partial<Product> = {
       slug: productToEdit?.slug || sku.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
       sku: sku.toUpperCase(),
@@ -338,8 +417,8 @@ export function ProductManageModal({
       gender,
       material,
       soleType,
-      image: mainImage || galleryImages[0] || "",
-      images: galleryImages.length > 0 ? galleryImages : [mainImage],
+      image: cleanMainImage,
+      images: cleanGallery.length > 0 ? cleanGallery : [cleanMainImage],
       video: videoUrl,
       colorVariants,
       colors: colorVariants.map((c) => c.name),
@@ -930,44 +1009,52 @@ export function ProductManageModal({
             {/* ── TAB 4: MEDIA & DOCUMENTS ── */}
             <TabsContent value="media" className="space-y-5 focus:outline-none">
               {/* Main Cover Image */}
-              <div className="space-y-2 bg-slate-950 p-4 rounded-xl border border-slate-800">
+              <div className="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-slate-200">
-                    Main Cover Product Picture *
-                  </label>
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-bold text-slate-200">
+                      Main Cover Product Picture *
+                    </label>
+                    <Badge className="bg-amber-500/10 text-amber-400 border-amber-500/30 text-[10px]">
+                      Primary Marketplace Image
+                    </Badge>
+                  </div>
                   <span className="text-[10px] text-slate-400">Direct upload or web URL</span>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4 items-start">
                   {mainImage ? (
-                    <div className="relative h-24 w-24 rounded-xl border border-amber-500/40 overflow-hidden bg-slate-900 shrink-0 shadow-md">
+                    <div className="relative h-28 w-28 rounded-xl border-2 border-amber-500 overflow-hidden bg-slate-900 shrink-0 shadow-lg group">
                       <img
                         src={mainImage}
                         alt="Cover preview"
                         className="h-full w-full object-cover"
                       />
+                      <div className="absolute top-1 left-1 bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded shadow">
+                        COVER
+                      </div>
                       <button
                         type="button"
                         onClick={() => setMainImage("")}
-                        className="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white flex items-center justify-center shadow"
-                        title="Remove image"
+                        className="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white flex items-center justify-center shadow hover:bg-rose-700 transition"
+                        title="Remove cover image"
                       >
                         <X className="h-3 w-3" />
                       </button>
                     </div>
                   ) : (
-                    <div className="h-24 w-24 rounded-xl border border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 shrink-0 bg-slate-900/50">
-                      <ImageIcon className="h-6 w-6 mb-1" />
-                      <span className="text-[9px]">No Cover</span>
+                    <div className="h-28 w-28 rounded-xl border-2 border-dashed border-slate-800 flex flex-col items-center justify-center text-slate-600 shrink-0 bg-slate-900/50">
+                      <ImageIcon className="h-7 w-7 mb-1 text-slate-500" />
+                      <span className="text-[10px] font-semibold text-slate-400">No Cover Set</span>
                     </div>
                   )}
 
-                  <div className="flex-1 space-y-2 w-full">
+                  <div className="flex-1 space-y-2.5 w-full">
                     <div className="flex items-center gap-2">
                       <label className="flex-1 cursor-pointer">
-                        <div className="flex items-center justify-center gap-2 px-3 py-2 bg-slate-900 hover:bg-slate-850 border border-slate-700 hover:border-amber-500/50 rounded-lg text-xs font-bold text-slate-200 transition-colors">
+                        <div className="flex items-center justify-center gap-2 px-3 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/40 hover:border-amber-400 rounded-lg text-xs font-bold text-amber-300 transition-colors">
                           <Upload className="h-4 w-4 text-amber-400" />
-                          <span>Upload from Computer</span>
+                          <span>Upload New Cover from Computer</span>
                         </div>
                         <input
                           type="file"
@@ -980,8 +1067,14 @@ export function ProductManageModal({
                     <div className="flex items-center gap-2">
                       <Input
                         value={mainImage}
-                        onChange={(e) => setMainImage(e.target.value)}
-                        placeholder="Or paste image URL (https://...)"
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setMainImage(val);
+                          if (val.trim() && !galleryImages.includes(val.trim())) {
+                            setGalleryImages((prev) => [val.trim(), ...prev]);
+                          }
+                        }}
+                        placeholder="Or paste direct image URL (https://...)"
                         className="bg-slate-900 border-slate-800 text-xs font-mono"
                       />
                     </div>
@@ -993,16 +1086,22 @@ export function ProductManageModal({
               <div className="space-y-3 bg-slate-950 p-4 rounded-xl border border-slate-800">
                 <div className="flex items-center justify-between">
                   <div>
-                    <label className="text-xs font-bold text-slate-200 block">
-                      Product Gallery Angles & Close-ups
-                    </label>
-                    <span className="text-[10px] text-slate-400">
-                      Upload multiple photos (sole, side angle, top view, packaging)
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs font-bold text-slate-200">
+                        Product Gallery Angles & Close-ups
+                      </label>
+                      <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono">
+                        {galleryImages.length} photo{galleryImages.length !== 1 ? "s" : ""}
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-slate-400 block mt-0.5">
+                      Upload multiple photos (sole, side angle, top view, packaging). Click "Set as
+                      Cover" on any photo.
                     </span>
                   </div>
                   <label className="cursor-pointer">
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg text-xs font-bold text-amber-400 transition-colors">
-                      <Upload className="h-3.5 w-3.5" />
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700 hover:border-amber-500/50 rounded-lg text-xs font-bold text-slate-200 transition-colors">
+                      <Upload className="h-3.5 w-3.5 text-amber-400" />
                       <span>Upload Photos</span>
                     </div>
                     <input
@@ -1032,26 +1131,58 @@ export function ProductManageModal({
                 </div>
 
                 {galleryImages.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 pt-2">
-                    {galleryImages.map((url, idx) => (
-                      <div
-                        key={idx}
-                        className="group relative aspect-square rounded-xl border border-slate-800 overflow-hidden bg-slate-900 shadow-xs"
-                      >
-                        <img
-                          src={url}
-                          alt={`Gallery ${idx}`}
-                          className="h-full w-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveGalleryImage(idx)}
-                          className="absolute top-1 right-1 h-5 w-5 rounded-full bg-rose-600 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow"
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3 pt-2">
+                    {galleryImages.map((url, idx) => {
+                      const isCurrentCover = url === mainImage;
+                      return (
+                        <div
+                          key={idx}
+                          className={`group relative rounded-xl border overflow-hidden bg-slate-900 shadow-xs flex flex-col ${
+                            isCurrentCover
+                              ? "border-amber-500 ring-2 ring-amber-500/30"
+                              : "border-slate-800 hover:border-slate-700"
+                          }`}
                         >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
+                          <div className="aspect-square w-full relative overflow-hidden bg-slate-950">
+                            <img
+                              src={url}
+                              alt={`Gallery ${idx}`}
+                              className="h-full w-full object-cover"
+                            />
+                            {isCurrentCover && (
+                              <div className="absolute top-1 left-1 bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded shadow">
+                                COVER
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveGalleryImage(idx)}
+                              className="absolute top-1 right-1 h-6 w-6 rounded-full bg-rose-600/90 hover:bg-rose-600 text-white flex items-center justify-center shadow transition-all cursor-pointer"
+                              title="Delete photo"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+
+                          {/* Action Button */}
+                          <div className="p-1.5 bg-slate-900/90 border-t border-slate-800 flex items-center justify-center">
+                            {isCurrentCover ? (
+                              <span className="text-[10px] font-bold text-amber-400 py-0.5">
+                                ⭐ Current Cover
+                              </span>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => handleSetAsCover(url)}
+                                className="text-[10px] font-bold text-slate-400 hover:text-amber-400 transition w-full py-0.5 text-center cursor-pointer hover:underline"
+                              >
+                                Set as Cover
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

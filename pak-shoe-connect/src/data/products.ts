@@ -1020,18 +1020,113 @@ export const PRODUCTS: Product[] = [
   },
 ];
 
-export const getProduct = (slug: string) => PRODUCTS.find((p) => p.slug === slug);
-export const relatedProducts = (p: Product, n = 4) =>
-  PRODUCTS.filter(
-    (x) => x.slug !== p.slug && (x.gender === p.gender || x.categorySlug === p.categorySlug),
-  ).slice(0, n);
-export const featuredProducts = PRODUCTS.filter((p) => p.featured);
-export const bestSellers = PRODUCTS.filter((p) => p.bestseller);
-export const trendingProducts = PRODUCTS.filter((p) => p.trending);
-export const newArrivals = PRODUCTS.filter((p) => p.newArrival);
+export const DEFAULT_PRODUCTS: Product[] = [
+  // Men Peshawari, Formal, Sneakers, Casual, Boots, Sandals, Women, Kids, Safety, Sports
+  ...PRODUCTS,
+];
+
+const PRODUCTS_STORAGE_KEY = "shersha_catalog_products";
+const PRODUCTS_UPDATE_EVENT = "shersha_products_update";
+
+/**
+ * Retrieves the currently active product list from localStorage if available,
+ * falling back to the initial default product catalogue.
+ */
+export function getStoredProducts(): Product[] {
+  if (typeof window === "undefined") {
+    return DEFAULT_PRODUCTS;
+  }
+  try {
+    const raw = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+    if (!raw) {
+      return DEFAULT_PRODUCTS;
+    }
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      return parsed;
+    }
+  } catch (err) {
+    console.warn("Failed to load products from storage:", err);
+  }
+  return DEFAULT_PRODUCTS;
+}
+
+/**
+ * Persists an updated list of products to localStorage and broadcasts an update event
+ * to all components and browser tabs.
+ */
+export function saveStoredProducts(products: Product[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+    window.dispatchEvent(new CustomEvent(PRODUCTS_UPDATE_EVENT, { detail: products }));
+  } catch (err) {
+    console.error("Failed to save products to storage:", err);
+  }
+}
+
+/**
+ * Updates a single product by slug or sku and notifies all listeners.
+ */
+export function updateStoredProduct(slug: string, updates: Partial<Product>): Product[] {
+  const current = getStoredProducts();
+  const next = current.map((p) => (p.slug === slug ? ({ ...p, ...updates } as Product) : p));
+  saveStoredProducts(next);
+  return next;
+}
+
+/**
+ * Adds a new product to the stored catalog and notifies all listeners.
+ */
+export function addStoredProduct(newProduct: Product): Product[] {
+  const current = getStoredProducts();
+  // Ensure no duplicate slug
+  const filtered = current.filter((p) => p.slug !== newProduct.slug);
+  const next = [newProduct, ...filtered];
+  saveStoredProducts(next);
+  return next;
+}
+
+/**
+ * Deletes a product from the stored catalog and notifies all listeners.
+ */
+export function deleteStoredProduct(slug: string): Product[] {
+  const current = getStoredProducts();
+  const next = current.filter((p) => p.slug !== slug);
+  saveStoredProducts(next);
+  return next;
+}
+
+/**
+ * Resets the product catalog to default factory definitions.
+ */
+export function resetStoredProducts(): Product[] {
+  if (typeof window === "undefined") return DEFAULT_PRODUCTS;
+  try {
+    localStorage.removeItem(PRODUCTS_STORAGE_KEY);
+    saveStoredProducts(DEFAULT_PRODUCTS);
+  } catch {}
+  return DEFAULT_PRODUCTS;
+}
+
+export const getProduct = (slug: string): Product | undefined =>
+  getStoredProducts().find((p) => p.slug === slug);
+
+export const relatedProducts = (p: Product, n = 4): Product[] =>
+  getStoredProducts()
+    .filter(
+      (x) => x.slug !== p.slug && (x.gender === p.gender || x.categorySlug === p.categorySlug),
+    )
+    .slice(0, n);
+
+export const featuredProducts = (): Product[] => getStoredProducts().filter((p) => p.featured);
+export const bestSellers = (): Product[] => getStoredProducts().filter((p) => p.bestseller);
+export const trendingProducts = (): Product[] => getStoredProducts().filter((p) => p.trending);
+export const newArrivals = (): Product[] => getStoredProducts().filter((p) => p.newArrival);
 export const getCategory = (slug: string) => CATEGORIES.find((c) => c.slug === slug);
-export const getProductsByCategory = (slug: string) =>
-  PRODUCTS.filter((p) => p.categorySlug === slug);
+export const getProductsByCategory = (slug: string): Product[] =>
+  getStoredProducts().filter((p) => p.categorySlug === slug);
 
 // Backward compatibility
 export const CATEGORIES_COMPAT = CATEGORIES;
+

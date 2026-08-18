@@ -7,12 +7,14 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { CATEGORIES, PRODUCTS } from "@/data/products";
+import { CATEGORIES } from "@/data/products";
+import { useProducts } from "@/hooks/use-products";
 import { useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, Package, ArrowRight } from "lucide-react";
 
 export function SearchCommand() {
+  const { products } = useProducts();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
@@ -66,13 +68,13 @@ export function SearchCommand() {
 
           <CommandGroup heading={search.trim() ? "Results" : "Trending Products"}>
             {(search.trim()
-              ? PRODUCTS.filter(
+              ? products.filter(
                   (p) =>
                     p.name.toLowerCase().includes(search.toLowerCase()) ||
                     p.sku.toLowerCase().includes(search.toLowerCase()) ||
                     p.categorySlug.toLowerCase().includes(search.toLowerCase()),
                 ).slice(0, 6)
-              : PRODUCTS.filter((p) => p.trending).slice(0, 3)
+              : products.filter((p) => p.trending).slice(0, 3)
             ).map((p) => (
               <CommandItem
                 key={p.slug}

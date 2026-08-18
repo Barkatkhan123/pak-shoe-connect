@@ -35,6 +35,7 @@ import { ReviewCard } from "@/components/review-card";
 import { MOQInfoCard } from "@/components/moq-info-card";
 import { useInquiryBasket } from "@/hooks/use-inquiry-basket";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useProduct } from "@/hooks/use-products";
 import { waLink } from "@/lib/site";
 
 function ColorSelector({
@@ -95,7 +96,9 @@ export const Route = createFileRoute("/products/$slug")({
 /* ─── Component ─── */
 
 function ProductDetail() {
-  const { product } = Route.useLoaderData();
+  const { product: initialProduct } = Route.useLoaderData();
+  const { product: liveProduct } = useProduct(initialProduct.slug);
+  const product = liveProduct || initialProduct;
   const related = relatedProducts(product, 6);
   const category = CATEGORIES.find((c) => c.slug === product.categorySlug);
 
