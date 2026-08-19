@@ -115,7 +115,8 @@ export function normalizeError(
     status: mapping.status,
     body: {
       success: false,
-      message: mapping.message,
+      message: err?.message || mapping.message,
+      error: err?.message || mapping.message,
       code: mapping.code,
       correlationId: ctx.correlationId, // Safe to expose — for support tracing
     },

@@ -525,10 +525,14 @@ export const apiClient = {
 
         // Check backend response — enforce Hard Fail (no silent local storage fallback)
         if (!apiRes || !apiRes.success) {
-          console.error(`[Admin] Backend product ${action} failed:`, apiRes?.error);
+          const errMsg =
+            (typeof apiRes?.error === "string" ? apiRes.error : apiRes?.error?.message) ||
+            apiRes?.message ||
+            `Failed to ${action.toLowerCase()} product on backend database.`;
+          console.error(`[Admin] Backend product ${action} failed:`, errMsg);
           return {
             success: false,
-            error: apiRes?.error || `Failed to ${action.toLowerCase()} product on backend database.`,
+            error: errMsg,
           };
         }
       } catch (networkErr: any) {
