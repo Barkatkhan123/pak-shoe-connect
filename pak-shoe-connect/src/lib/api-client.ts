@@ -523,28 +523,20 @@ export const apiClient = {
           }
         }
 
-        // If backend API call failed for network/auth reasons, fall back to
-        // localStorage-only so admin dashboard stays functional offline.
+        // Check backend response — enforce Hard Fail (no silent local storage fallback)
         if (!apiRes || !apiRes.success) {
-          console.warn(`[Admin] Backend product ${action} failed, applying localStorage-only fallback.`, apiRes?.error);
-          try {
-            if (action === "CREATE") addStoredProduct(productData as Product);
-            else if (action === "UPDATE") updateStoredProduct(productData.slug || productData.sku, productData);
-            else if (action === "DELETE") deleteStoredProduct(productData.slug || productData.sku);
-          } catch (err) {
-            console.warn("Storage sync fallback warning:", err);
-          }
+          console.error(`[Admin] Backend product ${action} failed:`, apiRes?.error);
+          return {
+            success: false,
+            error: apiRes?.error || `Failed to ${action.toLowerCase()} product on backend database.`,
+          };
         }
-      } catch (networkErr) {
-        // Network completely unreachable — fall back to localStorage
-        console.warn(`[Admin] Network error during product ${action}, applying localStorage fallback.`, networkErr);
-        try {
-          if (action === "CREATE") addStoredProduct(productData as Product);
-          else if (action === "UPDATE") updateStoredProduct(productData.slug || productData.sku, productData);
-          else if (action === "DELETE") deleteStoredProduct(productData.slug || productData.sku);
-        } catch (err) {
-          console.warn("Storage fallback error:", err);
-        }
+      } catch (networkErr: any) {
+        console.error(`[Admin] Network error during product ${action}:`, networkErr);
+        return {
+          success: false,
+          error: networkErr?.message || `Network error during product ${action.toLowerCase()}.`,
+        };
       }
 
       adminSecurityEngine.logActivity({
