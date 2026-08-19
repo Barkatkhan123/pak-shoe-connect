@@ -17,12 +17,20 @@ import {
 
 const getApiBaseUrl = () => {
   if (typeof window !== "undefined") {
-    return (
-      (typeof import.meta !== "undefined" &&
-        import.meta.env &&
-        (import.meta.env.VITE_API_URL as string)) ||
-      ""
-    );
+    const envUrl =
+      typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      (import.meta.env.VITE_API_URL as string);
+    if (envUrl) return envUrl;
+
+    // When deployed on Hostinger static domain, route API calls to the live Vercel backend
+    if (
+      window.location.hostname.includes("anamonofficial") ||
+      window.location.hostname.includes("hostingersite")
+    ) {
+      return "https://pak-shoe-connect-fsl3ey30d-barkat1.vercel.app";
+    }
+    return "";
   }
   return (
     (typeof process !== "undefined" && (process.env?.VITE_API_URL || process.env?.SITE_URL)) || ""

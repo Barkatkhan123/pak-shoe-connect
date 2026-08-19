@@ -9,7 +9,8 @@ export default async function handler(req: any, res: any) {
   try {
     const protocol = req.headers["x-forwarded-proto"] || "https";
     const host = req.headers["x-forwarded-host"] || req.headers.host || "localhost";
-    const fullUrl = new URL(req.url || "/", `${protocol}://${host}`);
+    const rawPath = req.headers["x-matched-path"] || req.headers["x-invoke-path"] || req.url || "/";
+    const fullUrl = new URL(rawPath, `${protocol}://${host}`);
 
     let bodyBuffer: Buffer | null = null;
     if (["POST", "PUT", "PATCH", "DELETE"].includes(req.method || "")) {

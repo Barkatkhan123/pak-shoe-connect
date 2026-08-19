@@ -8,6 +8,7 @@ import {
   deleteStoredProduct,
   resetStoredProducts,
 } from "@/data/products";
+import { apiClient } from "@/lib/api-client";
 
 const PRODUCTS_UPDATE_EVENT = "shersha_products_update";
 
@@ -15,8 +16,27 @@ export function useProducts() {
   const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
 
   useEffect(() => {
-    // Initial sync
+    // 1. Instant render from local cache
     setProducts(getStoredProducts());
+
+    // 2. Background live synchronization from central API Gateway
+    apiClient.catalog
+      .list()
+      .then((res) => {
+        if (
+          res &&
+          res.success &&
+          res.data?.products &&
+          Array.isArray(res.data.products) &&
+          res.data.products.length > 0
+        ) {
+          saveStoredProducts(res.data.products);
+          setProducts(res.data.products);
+        }
+      })
+      .catch((err) => {
+        console.warn("[useProducts] Remote sync failed, using cached catalogue:", err);
+      });
 
     const handleUpdate = () => {
       setProducts(getStoredProducts());
