@@ -21,7 +21,7 @@ async function build() {
         DEV: false,
         MODE: "production",
         VITE_SITE_URL: "https://anamonofficial.com",
-        VITE_API_URL: "https://pak-shoe-connect-fsl3ey30d-barkat1.vercel.app",
+        VITE_API_URL: "https://pak-shoe-connect.vercel.app",
         VITE_SUPABASE_URL: "https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud",
         VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy",
         VITE_SUPABASE_PROJECT_ID: "ydkdicudwhxrukppucxy",
@@ -29,7 +29,7 @@ async function build() {
       "import.meta.env.PROD": "true",
       "import.meta.env.DEV": "false",
       "import.meta.env.MODE": '"production"',
-      "import.meta.env.VITE_API_URL": '"https://pak-shoe-connect-fsl3ey30d-barkat1.vercel.app"',
+      "import.meta.env.VITE_API_URL": '"https://pak-shoe-connect.vercel.app"',
       "import.meta.env.VITE_SITE_URL": '"https://anamonofficial.com"',
       "import.meta.env.VITE_SUPABASE_URL":
         '"https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud"',

@@ -28,7 +28,7 @@ const getApiBaseUrl = () => {
       window.location.hostname.includes("anamonofficial") ||
       window.location.hostname.includes("hostingersite")
     ) {
-      return "https://pak-shoe-connect-fsl3ey30d-barkat1.vercel.app";
+      return "https://pak-shoe-connect.vercel.app";
     }
     return "";
   }
