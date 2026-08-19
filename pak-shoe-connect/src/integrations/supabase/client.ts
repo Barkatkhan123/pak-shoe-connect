@@ -150,11 +150,11 @@ function createSupabaseClient() {
   const SUPABASE_URL =
     (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_URL) ||
     (typeof process !== "undefined" && process.env?.SUPABASE_URL) ||
-    "https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud";
+    "https://ydkdicudwhxrukppucxy.supabase.co";
   const SUPABASE_PUBLISHABLE_KEY =
     (typeof import.meta !== "undefined" && import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY) ||
     (typeof process !== "undefined" && process.env?.SUPABASE_PUBLISHABLE_KEY) ||
-    "sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlka2RpY3Vkd2h4cnVrcHB1Y3h5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDA3NTUyMTAsImV4cCI6MjA1NjMzMTIxMH0.placeholder";
 
   const rawClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     global: {
