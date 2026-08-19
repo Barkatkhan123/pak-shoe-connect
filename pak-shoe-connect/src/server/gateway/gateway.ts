@@ -58,9 +58,6 @@ import { AddBasketItemSchema } from "../modules/cart/cart.schema";
 import { prisma } from "../db";
 import { DEFAULT_PRODUCTS, type Product } from "../../data/products";
 
-// ── In-Memory Live Catalog (persisted across warm server requests) ───────────
-const liveCatalogProducts: Product[] = [...DEFAULT_PRODUCTS];
-
 // ── Gateway Middleware ────────────────────────────────────────────────────
 import { createRequestContext, type RequestContext } from "./middleware/correlation-id.middleware";
 import {
@@ -390,9 +387,8 @@ export async function apiGateway(
 
     // ── Catalog ───────────────────────────────────────────────────────────
     if (path === "/api/v1/catalog/products" && method === "GET") {
-      let products = [...liveCatalogProducts];
+      let products: Product[] = [];
 
-      // Try fetching additional products from database if available
       try {
         const dbProducts = await prisma.product.findMany({
           where: { isActive: true },
@@ -400,8 +396,9 @@ export async function apiGateway(
           orderBy: { createdAt: "desc" },
           take: 100,
         });
+
         if (dbProducts && dbProducts.length > 0) {
-          const dbMapped: Product[] = dbProducts.map((p) => ({
+          products = dbProducts.map((p) => ({
             slug: p.slug,
             sku: p.sku,
             name: p.title,
@@ -443,21 +440,12 @@ export async function apiGateway(
             reviews: [],
             stats: { unitsSold: 0, ordersCompleted: 0, activeBuyers: 0, repeatPurchasePct: 100 },
           }));
-
-          // Merge: DB items on top, without duplicates
-          const seen = new Set<string>();
-          const merged: Product[] = [];
-          for (const item of [...dbMapped, ...products]) {
-            const key = item.slug.toLowerCase();
-            if (!seen.has(key)) {
-              seen.add(key);
-              merged.push(item);
-            }
-          }
-          products = merged;
+        } else {
+          products = [...DEFAULT_PRODUCTS];
         }
-      } catch {
-        // Fallback to memory products
+      } catch (dbErr) {
+        console.warn("[Catalog] DB query fallback to DEFAULT_PRODUCTS:", dbErr);
+        products = [...DEFAULT_PRODUCTS];
       }
 
       // Apply filtering if requested
@@ -477,7 +465,14 @@ export async function apiGateway(
         );
       }
 
-      return ok({ products, total: products.length }, ctx);
+      const res = ok({ products, total: products.length }, ctx);
+      return {
+        ...res,
+        headers: {
+          ...res.headers,
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+        },
+      };
     }
 
     if (path.startsWith("/api/v1/catalog/products/") && method === "GET") {
@@ -487,12 +482,65 @@ export async function apiGateway(
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
-      const match = liveCatalogProducts.find(
-        (p) => p.slug.toLowerCase() === slug || p.sku.toLowerCase() === slug,
-      );
+      try {
+        const p = await prisma.product.findFirst({
+          where: { OR: [{ slug: slug }, { sku: slug.toUpperCase() }], isActive: true },
+          include: { category: true, bulkPriceTiers: true },
+        });
 
-      if (match) {
-        return ok({ product: match }, ctx);
+        if (p) {
+          const productObj: Product = {
+            slug: p.slug,
+            sku: p.sku,
+            name: p.title,
+            nameUrdu: p.nameUrdu || "",
+            categorySlug: p.category?.slug || "men-formal",
+            gender: (p.category?.gender as any) || "men",
+            material: (p.specifications as any)?.["Upper Material"] || "Full-grain genuine leather",
+            soleType: (p.specifications as any)?.["Sole Material"] || "Rubber",
+            image: (p.images && p.images[0]) || "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800",
+            images: p.images && p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800"],
+            colorVariants: [
+              { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 1000 },
+              { name: "Tan", hex: "#C4906B", inStock: true, stockUnits: 800 },
+            ],
+            colors: ["Black", "Tan"],
+            sizes: ["6", "7", "8", "9", "10", "11", "12"],
+            moq: p.moq || 12,
+            cartonQty: p.cartonQty || 12,
+            priceTiers: p.bulkPriceTiers && p.bulkPriceTiers.length > 0
+              ? p.bulkPriceTiers.map((t) => ({ moq: t.minQty, pricePerPair: Number(t.unitPrice), label: t.tierLabel }))
+              : [{ moq: p.moq || 12, pricePerPair: 1850, label: "Starter (1-4 Ctns)" }],
+            leadTimeDays: p.leadTimeDays || "7–14 days",
+            priceLabel: `PKR 1,250–1,850`,
+            productionCapacity: "10,000 pairs/month",
+            customization: ["Custom Branding Embossing", "Color Dye Matching", "Custom Inner Sole"],
+            inStock: p.isActive !== false,
+            featured: p.isFeatured !== false,
+            bestseller: false,
+            trending: true,
+            newArrival: true,
+            description: p.description || "High quality footwear manufactured to Anamon wholesale standards.",
+            specifications: (p.specifications as any) || {
+              "Upper Material": "Genuine Leather",
+              "Sole Material": "Rubber",
+              "Minimum Order": `${p.moq || 12} pairs (1 carton)`,
+              Packaging: "12 pairs per carton",
+            },
+            shippingInfo: "Shipped in standard cartons of 12 pairs. Single color per carton.",
+            reviews: [],
+            stats: { unitsSold: 0, ordersCompleted: 0, activeBuyers: 0, repeatPurchasePct: 100 },
+          };
+          return ok({ product: productObj }, ctx);
+        }
+      } catch (err) {
+        console.warn("[Catalog Detail] DB lookup error:", err);
+      }
+
+      // Check default products fallback
+      const defaultMatch = DEFAULT_PRODUCTS.find((p) => p.slug.toLowerCase() === slug || p.sku.toLowerCase() === slug);
+      if (defaultMatch) {
+        return ok({ product: defaultMatch }, ctx);
       }
 
       const detail = await CatalogService.getProductDetail(slug);
@@ -1056,174 +1104,121 @@ export async function apiGateway(
         const categorySlug: string = (body.categorySlug || body.category || "men-formal").toLowerCase();
         const priceTiers: any[] = Array.isArray(body.priceTiers) ? body.priceTiers : [];
 
-        // ── Keep server in-memory catalog synchronized ──
-        const fullNewProduct: Product = {
-          slug: productSlug,
-          sku: productSku,
-          name: body.name || body.title || "New Wholesale Product",
-          nameUrdu: body.nameUrdu || "",
-          categorySlug: categorySlug,
-          gender: (body.gender as any) || "men",
-          material: body.material || "Full-grain genuine leather",
-          soleType: body.soleType || "Rubber",
-          image: (body.images && body.images[0]) || body.image || "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800",
-          images: Array.isArray(body.images) && body.images.length > 0 ? body.images : [body.image || "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800"],
-          video: body.video || "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-          colorVariants: body.colorVariants || [
-            { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 1000 },
-            { name: "Tan", hex: "#C4906B", inStock: true, stockUnits: 800 },
-          ],
-          colors: body.colors || ["Black", "Tan"],
-          sizes: body.sizes || ["6", "7", "8", "9", "10", "11", "12"],
-          moq: body.moq || 12,
-          cartonQty: body.cartonQty || 12,
-          priceTiers: priceTiers.length > 0 ? priceTiers : [
-            { moq: 12, pricePerPair: 1850, label: "Starter (1-4 Ctns)" },
-            { moq: 60, pricePerPair: 1650, label: "Dealer (5-19 Ctns)" },
-            { moq: 240, pricePerPair: 1450, label: "Wholesale (20-49 Ctns)" },
-            { moq: 600, pricePerPair: 1250, label: "Bulk Master (50+ Ctns)" },
-          ],
-          leadTimeDays: body.leadTimeDays || "7–14 days",
-          priceLabel: body.priceLabel || "PKR 1,250–1,850",
-          productionCapacity: body.productionCapacity || "10,000 pairs/month",
-          customization: body.customization || ["Custom Branding Embossing", "Color Dye Matching", "Custom Inner Sole"],
-          inStock: body.inStock !== false && body.isActive !== false,
-          featured: body.featured !== false,
-          bestseller: !!body.bestseller,
-          trending: body.trending !== false,
-          newArrival: body.newArrival !== false,
-          description: body.description || "High quality footwear manufactured to Anamon wholesale standards.",
-          specifications: body.specifications || {
-            "Upper Material": body.material || "Genuine Leather",
-            "Sole Material": body.soleType || "Rubber",
-            "Minimum Order": `${body.moq || 12} pairs (1 carton)`,
-            Packaging: "12 pairs per carton (Single color)",
-          },
-          shippingInfo: body.shippingInfo || "Shipped in standard cartons of 12 pairs. Single color per carton.",
-          reviews: body.reviews || [],
-          stats: body.stats || { unitsSold: 0, ordersCompleted: 0, activeBuyers: 0, repeatPurchasePct: 100 },
-        };
-        const existingIdx = liveCatalogProducts.findIndex((p) => p.slug.toLowerCase() === fullNewProduct.slug || p.sku.toLowerCase() === fullNewProduct.sku);
-        if (existingIdx >= 0) {
-          liveCatalogProducts[existingIdx] = fullNewProduct;
-        } else {
-          liveCatalogProducts.unshift(fullNewProduct);
-        }
-
-        // ── Attempt Database Persistence (Non-blocking / Resilient) ──
-        let newProduct: any = null;
         try {
-          // 1. Supplier
-          let supplierProfile = await prisma.supplierProfile.findFirst({
-            where: { factoryName: { contains: "Anamon", mode: "insensitive" } },
-            select: { id: true },
-          });
-          if (!supplierProfile) {
-            const adminUser = await prisma.user.upsert({
-              where: { phone: "+920000000000" },
-              update: {},
-              create: {
-                phone: "+920000000000",
-                fullName: "Anamon Admin",
-                city: "Lahore",
-                role: "ADMIN",
-                isActive: true,
-              },
+          const result = await prisma.$transaction(async (tx) => {
+            // 1. Supplier
+            let supplierProfile = await tx.supplierProfile.findFirst({
+              where: { factoryName: { contains: "Anamon", mode: "insensitive" } },
+              select: { id: true },
             });
-            supplierProfile = await prisma.supplierProfile.upsert({
-              where: { userId: adminUser.id },
-              update: {},
-              create: {
-                userId: adminUser.id,
-                factoryName: "Anamon Official",
-                city: body.city || "Lahore",
-                address: "Industrial Zone, Lahore, Pakistan",
-                verificationStatus: "VERIFIED",
-                subscriptionTier: "GOLD_FACTORY",
-                monthlyCapacity: 50000,
-                qualityStandards: ["ISO-9001", "SGS"],
-              },
-            });
-          }
-          const supplierId = supplierProfile.id;
+            if (!supplierProfile) {
+              const adminUser = await tx.user.upsert({
+                where: { phone: "+920000000000" },
+                update: {},
+                create: {
+                  phone: "+920000000000",
+                  fullName: "Anamon Admin",
+                  city: "Lahore",
+                  role: "ADMIN",
+                  isActive: true,
+                },
+              });
+              supplierProfile = await tx.supplierProfile.upsert({
+                where: { userId: adminUser.id },
+                update: {},
+                create: {
+                  userId: adminUser.id,
+                  factoryName: "Anamon Official",
+                  city: body.city || "Lahore",
+                  address: "Industrial Zone, Lahore, Pakistan",
+                  verificationStatus: "VERIFIED",
+                  subscriptionTier: "GOLD_FACTORY",
+                  monthlyCapacity: 50000,
+                  qualityStandards: ["ISO-9001", "SGS"],
+                },
+              });
+            }
 
-          // 2. Category
-          let cat = await prisma.category.findUnique({
-            where: { slug: categorySlug },
-            select: { id: true },
-          });
-          if (!cat) {
-            const genderMap: Record<string, string> = {
-              "men-formal": "men", "men-casual": "men", "men-sneakers": "men",
-              "men-peshawari": "men", "men-boots": "men", "men-sandals": "men",
-              "women-heels": "women", "women-flats": "women", "women-sandals": "women",
-              "kids-school": "kids", "kids-casual": "kids",
-            };
-            cat = await prisma.category.create({
+            // 2. Category
+            let cat = await tx.category.findUnique({
+              where: { slug: categorySlug },
+              select: { id: true },
+            });
+            if (!cat) {
+              const genderMap: Record<string, string> = {
+                "men-formal": "men", "men-casual": "men", "men-sneakers": "men",
+                "men-peshawari": "men", "men-boots": "men", "men-sandals": "men",
+                "women-heels": "women", "women-flats": "women", "women-sandals": "women",
+                "kids-school": "kids", "kids-casual": "kids",
+              };
+              cat = await tx.category.create({
+                data: {
+                  slug: categorySlug,
+                  name: categorySlug.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" "),
+                  gender: genderMap[categorySlug] || "men",
+                  image: "",
+                },
+              });
+            }
+
+            // 3. Product
+            const newProd = await tx.product.create({
               data: {
-                slug: categorySlug,
-                name: categorySlug.split("-").map((w) => w[0].toUpperCase() + w.slice(1)).join(" "),
-                gender: genderMap[categorySlug] || "men",
-                image: "",
+                slug: productSlug,
+                sku: productSku,
+                title: body.name || body.title || "New Wholesale Product",
+                nameUrdu: body.nameUrdu || null,
+                description: body.description || "Wholesale footwear product.",
+                categoryId: cat.id,
+                supplierId: supplierProfile.id,
+                moq: body.moq || 12,
+                cartonQty: body.cartonQty || 12,
+                leadTimeDays: body.leadTimeDays || "7-14 Days",
+                specifications: body.specifications || {},
+                images: Array.isArray(body.images) ? body.images : (body.image ? [body.image] : []),
+                videoUrls: body.videoUrls || null,
+                isActive: body.isActive !== false,
+                isFeatured: !!body.featured || !!body.isFeatured,
               },
+              include: { category: true, bulkPriceTiers: true },
             });
-          }
-          const categoryId = cat.id;
 
-          // 3. Product
-          newProduct = await prisma.product.create({
-            data: {
-              slug: productSlug,
-              sku: productSku,
-              title: body.name || body.title || "New Wholesale Product",
-              nameUrdu: body.nameUrdu || null,
-              description: body.description || "Wholesale footwear product.",
-              categoryId,
-              supplierId,
-              moq: body.moq || 12,
-              cartonQty: body.cartonQty || 12,
-              leadTimeDays: body.leadTimeDays || "7-14 Days",
-              specifications: body.specifications || {},
-              images: Array.isArray(body.images) ? body.images : (body.image ? [body.image] : []),
-              videoUrls: body.videoUrls || null,
-              isActive: body.isActive !== false,
-              isFeatured: !!body.featured || !!body.isFeatured,
-            },
-            include: { category: true, supplier: true },
+            // 4. Tiers
+            if (priceTiers.length > 0) {
+              await tx.bulkPriceTier.createMany({
+                data: priceTiers.map((t: any, i: number) => ({
+                  productId: newProd.id,
+                  minQty: t.moq || t.minQty || (12 * (i + 1)),
+                  maxQty: t.maxQty || null,
+                  unitPrice: t.pricePerPair || t.unitPrice || 1500,
+                  tierLabel: t.label || t.tierLabel || `Tier ${i + 1}`,
+                })),
+                skipDuplicates: true,
+              });
+            }
+
+            return newProd;
           });
 
-          // 4. Tiers
-          if (priceTiers.length > 0 && newProduct?.id) {
-            await prisma.bulkPriceTier.createMany({
-              data: priceTiers.map((t: any, i: number) => ({
-                productId: newProduct.id,
-                minQty: t.moq || t.minQty || (12 * (i + 1)),
-                maxQty: t.maxQty || null,
-                unitPrice: t.pricePerPair || t.unitPrice || 1500,
-                tierLabel: t.label || t.tierLabel || `Tier ${i + 1}`,
-              })),
-              skipDuplicates: true,
-            });
-          }
+          console.info(`[Admin Product] Created product ${result.id} (${productSku}) in database by admin ${authToken.sub.slice(0, 8)}`);
+          return ok(
+            {
+              id: result.id,
+              slug: result.slug,
+              sku: result.sku,
+              name: result.title,
+              status: "ACTIVE",
+              isActive: result.isActive,
+              createdAt: result.createdAt.toISOString(),
+            },
+            ctx,
+            201,
+          );
         } catch (dbErr) {
-          console.warn("[Admin Product] Database write warning (served via in-memory catalog):", dbErr);
+          console.error("[Admin Product] Transactional product creation failed:", dbErr);
+          const r = normalizeError(dbErr, ctx);
+          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
         }
-
-        console.info(`[Admin Product] Created product ${newProduct?.id || productSlug} (${productSku}) by admin ${authToken.sub.slice(0, 8)}`);
-        return ok(
-          {
-            id: newProduct?.id || productSlug,
-            slug: fullNewProduct.slug,
-            sku: fullNewProduct.sku,
-            name: fullNewProduct.name,
-            product: fullNewProduct,
-            status: "ACTIVE",
-            isActive: fullNewProduct.inStock,
-            createdAt: new Date().toISOString(),
-          },
-          ctx,
-          201,
-        );
       }
 
       if (path.match(/^\/api\/v1\/admin\/products\/[\w-]+$/) && method === "PUT") {
@@ -1233,19 +1228,6 @@ export async function apiGateway(
         }
         const slugOrId = path.replace("/api/v1/admin/products/", "").split("?")[0].toLowerCase();
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
-
-        // Update in-memory live catalog
-        const matchIdx = liveCatalogProducts.findIndex(
-          (p) => p.slug.toLowerCase() === slugOrId || p.sku.toLowerCase() === slugOrId,
-        );
-        if (matchIdx >= 0) {
-          liveCatalogProducts[matchIdx] = {
-            ...liveCatalogProducts[matchIdx],
-            ...body,
-            name: body.name || body.title || liveCatalogProducts[matchIdx].name,
-            inStock: body.inStock !== undefined ? body.inStock : (body.isActive !== undefined ? body.isActive : liveCatalogProducts[matchIdx].inStock),
-          };
-        }
 
         try {
           const updateData: any = {};
@@ -1262,35 +1244,38 @@ export async function apiGateway(
           if (body.featured !== undefined) updateData.isFeatured = body.featured;
           if (body.isFeatured !== undefined) updateData.isFeatured = body.isFeatured;
 
-          const updated = await prisma.product.updateMany({
-            where: isUuid ? { OR: [{ id: slugOrId }, { slug: slugOrId }] } : { slug: slugOrId },
-            data: updateData,
+          await prisma.$transaction(async (tx) => {
+            await tx.product.updateMany({
+              where: isUuid ? { OR: [{ id: slugOrId }, { slug: slugOrId }] } : { slug: slugOrId },
+              data: updateData,
+            });
+
+            if (Array.isArray(body.priceTiers) && body.priceTiers.length > 0) {
+              const prod = await tx.product.findFirst({
+                where: isUuid ? { OR: [{ id: slugOrId }, { slug: slugOrId }] } : { slug: slugOrId },
+                select: { id: true },
+              });
+              if (prod) {
+                await tx.bulkPriceTier.deleteMany({ where: { productId: prod.id } });
+                await tx.bulkPriceTier.createMany({
+                  data: body.priceTiers.map((t: any, i: number) => ({
+                    productId: prod.id,
+                    minQty: t.moq || t.minQty || (12 * (i + 1)),
+                    maxQty: t.maxQty || null,
+                    unitPrice: t.pricePerPair || t.unitPrice || 1500,
+                    tierLabel: t.label || t.tierLabel || `Tier ${i + 1}`,
+                  })),
+                  skipDuplicates: true,
+                });
+              }
+            }
           });
 
-          // Update price tiers if provided
-          if (Array.isArray(body.priceTiers) && body.priceTiers.length > 0) {
-            const prod = await prisma.product.findFirst({
-              where: isUuid ? { OR: [{ id: slugOrId }, { slug: slugOrId }] } : { slug: slugOrId },
-              select: { id: true },
-            });
-            if (prod) {
-              await prisma.bulkPriceTier.deleteMany({ where: { productId: prod.id } });
-              await prisma.bulkPriceTier.createMany({
-                data: body.priceTiers.map((t: any, i: number) => ({
-                  productId: prod.id,
-                  minQty: t.moq || t.minQty || (12 * (i + 1)),
-                  maxQty: t.maxQty || null,
-                  unitPrice: t.pricePerPair || t.unitPrice || 1500,
-                  tierLabel: t.label || t.tierLabel || `Tier ${i + 1}`,
-                })),
-                skipDuplicates: true,
-              });
-            }
-          }
-
-          return ok({ slug: slugOrId, updated: updated.count > 0 || matchIdx >= 0, status: "UPDATED" }, ctx);
+          return ok({ slug: slugOrId, updated: true, status: "UPDATED" }, ctx);
         } catch (updateErr) {
-          return ok({ slug: slugOrId, updated: matchIdx >= 0, status: "UPDATED" }, ctx);
+          console.error("[Admin Product] Update failed:", updateErr);
+          const r = normalizeError(updateErr, ctx);
+          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
         }
       }
 
@@ -1331,14 +1316,6 @@ export async function apiGateway(
           return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
         }
 
-        // Remove / disable in live catalog
-        const matchIdx = liveCatalogProducts.findIndex(
-          (p) => p.slug.toLowerCase() === slugOrId || p.sku.toLowerCase() === slugOrId,
-        );
-        if (matchIdx >= 0) {
-          liveCatalogProducts.splice(matchIdx, 1);
-        }
-
         try {
           const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slugOrId);
           await prisma.product.updateMany({
@@ -1348,7 +1325,9 @@ export async function apiGateway(
           console.info(`[Admin Product] Soft-deleted product ${slugOrId} by admin ${authToken.sub.slice(0, 8)}`);
           return ok({ slug: slugOrId, status: "ARCHIVED", archivedAt: new Date().toISOString() }, ctx);
         } catch (deleteErr) {
-          return ok({ slug: slugOrId, status: "ARCHIVED", archivedAt: new Date().toISOString() }, ctx);
+          console.error("[Admin Product] Delete failed:", deleteErr);
+          const r = normalizeError(deleteErr, ctx);
+          return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
         }
       }
 
