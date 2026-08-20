@@ -1,9 +1,9 @@
-import catPeshawari from "@/assets/cat-peshawari.jpg";
-import catFormal from "@/assets/cat-formal.jpg";
-import catSneakers from "@/assets/cat-sneakers.jpg";
-import catKhussa from "@/assets/cat-khussa.jpg";
-import catHeels from "@/assets/cat-heels.jpg";
-import catKids from "@/assets/cat-kids.jpg";
+const catPeshawari = "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800";
+const catFormal = "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800";
+const catSneakers = "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=800";
+const catKhussa = "https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=800";
+const catHeels = "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=800";
+const catKids = "https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=800";
 
 export type Gender = "men" | "women" | "kids" | "unisex";
 

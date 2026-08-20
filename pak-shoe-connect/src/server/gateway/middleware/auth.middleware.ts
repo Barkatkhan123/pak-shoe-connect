@@ -132,8 +132,7 @@ export function authenticate(headers: Record<string, string>): AuthResult {
 }
 
 /**
- * Authenticates gateway JWT first; if that fails, accepts a verified Supabase
- * access token and maps it to an AuthToken for RBAC.
+ * Authenticates gateway JWT token and maps it to an AuthToken for RBAC.
  */
 export async function authenticateRequest(headers: Record<string, string>): Promise<AuthResult> {
   const raw = extractBearerToken(headers);
@@ -146,56 +145,7 @@ export async function authenticateRequest(headers: Record<string, string>): Prom
     return { authenticated: true, token: gatewayToken };
   }
 
-  try {
-    const { supabaseAdmin } = await import("../../../integrations/supabase/client.server");
-    const { data, error } = await supabaseAdmin.auth.getUser(raw);
-    if (error || !data?.user) {
-      return { authenticated: false, error: "Invalid or expired token" };
-    }
-
-    const email = data.user.email?.toLowerCase();
-    const metaRole =
-      (data.user.app_metadata?.role as string | undefined) ||
-      (data.user.user_metadata?.role as string | undefined);
-
-    let dbUser: {
-      id: string;
-      role: string;
-      supplierProfile?: { id: string } | null;
-    } | null = null;
-
-    try {
-      const { prisma } = await import("../../db");
-      if (email) {
-        dbUser = await prisma.user.findUnique({
-          where: { email },
-          select: { id: true, role: true, supplierProfile: { select: { id: true } } },
-        });
-      }
-      if (!dbUser) {
-        dbUser = await prisma.user.findUnique({
-          where: { id: data.user.id },
-          select: { id: true, role: true, supplierProfile: { select: { id: true } } },
-        });
-      }
-    } catch {
-      dbUser = null;
-    }
-
-    const now = Math.floor(Date.now() / 1000);
-    const token: AuthToken = {
-      sub: dbUser?.id || data.user.id,
-      role: mapExternalRole(dbUser?.role || metaRole),
-      supplierId: dbUser?.supplierProfile?.id,
-      iat: now,
-      exp: now + 3600,
-      jti: `sb-${data.user.id.slice(0, 8)}`,
-    };
-
-    return { authenticated: true, token };
-  } catch {
-    return { authenticated: false, error: "Invalid or expired token" };
-  }
+  return { authenticated: false, error: "Invalid or expired token" };
 }
 
 /**

@@ -56,7 +56,38 @@ import { InvoiceService } from "../services/payment/invoice.service";
 import { CartService } from "../modules/cart/cart.service";
 import { AddBasketItemSchema } from "../modules/cart/cart.schema";
 import { prisma } from "../db";
-import { DEFAULT_PRODUCTS, type Product } from "../../data/products";
+export interface GatewayProductDto {
+  slug: string;
+  sku: string;
+  name: string;
+  nameUrdu: string;
+  categorySlug: string;
+  gender: string;
+  material: string;
+  soleType: string;
+  image: string;
+  images: string[];
+  colorVariants: { name: string; hex: string; inStock: boolean; stockUnits: number }[];
+  colors: string[];
+  sizes: string[];
+  moq: number;
+  cartonQty: number;
+  priceTiers: { moq: number; pricePerPair: number; label: string }[];
+  leadTimeDays: string;
+  priceLabel: string;
+  productionCapacity: string;
+  customization: string[];
+  inStock: boolean;
+  featured: boolean;
+  bestseller: boolean;
+  trending: boolean;
+  newArrival: boolean;
+  description: string;
+  specifications: Record<string, any>;
+  shippingInfo: string;
+  reviews: any[];
+  stats: Record<string, any>;
+}
 
 // ── Gateway Middleware ────────────────────────────────────────────────────
 import { createRequestContext, type RequestContext } from "./middleware/correlation-id.middleware";
@@ -344,45 +375,107 @@ export async function apiGateway(
 
     // ── Auth ─────────────────────────────────────────────────────────────
     if (path === "/api/v1/auth/login" && method === "POST") {
-      const validation = validateBody(
-        body,
-        require("zod").z.object({
-          phone: require("zod")
-            .z.string()
-            .regex(/^\+92[0-9]{10}$/),
-          password: require("zod").z.string().min(8).max(128),
-        }),
-      );
-      if (!validation.valid) {
-        const r = validationErrorResponse(validation.errors!, ctx.correlationId);
+      const email = body.email ? String(body.email).trim().toLowerCase() : undefined;
+      const phone = body.phone ? String(body.phone).trim() : undefined;
+      const password = body.password ? String(body.password) : "";
+
+      if (!password || (!email && !phone)) {
+        const r = unauthorizedResponse("Email/phone and password are required", ctx.correlationId);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
       let user: any = null;
       try {
-        user = await prisma.user.findUnique({
-          where: { phone: validation.data.phone },
-        });
-      } catch {
-        // Fallback for test mode or disconnected DB
+        if (email) {
+          user = await prisma.user.findFirst({ where: { email } });
+        } else if (phone) {
+          user = await prisma.user.findFirst({ where: { phone } });
+        }
+      } catch (err) {
+        console.error("[Auth Login] Database lookup error:", err);
       }
 
       if (!user || !user.isActive || !user.passwordHash) {
-        const r = unauthorizedResponse("Invalid phone number or password", ctx.correlationId);
+        const r = unauthorizedResponse("Invalid credentials", ctx.correlationId);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
       const isValid = user.passwordHash.startsWith("$2")
-        ? require("bcryptjs").compareSync(validation.data.password, user.passwordHash)
-        : user.passwordHash === validation.data.password;
+        ? require("bcryptjs").compareSync(password, user.passwordHash)
+        : user.passwordHash === password;
 
       if (!isValid) {
-        const r = unauthorizedResponse("Invalid phone number or password", ctx.correlationId);
+        const r = unauthorizedResponse("Invalid credentials", ctx.correlationId);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
       const token = signToken({ sub: user.id, role: user.role as any });
-      return ok({ token, expiresIn: 3600 }, ctx);
+      return ok(
+        {
+          token,
+          expiresIn: 3600,
+          user: {
+            id: user.id,
+            email: user.email,
+            phone: user.phone,
+            role: user.role,
+            fullName: user.fullName,
+            city: user.city,
+          },
+        },
+        ctx,
+      );
+    }
+
+    if (path === "/api/v1/auth/signup" && method === "POST") {
+      const email = body.email ? String(body.email).trim().toLowerCase() : undefined;
+      const phone = body.phone ? String(body.phone).trim() : `+92${Date.now().toString().slice(-10)}`;
+      const password = body.password ? String(body.password) : "";
+      const fullName = body.fullName || body.business_name || "New Buyer";
+      const city = body.city || "Lahore";
+      const role = body.role === "SUPPLIER" ? "SUPPLIER" : "BUYER";
+
+      if (!password || password.length < 6) {
+        const r = unauthorizedResponse("Password must be at least 6 characters", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+
+      try {
+        const passwordHash = require("bcryptjs").hashSync(password, 10);
+        const newUser = await prisma.user.create({
+          data: {
+            email: email || null,
+            phone,
+            fullName,
+            city,
+            role: role as any,
+            passwordHash,
+            isActive: true,
+          },
+        });
+
+        const token = signToken({ sub: newUser.id, role: newUser.role as any });
+        return ok(
+          {
+            token,
+            expiresIn: 3600,
+            user: {
+              id: newUser.id,
+              email: newUser.email,
+              phone: newUser.phone,
+              role: newUser.role,
+              fullName: newUser.fullName,
+              city: newUser.city,
+            },
+          },
+          ctx,
+          201,
+        );
+      } catch (err: any) {
+        console.error("[Auth Signup] Registration error:", err);
+        const r = normalizeError(err, ctx);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
     }
 
     // ── Catalog ───────────────────────────────────────────────────────────
@@ -398,54 +491,62 @@ export async function apiGateway(
         });
 
         if (dbProducts && dbProducts.length > 0) {
-          products = dbProducts.map((p) => ({
-            slug: p.slug,
-            sku: p.sku,
-            name: p.title,
-            nameUrdu: p.nameUrdu || "",
-            categorySlug: p.category?.slug || "men-formal",
-            gender: (p.category?.gender as any) || "men",
-            material: (p.specifications as any)?.["Upper Material"] || "Full-grain genuine leather",
-            soleType: (p.specifications as any)?.["Sole Material"] || "Rubber",
-            image: (p.images && p.images[0]) || "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800",
-            images: p.images && p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800"],
-            colorVariants: [
-              { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 1000 },
-              { name: "Tan", hex: "#C4906B", inStock: true, stockUnits: 800 },
-            ],
-            colors: ["Black", "Tan"],
-            sizes: ["6", "7", "8", "9", "10", "11", "12"],
-            moq: p.moq || 12,
-            cartonQty: p.cartonQty || 12,
-            priceTiers: p.bulkPriceTiers && p.bulkPriceTiers.length > 0
-              ? p.bulkPriceTiers.map((t) => ({ moq: t.minQty, pricePerPair: Number(t.unitPrice), label: t.tierLabel }))
-              : [{ moq: p.moq || 12, pricePerPair: 1850, label: "Starter (1-4 Ctns)" }],
-            leadTimeDays: p.leadTimeDays || "7–14 days",
-            priceLabel: `PKR 1,250–1,850`,
-            productionCapacity: "10,000 pairs/month",
-            customization: ["Custom Branding Embossing", "Color Dye Matching", "Custom Inner Sole"],
-            inStock: p.isActive !== false,
-            featured: p.isFeatured !== false,
-            bestseller: false,
-            trending: true,
-            newArrival: true,
-            description: p.description || "High quality footwear manufactured to Anamon wholesale standards.",
-            specifications: (p.specifications as any) || {
-              "Upper Material": "Genuine Leather",
-              "Sole Material": "Rubber",
-              "Minimum Order": `${p.moq || 12} pairs (1 carton)`,
-              Packaging: "12 pairs per carton",
-            },
-            shippingInfo: "Shipped in standard cartons of 12 pairs. Single color per carton.",
-            reviews: [],
-            stats: { unitsSold: 0, ordersCompleted: 0, activeBuyers: 0, repeatPurchasePct: 100 },
-          }));
-        } else {
-          products = [...DEFAULT_PRODUCTS];
+          products = dbProducts.map((p) => {
+            const rawImages = Array.isArray(p.images)
+              ? p.images
+              : (typeof p.images === "string" ? JSON.parse(p.images || "[]") : []);
+            const imageList = rawImages.length > 0
+              ? rawImages
+              : ["https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800"];
+
+            return {
+              slug: p.slug,
+              sku: p.sku,
+              name: p.title,
+              nameUrdu: p.nameUrdu || "",
+              categorySlug: p.category?.slug || "men-formal",
+              gender: (p.category?.gender as any) || "men",
+              material: (p.specifications as any)?.["Upper Material"] || "Full-grain genuine leather",
+              soleType: (p.specifications as any)?.["Sole Material"] || "Rubber",
+              image: imageList[0],
+              images: imageList,
+              colorVariants: [
+                { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 1000 },
+                { name: "Tan", hex: "#C4906B", inStock: true, stockUnits: 800 },
+              ],
+              colors: ["Black", "Tan"],
+              sizes: ["6", "7", "8", "9", "10", "11", "12"],
+              moq: p.moq || 12,
+              cartonQty: p.cartonQty || 12,
+              priceTiers: p.bulkPriceTiers && p.bulkPriceTiers.length > 0
+                ? p.bulkPriceTiers.map((t) => ({ moq: t.minQty, pricePerPair: Number(t.unitPrice), label: t.tierLabel }))
+                : [{ moq: p.moq || 12, pricePerPair: 1850, label: "Starter (1-4 Ctns)" }],
+              leadTimeDays: p.leadTimeDays || "7–14 days",
+              priceLabel: `PKR 1,250–1,850`,
+              productionCapacity: "10,000 pairs/month",
+              customization: ["Custom Branding Embossing", "Color Dye Matching", "Custom Inner Sole"],
+              inStock: p.isActive !== false,
+              featured: p.isFeatured !== false,
+              bestseller: false,
+              trending: true,
+              newArrival: true,
+              description: p.description || "High quality footwear manufactured to Anamon wholesale standards.",
+              specifications: (p.specifications as any) || {
+                "Upper Material": "Genuine Leather",
+                "Sole Material": "Rubber",
+                "Minimum Order": `${p.moq || 12} pairs (1 carton)`,
+                Packaging: "12 pairs per carton",
+              },
+              shippingInfo: "Shipped in standard cartons of 12 pairs. Single color per carton.",
+              reviews: [],
+              stats: { unitsSold: 0, ordersCompleted: 0, activeBuyers: 0, repeatPurchasePct: 100 },
+            };
+          });
         }
       } catch (dbErr) {
-        console.warn("[Catalog] DB query fallback to DEFAULT_PRODUCTS:", dbErr);
-        products = [...DEFAULT_PRODUCTS];
+        console.error("[Catalog] Database query failed:", dbErr);
+        const r = normalizeError(dbErr, ctx);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
       // Apply filtering if requested
@@ -489,6 +590,13 @@ export async function apiGateway(
         });
 
         if (p) {
+          const rawImages = Array.isArray(p.images)
+            ? p.images
+            : (typeof p.images === "string" ? JSON.parse(p.images || "[]") : []);
+          const imageList = rawImages.length > 0
+            ? rawImages
+            : ["https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800"];
+
           const productObj: Product = {
             slug: p.slug,
             sku: p.sku,
@@ -498,8 +606,8 @@ export async function apiGateway(
             gender: (p.category?.gender as any) || "men",
             material: (p.specifications as any)?.["Upper Material"] || "Full-grain genuine leather",
             soleType: (p.specifications as any)?.["Sole Material"] || "Rubber",
-            image: (p.images && p.images[0]) || "https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800",
-            images: p.images && p.images.length > 0 ? p.images : ["https://images.unsplash.com/photo-1614252369475-531eda835eb1?q=80&w=800"],
+            image: imageList[0],
+            images: imageList,
             colorVariants: [
               { name: "Black", hex: "#1C1C1C", inStock: true, stockUnits: 1000 },
               { name: "Tan", hex: "#C4906B", inStock: true, stockUnits: 800 },
@@ -534,21 +642,13 @@ export async function apiGateway(
           return ok({ product: productObj }, ctx);
         }
       } catch (err) {
-        console.warn("[Catalog Detail] DB lookup error:", err);
-      }
-
-      // Check default products fallback
-      const defaultMatch = DEFAULT_PRODUCTS.find((p) => p.slug.toLowerCase() === slug || p.sku.toLowerCase() === slug);
-      if (defaultMatch) {
-        return ok({ product: defaultMatch }, ctx);
-      }
-
-      const detail = await CatalogService.getProductDetail(slug);
-      if (!detail) {
-        const r = notFoundResponse(ctx.correlationId);
+        console.error("[Catalog Detail] DB lookup error:", err);
+        const r = normalizeError(err, ctx);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
-      return ok({ product: detail.product }, ctx);
+
+      const r = notFoundResponse(ctx.correlationId);
+      return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
     }
 
     if (path === "/api/v1/catalog/categories" && method === "GET") {
@@ -1020,10 +1120,7 @@ export async function apiGateway(
       try {
         dbUser = await prisma.user.findFirst({
           where: {
-            OR: [
-              { email: requestedEmail },
-              { email: { equals: requestedEmail, mode: "insensitive" } },
-            ],
+            email: requestedEmail,
             role: { in: ["ADMIN", "OPERATOR"] },
           },
         });
@@ -1178,7 +1275,7 @@ export async function apiGateway(
           const result = await prisma.$transaction(async (tx) => {
             // 1. Supplier
             let supplierProfile = await tx.supplierProfile.findFirst({
-              where: { factoryName: { contains: "Anamon", mode: "insensitive" } },
+              where: { factoryName: { contains: "Anamon" } },
               select: { id: true },
             });
             if (!supplierProfile) {

@@ -124,14 +124,14 @@ export class CatalogService {
     if (city) {
       whereClause.supplier = {
         ...whereClause.supplier,
-        city: { contains: city, mode: "insensitive" },
+        city: { contains: city },
       };
     }
 
     if (search) {
       whereClause.OR = [
-        { title: { contains: search, mode: "insensitive" } },
-        { description: { contains: search, mode: "insensitive" } },
+        { title: { contains: search } },
+        { description: { contains: search } },
         { nameUrdu: { contains: search } },
       ];
     }

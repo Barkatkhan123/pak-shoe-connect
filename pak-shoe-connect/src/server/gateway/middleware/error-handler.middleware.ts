@@ -21,6 +21,7 @@ import type { RequestContext } from "./correlation-id.middleware";
 export interface GatewayError {
   success: false;
   message: string;
+  error?: string;
   code: string;
   correlationId: string;
 }

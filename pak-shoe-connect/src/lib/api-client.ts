@@ -95,7 +95,9 @@ export async function getAdminJwt(
   return session?.accessToken?.startsWith("eyJ") ? session.accessToken : _cachedAdminJwt;
 }
 
-async function request<T = any>(
+const BASKET_STORAGE_KEY = "anamon_b2b_basket_v1";
+
+export async function request<T = any>(
   endpoint: string,
   options: {
     method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
@@ -112,7 +114,7 @@ async function request<T = any>(
     endpoint.startsWith("/api/v1/auth/") ||
     headers["x-skip-auth-injection"] === "true";
 
-  let authHeader = headers["authorization"] || headers["Authorization"];
+  let authHeader: string | undefined = headers["authorization"] || headers["Authorization"];
 
   if (isAuthEndpoint) {
     authHeader = undefined;

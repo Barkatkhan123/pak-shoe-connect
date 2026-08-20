@@ -2,20 +2,25 @@ import Redis from "ioredis";
 
 /**
  * Shared Redis connection for the payment services subsystem.
- * Falls back gracefully when local Redis is not running.
+ * Skips gracefully when Redis is not configured in serverless/test environment.
  */
-export const paymentRedis = new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
-  maxRetriesPerRequest: null,
-  lazyConnect: true,
-  enableOfflineQueue: false,
-  retryStrategy() {
-    // Return null to disable auto-reconnect loops when Redis server is offline
-    return null;
-  },
-  keyPrefix: "shersha:payment:",
-});
+export const paymentRedis: any = process.env.REDIS_URL
+  ? new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: null,
+      lazyConnect: true,
+      enableOfflineQueue: false,
+      retryStrategy() {
+        return null;
+      },
+      keyPrefix: "shersha:payment:",
+    })
+  : {
+      get: async () => null,
+      set: async () => "OK",
+      del: async () => 1,
+      on: () => {},
+    };
 
-// Suppress unhandled error events in dev/test environment
-paymentRedis.on("error", () => {
-  // Silent fallback
-});
+if (paymentRedis?.on) {
+  paymentRedis.on("error", () => {});
+}

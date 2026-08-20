@@ -415,37 +415,6 @@ export const adminSecurityEngine = {
   },
 
   async getAuditLogsAsync(): Promise<AuditLogEntry[]> {
-    try {
-      const { data, error } = await supabase
-        .from("admin_audit_logs")
-        .select("*")
-        .order("timestamp", { ascending: false })
-        .limit(200);
-
-      if (!error && data && data.length > 0) {
-        // Shape DB rows to match the AuditLogEntry interface
-        const logs: AuditLogEntry[] = data.map((row) => ({
-          id: row.id,
-          requestId: row.request_id,
-          timestamp: row.timestamp,
-          adminEmail: row.admin_email,
-          role: row.role as AuditLogEntry["role"],
-          action: row.action,
-          target: row.target,
-          ipAddress: row.ip_address ?? "",
-          userAgent: row.user_agent ?? "",
-          status: row.status as AuditLogEntry["status"],
-          details: row.details ?? undefined,
-        }));
-        // Update local cache so sync callers get fresh data
-        if (typeof window !== "undefined") {
-          localStorage.setItem(AUDIT_LOGS_STORAGE_KEY, JSON.stringify(logs));
-        }
-        return logs;
-      }
-    } catch (err) {
-      console.warn("[AdminAuth] Supabase audit log fetch failed, using cache:", err);
-    }
     return this.getAuditLogsFromCache();
   },
 
@@ -464,29 +433,7 @@ export const adminSecurityEngine = {
       ...entry,
     };
 
-    // 1. Write to Supabase (fire-and-forget — do not await to stay non-blocking)
-    supabase
-      .from("admin_audit_logs")
-      .insert({
-        id: newLog.id,
-        request_id: newLog.requestId,
-        timestamp: newLog.timestamp,
-        admin_email: newLog.adminEmail,
-        role: newLog.role,
-        action: newLog.action,
-        target: newLog.target,
-        ip_address: newLog.ipAddress || null,
-        user_agent: newLog.userAgent || null,
-        status: newLog.status,
-        details: newLog.details || null,
-      })
-      .then(({ error }) => {
-        if (error) {
-          console.warn("[AdminAuth] Supabase audit log insert failed:", error.message);
-        }
-      });
-
-    // 2. Mirror to localStorage cache for instant reads & offline support
+    // Mirror to localStorage cache for instant reads
     const cached = this.getAuditLogsFromCache();
     const updated = [newLog, ...cached.slice(0, 199)];
     if (typeof window !== "undefined") {

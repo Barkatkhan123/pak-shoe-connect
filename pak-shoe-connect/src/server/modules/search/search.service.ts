@@ -120,11 +120,11 @@ export class SearchService {
       where: {
         isActive: true,
         OR: [
-          { title: { contains: queryText, mode: "insensitive" } },
-          { description: { contains: queryText, mode: "insensitive" } },
+          { title: { contains: queryText } },
+          { description: { contains: queryText } },
           { nameUrdu: { contains: queryText } },
-          { category: { name: { contains: queryText, mode: "insensitive" } } },
-          { supplier: { factoryName: { contains: queryText, mode: "insensitive" } } },
+          { category: { name: { contains: queryText } } },
+          { supplier: { factoryName: { contains: queryText } } },
         ],
       },
       include: {

@@ -5,20 +5,14 @@ const isVercel = !!process.env.VERCEL;
 
 // Safe Redis connection initializer (gracefully falls back if Redis is not locally active in dev/test)
 // On Vercel serverless, skip entirely — TCP sockets are not viable
-export const redisConnection = isVercel
+export const redisConnection = isVercel || !process.env.REDIS_URL
   ? null
-  : new Redis(process.env.REDIS_URL || "redis://127.0.0.1:6379", {
+  : new Redis(process.env.REDIS_URL, {
       maxRetriesPerRequest: null,
       lazyConnect: true,
-      enableOfflineQueue: true,
-      retryStrategy(times) {
-        if (
-          process.env.NODE_ENV === "test" ||
-          (!process.env.REDIS_URL && process.env.NODE_ENV !== "production")
-        ) {
-          return null; // Stop retrying in tests/dev when Redis is offline
-        }
-        return Math.min(times * 50, 2000);
+      enableOfflineQueue: false,
+      retryStrategy() {
+        return null;
       },
     });
 

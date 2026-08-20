@@ -30,13 +30,6 @@ const REQUIRED_ENV: EnvRequirement[] = [
     skipWhen: () => isVercel,
   },
 
-  // ── Supabase ──────────────────────────────────────────────────────
-  { name: "SUPABASE_URL", group: "Supabase", requiredIn: "all" },
-  { name: "SUPABASE_PUBLISHABLE_KEY", group: "Supabase", requiredIn: "all" },
-  // VITE_ variants are also needed for client-side hydration
-  { name: "VITE_SUPABASE_URL", group: "Supabase", requiredIn: "all" },
-  { name: "VITE_SUPABASE_PUBLISHABLE_KEY", group: "Supabase", requiredIn: "all" },
-
   // ── Payment Gateways (production only) ────────────────────────────
   { name: "EASYPAISA_STORE_ID", group: "Payment — EasyPaisa", requiredIn: "production" },
   { name: "EASYPAISA_HASH_KEY", group: "Payment — EasyPaisa", requiredIn: "production" },
