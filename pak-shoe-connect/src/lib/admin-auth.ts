@@ -50,7 +50,6 @@ export interface AuditLogEntry {
 }
 
 export const MASTER_ADMIN_EMAIL = "anamoontotrade@gmail.com";
-export const MASTER_ADMIN_PASSWORD_DEFAULT = "Anamon12&1marcH2007";
 
 export const MASTER_ADMIN_PERMISSIONS: Permission[] = [
   "Products.Create",
@@ -222,49 +221,48 @@ export const adminSecurityEngine = {
   async verifyServerAuthorization(
     email: string,
     password?: string,
-  ): Promise<{ authorized: boolean; role: AdminRole; reason?: string }> {
+  ): Promise<{ authorized: boolean; role: AdminRole; token?: string; reason?: string }> {
     const normalizedEmail = email.trim().toLowerCase();
 
-    if (normalizedEmail !== MASTER_ADMIN_EMAIL.toLowerCase()) {
+    if (!password) {
       return {
         authorized: false,
         role: "USER",
-        reason: `HTTP 403 Forbidden: Email ${email} is not granted MASTER_ADMIN privileges in database schema.`,
+        reason: "Password is required to authenticate.",
       };
     }
 
-    // Direct password check against configured Master Admin credential
-    if (password && password === MASTER_ADMIN_PASSWORD_DEFAULT) {
-      return { authorized: true, role: "MASTER_ADMIN" };
-    }
-
     try {
-      if (password) {
-        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-          email: normalizedEmail,
-          password: password,
-        });
-        if (!authError && authData.user) {
-          return { authorized: true, role: "MASTER_ADMIN" };
-        }
+      const { getApiBaseUrl } = await import("./api-client");
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/api/v1/admin/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: normalizedEmail, secret: password }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.data?.token) {
+        return {
+          authorized: true,
+          role: "MASTER_ADMIN",
+          token: data.data.token,
+        };
       }
 
-      const { data: userSession, error } = await supabase.auth.getSession();
-      if (!error && userSession?.session?.user) {
-        const userEmail = userSession.session.user.email?.toLowerCase();
-        if (userEmail === MASTER_ADMIN_EMAIL.toLowerCase()) {
-          return { authorized: true, role: "MASTER_ADMIN" };
-        }
-      }
-    } catch (err) {
-      console.warn("[AdminAuth] Supabase check failed:", err);
+      return {
+        authorized: false,
+        role: "USER",
+        reason: data?.message || "Invalid credentials or unauthorized account.",
+      };
+    } catch (err: any) {
+      console.warn("[AdminAuth] Backend auth verification error:", err);
+      return {
+        authorized: false,
+        role: "USER",
+        reason: err?.message || "Unable to reach authentication server.",
+      };
     }
-
-    return {
-      authorized: false,
-      role: "USER",
-      reason: "Invalid admin password or unauthorized account.",
-    };
   },
 
   /**
@@ -326,7 +324,7 @@ export const adminSecurityEngine = {
     return updated;
   },
 
-  createSession(email: string, is2faVerified = true): AdminUserSession {
+  createSession(email: string, is2faVerified = true, token?: string): AdminUserSession {
     const csrfToken = `csrf_token_${Math.random().toString(36).substring(2, 12)}`;
     // BUG-08 FIX: IP should be resolved server-side. On the client we record
     // a placeholder; real IP tracking belongs in an API/edge function.
@@ -334,9 +332,9 @@ export const adminSecurityEngine = {
     const session: AdminUserSession = {
       email: email.trim().toLowerCase(),
       role: "MASTER_ADMIN",
-      accessToken: `access_jwt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      accessToken: token || `access_jwt_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
       refreshToken: `refresh_jwt_${Date.now()}_${Math.random().toString(36).substring(2, 12)}`,
-      accessTokenExpiresAt: Date.now() + 15 * 60 * 1000, // 15 minutes
+      accessTokenExpiresAt: Date.now() + 60 * 60 * 1000, // 60 minutes
       refreshTokenExpiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000, // 30 days
       csrfToken,
       authenticatedAt: new Date().toISOString(),
@@ -359,7 +357,7 @@ export const adminSecurityEngine = {
       ipAddress: session.ipAddress,
       userAgent: session.userAgent,
       status: "SUCCESS",
-      details: "Authenticated with Dynamic 2FA OTP & CSRF double-submit token",
+      details: "Authenticated with Database Master Admin & CSRF double-submit token",
     });
 
     return session;

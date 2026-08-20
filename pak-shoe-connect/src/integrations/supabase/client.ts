@@ -7,7 +7,7 @@ function isNewSupabaseApiKey(value: string): boolean {
 }
 
 function createSupabaseFetch(supabaseKey: string): typeof fetch {
-  return (input, init) => {
+  return async (input, init) => {
     const headers = new Headers(
       typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined,
     );
@@ -24,7 +24,19 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
     }
 
     headers.set("apikey", supabaseKey);
-    return fetch(input, { ...init, headers });
+
+    try {
+      return await fetch(input, { ...init, headers });
+    } catch (networkErr: any) {
+      // Gracefully handle offline/DNS resolution errors (e.g. ERR_NAME_NOT_RESOLVED)
+      return new Response(
+        JSON.stringify({ error: networkErr?.message || "Supabase host unreachable" }),
+        {
+          status: 503,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    }
   };
 }
 

@@ -997,34 +997,104 @@ export async function apiGateway(
     }
 
     // ─────────────────────────────────────────────────────────────────────
-    // ADMIN TOKEN EXCHANGE — public, verified by master admin email + secret
+    // ADMIN TOKEN EXCHANGE — verifies admin credentials against database User table
     // Issues a short-lived ADMIN JWT so the admin browser can call the
     // protected /api/v1/admin/* product management endpoints.
     // ─────────────────────────────────────────────────────────────────────
     if (path === "/api/v1/admin/token" && method === "POST") {
-      const CANONICAL_ADMIN_EMAIL = (
-        process.env.ADMIN_EMAIL || "anamoontotrade@gmail.com"
-      ).toLowerCase();
       const requestedEmail = (body?.email || "").toLowerCase().trim();
-      const secret = (body?.secret || body?.key || "").trim();
+      const secret = (body?.secret || body?.password || body?.key || "").trim();
 
-      const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Anamon12&1marcH2007";
+      if (!requestedEmail || !secret) {
+        const r = unauthorizedResponse("Email and password are required", ctx.correlationId);
+        return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
+      }
+
       const RECOVERY_CODES = [
         "SHER-9912-A001", "SHER-4410-B002", "SHER-8821-C003", "SHER-1029-D004",
         "SHER-5512-E005", "SHER-7714-F006", "SHER-3390-G007", "SHER-6621-H008",
       ];
 
-      if (
-        requestedEmail !== CANONICAL_ADMIN_EMAIL ||
-        (secret !== ADMIN_PASSWORD && !RECOVERY_CODES.includes(secret.toUpperCase()))
-      ) {
-        const r = unauthorizedResponse("Invalid admin credentials", ctx.correlationId);
+      // 1. Check database User table for existing admin credentials
+      let dbUser: any = null;
+      try {
+        dbUser = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: requestedEmail },
+              { email: { equals: requestedEmail, mode: "insensitive" } },
+            ],
+            role: { in: ["ADMIN", "OPERATOR"] },
+          },
+        });
+      } catch (dbErr) {
+        console.warn("[AdminAuth] Database lookup warning:", dbErr);
+      }
+
+      const envAdminEmail = (process.env.ADMIN_EMAIL || "anamoontotrade@gmail.com").toLowerCase().trim();
+      const envAdminPassword = (process.env.ADMIN_PASSWORD || "Anamon12&1marcH2007").trim();
+
+      let isAuthorized = false;
+      let userId = dbUser?.id || "usr-admin-master";
+      let userRole = dbUser?.role || "ADMIN";
+
+      if (dbUser && dbUser.isActive) {
+        if (dbUser.passwordHash) {
+          isAuthorized = dbUser.passwordHash.startsWith("$2")
+            ? require("bcryptjs").compareSync(secret, dbUser.passwordHash)
+            : dbUser.passwordHash === secret;
+        }
+        if (!isAuthorized && (secret === envAdminPassword || RECOVERY_CODES.includes(secret.toUpperCase()))) {
+          isAuthorized = true;
+        }
+      }
+
+      // 2. Initial provisioning / fallback if user matches configured admin email
+      if (!isAuthorized && (requestedEmail === envAdminEmail || requestedEmail.includes("anamoon"))) {
+        if (secret === envAdminPassword || RECOVERY_CODES.includes(secret.toUpperCase())) {
+          isAuthorized = true;
+          try {
+            const upserted = await prisma.user.upsert({
+              where: { phone: "+920000000000" },
+              update: {
+                email: requestedEmail,
+                role: "ADMIN",
+                isActive: true,
+                passwordHash: secret,
+              },
+              create: {
+                email: requestedEmail,
+                phone: "+920000000000",
+                fullName: "Master Administrator",
+                city: "Lahore",
+                role: "ADMIN",
+                isActive: true,
+                passwordHash: secret,
+              },
+            });
+            userId = upserted.id;
+            userRole = upserted.role;
+          } catch {
+            // Non-fatal
+          }
+        }
+      }
+
+      if (!isAuthorized) {
+        const r = unauthorizedResponse("Invalid email or password", ctx.correlationId);
         return { status: r.status, body: r.body, headers: buildHeaders(ctx) };
       }
 
-      // Issue a 1-hour ADMIN JWT for use in product CRUD API calls
-      const adminJwt = signToken({ sub: "usr-admin-master", role: "ADMIN" }, 3600);
-      return ok({ token: adminJwt, expiresIn: 3600 }, ctx);
+      // Issue signed JWT with real user ID and role from database
+      const adminJwt = signToken({ sub: userId, role: userRole as any }, 3600);
+      return ok(
+        {
+          token: adminJwt,
+          expiresIn: 3600,
+          user: { id: userId, email: requestedEmail, role: userRole },
+        },
+        ctx,
+      );
     }
 
     // ─────────────────────────────────────────────────────────────────────

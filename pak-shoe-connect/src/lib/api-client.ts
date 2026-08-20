@@ -57,30 +57,42 @@ let _cachedAdminJwt: string | null = null;
 let _cachedAdminJwtExpiry = 0;
 
 export async function getAdminJwt(
-  email = "anamoontotrade@gmail.com",
-  password = "Anamon12&1marcH2007",
+  email?: string,
+  password?: string,
   forceFresh = false,
 ): Promise<string | null> {
+  const session = adminSecurityEngine.getStoredSession();
+  const activeEmail = (email || session?.email || "").trim().toLowerCase();
+
+  // If active session already contains a valid signed JWT from database login
+  if (!forceFresh && session?.accessToken?.startsWith("eyJ") && session.accessTokenExpiresAt > Date.now()) {
+    return session.accessToken;
+  }
+
   const now = Date.now();
   if (!forceFresh && _cachedAdminJwt && now < _cachedAdminJwtExpiry) {
     return _cachedAdminJwt;
   }
-  try {
-    const res = await request("/api/v1/admin/token", {
-      method: "POST",
-      body: { email, secret: password },
-      headers: { "x-skip-auth-injection": "true" },
-    });
-    const token = (res as any)?.token ?? (res as any)?.data?.token ?? null;
-    if (token) {
-      _cachedAdminJwt = token;
-      _cachedAdminJwtExpiry = now + 50 * 60 * 1000; // 50 min (JWT is 60 min)
-      return token;
+
+  if (password && activeEmail) {
+    try {
+      const res = await request("/api/v1/admin/token", {
+        method: "POST",
+        body: { email: activeEmail, secret: password },
+        headers: { "x-skip-auth-injection": "true" },
+      });
+      const token = (res as any)?.data?.token ?? (res as any)?.token ?? null;
+      if (token) {
+        _cachedAdminJwt = token;
+        _cachedAdminJwtExpiry = now + 50 * 60 * 1000;
+        return token;
+      }
+    } catch (err) {
+      console.error("[apiClient] getAdminJwt error:", err);
     }
-  } catch (err) {
-    console.error("[apiClient] getAdminJwt error:", err);
   }
-  return null;
+
+  return session?.accessToken?.startsWith("eyJ") ? session.accessToken : _cachedAdminJwt;
 }
 
 async function request<T = any>(
@@ -102,7 +114,9 @@ async function request<T = any>(
 
   let authHeader = headers["authorization"] || headers["Authorization"];
 
-  if (!authHeader && !isAuthEndpoint && typeof window !== "undefined") {
+  if (isAuthEndpoint) {
+    authHeader = undefined;
+  } else if (!authHeader && typeof window !== "undefined") {
     // If it's an admin endpoint, automatically use the backend Admin JWT
     if (endpoint.startsWith("/api/v1/admin/")) {
       const adminJwt = await getAdminJwt();
@@ -123,11 +137,16 @@ async function request<T = any>(
 
   const finalHeaders: Record<string, string> = {
     "Content-Type": "application/json",
-    ...headers,
   };
-  delete finalHeaders["x-skip-auth-injection"];
 
-  if (authHeader) {
+  for (const [k, v] of Object.entries(headers)) {
+    const lower = k.toLowerCase();
+    if (lower !== "authorization" && lower !== "x-skip-auth-injection") {
+      finalHeaders[k] = v;
+    }
+  }
+
+  if (authHeader && !isAuthEndpoint) {
     finalHeaders["Authorization"] = authHeader;
   }
 
@@ -166,11 +185,14 @@ async function request<T = any>(
         console.warn("[apiClient] Admin token expired/invalid, refreshing token and retrying request...");
         _cachedAdminJwt = null;
         _cachedAdminJwtExpiry = 0;
-        const freshToken = await getAdminJwt("anamoontotrade@gmail.com", "Anamon12&1marcH2007", true);
+        const freshToken = await getAdminJwt(undefined, undefined, true);
         if (freshToken) {
+          const cleanHeaders = { ...headers };
+          delete cleanHeaders["authorization"];
+          delete cleanHeaders["Authorization"];
           return request<T>(endpoint, {
             ...options,
-            headers: { ...headers, authorization: `Bearer ${freshToken}` },
+            headers: { ...cleanHeaders, Authorization: `Bearer ${freshToken}` },
             _isRetry: true,
           });
         }
@@ -527,12 +549,10 @@ export const apiClient = {
       try {
         let apiRes: any;
 
-        // Obtain a real backend ADMIN JWT to authorize product CRUD calls.
-        // Falls back to localStorage-only if token exchange fails (e.g. offline).
-        const ADMIN_PASSWORD = "Anamon12&1marcH2007";
-        const adminJwt = await getAdminJwt(session.email, ADMIN_PASSWORD);
+        // Use the authenticated session JWT
+        const adminJwt = session?.accessToken || (await getAdminJwt());
         const authHeaders: Record<string, string> = adminJwt
-          ? { authorization: `Bearer ${adminJwt}` }
+          ? { Authorization: `Bearer ${adminJwt}` }
           : {};
 
         if (action === "CREATE") {

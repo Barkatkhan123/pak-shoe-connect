@@ -550,7 +550,7 @@ export function AdminDashboardPage() {
 
     // Successful Master Admin password authentication -> establish session directly
     adminSecurityEngine.resetFailedAttempts();
-    const newSession = adminSecurityEngine.createSession(normalizedEmail, true);
+    const newSession = adminSecurityEngine.createSession(normalizedEmail, true, authCheck.token);
     setSession(newSession);
     toast.success("Welcome back, Master Admin! Signed in successfully.");
   };
