@@ -15,29 +15,31 @@ import {
   Product,
 } from "@/data/products";
 
-const getApiBaseUrl = () => {
-  if (typeof window !== "undefined") {
+export const getApiBaseUrl = (): string => {
+  if (typeof window !== "undefined" && window.location) {
     const envUrl =
       typeof import.meta !== "undefined" &&
       import.meta.env &&
       (import.meta.env.VITE_API_URL as string);
-    if (envUrl) return envUrl;
+    if (envUrl && envUrl.startsWith("http")) return envUrl;
 
-    // When deployed on Hostinger static domain, route API calls to the live Vercel backend
+    const hostname = window.location.hostname || "";
+    // When running on Hostinger or custom domains, route directly to the Vercel backend
     if (
-      window.location.hostname.includes("anamonofficial") ||
-      window.location.hostname.includes("hostingersite")
+      hostname.includes("anamonofficial") ||
+      hostname.includes("hostingersite") ||
+      hostname.includes("localhost") ||
+      hostname.includes("127.0.0.1")
     ) {
       return "https://pak-shoe-connect.vercel.app";
     }
-    return "";
+    if (hostname.includes("vercel.app")) {
+      return "";
+    }
+    return "https://pak-shoe-connect.vercel.app";
   }
-  return (
-    (typeof process !== "undefined" && (process.env?.VITE_API_URL || process.env?.SITE_URL)) || ""
-  );
+  return "https://pak-shoe-connect.vercel.app";
 };
-
-const API_BASE_URL = getApiBaseUrl();
 
 export interface ApiResponse<T = any> {
   success: boolean;
@@ -79,7 +81,8 @@ async function request<T = any>(
     finalHeaders["Authorization"] = authHeader;
   }
 
-  let url = `${API_BASE_URL}${endpoint}`;
+  const baseUrl = getApiBaseUrl();
+  let url = baseUrl ? `${baseUrl}${endpoint.startsWith("/") ? endpoint : "/" + endpoint}` : endpoint;
   if (params) {
     const searchParams = new URLSearchParams();
     Object.entries(params).forEach(([key, val]) => {

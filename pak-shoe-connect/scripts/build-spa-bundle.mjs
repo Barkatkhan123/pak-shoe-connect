@@ -3,7 +3,7 @@ import path from "path";
 import fs from "fs";
 
 async function build() {
-  const version = "app-v8";
+  const version = "app-v9";
   const buildTimestamp = Date.now();
   console.log(`🔨 Building production client SPA bundle (${version}.js)...`);
   
@@ -22,7 +22,7 @@ async function build() {
         MODE: "production",
         VITE_SITE_URL: "https://anamonofficial.com",
         VITE_API_URL: "https://pak-shoe-connect.vercel.app",
-        VITE_SUPABASE_URL: "https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud",
+        VITE_SUPABASE_URL: "https://ydkdicudwhxrukppucxy.supabase.co",
         VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy",
         VITE_SUPABASE_PROJECT_ID: "ydkdicudwhxrukppucxy",
       }),
@@ -32,7 +32,7 @@ async function build() {
       "import.meta.env.VITE_API_URL": '"https://pak-shoe-connect.vercel.app"',
       "import.meta.env.VITE_SITE_URL": '"https://anamonofficial.com"',
       "import.meta.env.VITE_SUPABASE_URL":
-        '"https://c--05c6c740-ba8c-4a01-bcbf-ad016f412410-prod.lovable.cloud"',
+        '"https://ydkdicudwhxrukppucxy.supabase.co"',
       "import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY":
         '"sb_publishable__AFZcnPcx6PjXpFNiNlV0g_ciSSWNhy"',
       "import.meta.env.VITE_SUPABASE_PROJECT_ID": '"ydkdicudwhxrukppucxy"',
@@ -50,6 +50,7 @@ async function build() {
 
   // Mirror to previous version filenames as well for any legacy cached requests
   if (fs.existsSync(`dist/client/assets/${version}.js`)) {
+    fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v8.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v7.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v6.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/assets/app-v5.js");
@@ -58,6 +59,7 @@ async function build() {
     
     // Also copy to root assets if needed
     fs.copyFileSync(`dist/client/assets/${version}.js`, `dist/client/${version}.js`);
+    fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/app-v8.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/app-v7.js");
     fs.copyFileSync(`dist/client/assets/${version}.js`, "dist/client/app-v6.js");
   }
