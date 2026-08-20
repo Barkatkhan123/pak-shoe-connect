@@ -40,6 +40,7 @@
  */
 
 // ── Internal Services (PRIVATE — never import these in frontend) ──────────
+import bcrypt from "bcryptjs";
 import { CatalogService } from "../modules/catalog/catalog.service";
 import { SearchService } from "../modules/search/search.service";
 import { PricingService } from "../services/pricing.service";
@@ -401,7 +402,7 @@ export async function apiGateway(
       }
 
       const isValid = user.passwordHash.startsWith("$2")
-        ? require("bcryptjs").compareSync(password, user.passwordHash)
+        ? bcrypt.compareSync(password, user.passwordHash)
         : user.passwordHash === password;
 
       if (!isValid) {
@@ -441,7 +442,7 @@ export async function apiGateway(
       }
 
       try {
-        const passwordHash = require("bcryptjs").hashSync(password, 10);
+        const passwordHash = bcrypt.hashSync(password, 10);
         const newUser = await prisma.user.create({
           data: {
             email: email || null,
