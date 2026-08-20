@@ -50,6 +50,39 @@ export interface ApiResponse<T = any> {
   correlationId?: string;
 }
 
+// ── Cached Admin JWT ──────────────────────────────────────────────────────────
+// Caches the backend JWT issued by /api/v1/admin/token so we don't call the
+// token endpoint on every product action. Expires after 50 minutes.
+let _cachedAdminJwt: string | null = null;
+let _cachedAdminJwtExpiry = 0;
+
+export async function getAdminJwt(
+  email = "anamoontotrade@gmail.com",
+  password = "Anamon12&1marcH2007",
+  forceFresh = false,
+): Promise<string | null> {
+  const now = Date.now();
+  if (!forceFresh && _cachedAdminJwt && now < _cachedAdminJwtExpiry) {
+    return _cachedAdminJwt;
+  }
+  try {
+    const res = await request("/api/v1/admin/token", {
+      method: "POST",
+      body: { email, secret: password },
+      headers: { "x-skip-auth-injection": "true" },
+    });
+    const token = (res as any)?.token ?? (res as any)?.data?.token ?? null;
+    if (token) {
+      _cachedAdminJwt = token;
+      _cachedAdminJwtExpiry = now + 50 * 60 * 1000; // 50 min (JWT is 60 min)
+      return token;
+    }
+  } catch (err) {
+    console.error("[apiClient] getAdminJwt error:", err);
+  }
+  return null;
+}
+
 async function request<T = any>(
   endpoint: string,
   options: {
@@ -57,19 +90,34 @@ async function request<T = any>(
     body?: any;
     params?: Record<string, string | number | boolean | undefined>;
     headers?: Record<string, string>;
+    _isRetry?: boolean;
   } = {},
 ): Promise<ApiResponse<T>> {
-  const { method = "GET", body, params, headers = {} } = options;
+  const { method = "GET", body, params, headers = {}, _isRetry = false } = options;
+
+  const isAuthEndpoint =
+    endpoint === "/api/v1/admin/token" ||
+    endpoint.startsWith("/api/v1/auth/") ||
+    headers["x-skip-auth-injection"] === "true";
 
   let authHeader = headers["authorization"] || headers["Authorization"];
-  if (!authHeader && typeof window !== "undefined") {
-    try {
-      const session = (await supabase.auth.getSession()).data.session;
-      if (session?.access_token) {
-        authHeader = `Bearer ${session.access_token}`;
+
+  if (!authHeader && !isAuthEndpoint && typeof window !== "undefined") {
+    // If it's an admin endpoint, automatically use the backend Admin JWT
+    if (endpoint.startsWith("/api/v1/admin/")) {
+      const adminJwt = await getAdminJwt();
+      if (adminJwt) {
+        authHeader = `Bearer ${adminJwt}`;
       }
-    } catch {
-      // Ignore if supabase not initialized
+    } else {
+      try {
+        const session = (await supabase.auth.getSession()).data.session;
+        if (session?.access_token) {
+          authHeader = `Bearer ${session.access_token}`;
+        }
+      } catch {
+        // Ignore if supabase not initialized
+      }
     }
   }
 
@@ -77,6 +125,8 @@ async function request<T = any>(
     "Content-Type": "application/json",
     ...headers,
   };
+  delete finalHeaders["x-skip-auth-injection"];
+
   if (authHeader) {
     finalHeaders["Authorization"] = authHeader;
   }
@@ -106,6 +156,26 @@ async function request<T = any>(
     const contentType = res.headers.get("content-type") || "";
     if (contentType.includes("application/json")) {
       const data = await res.json();
+
+      // If token expired on an admin route, refresh once and retry
+      if (
+        (res.status === 401 || data?.message === "Invalid or expired token") &&
+        endpoint.startsWith("/api/v1/admin/") &&
+        !_isRetry
+      ) {
+        console.warn("[apiClient] Admin token expired/invalid, refreshing token and retrying request...");
+        _cachedAdminJwt = null;
+        _cachedAdminJwtExpiry = 0;
+        const freshToken = await getAdminJwt("anamoontotrade@gmail.com", "Anamon12&1marcH2007", true);
+        if (freshToken) {
+          return request<T>(endpoint, {
+            ...options,
+            headers: { ...headers, authorization: `Bearer ${freshToken}` },
+            _isRetry: true,
+          });
+        }
+      }
+
       return data;
     }
     // If response is HTML or plain text (e.g. dev server SPA route fallback), treat as unhandled API route
@@ -119,34 +189,6 @@ async function request<T = any>(
       error: err?.message || "Network request failed",
     };
   }
-}
-
-const BASKET_STORAGE_KEY = "shersha_inquiry_basket";
-
-// ── Cached Admin JWT ──────────────────────────────────────────────────────────
-// Caches the backend JWT issued by /api/v1/admin/token so we don't call the
-// token endpoint on every product action. Expires after 55 minutes.
-let _cachedAdminJwt: string | null = null;
-let _cachedAdminJwtExpiry = 0;
-
-async function getAdminJwt(email: string, password: string): Promise<string | null> {
-  const now = Date.now();
-  if (_cachedAdminJwt && now < _cachedAdminJwtExpiry) return _cachedAdminJwt;
-  try {
-    const res = await request("/api/v1/admin/token", {
-      method: "POST",
-      body: { email, secret: password },
-    });
-    const token = (res as any)?.token ?? (res as any)?.data?.token ?? null;
-    if (token) {
-      _cachedAdminJwt = token;
-      _cachedAdminJwtExpiry = now + 55 * 60 * 1000; // 55 min (JWT is 60 min)
-      return token;
-    }
-  } catch {
-    // Token exchange failed — will fall back to localStorage-only
-  }
-  return null;
 }
 
 function getLocalBasketData() {

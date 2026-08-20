@@ -315,6 +315,7 @@ export const adminSecurityEngine = {
       csrfToken: `csrf_token_${Math.random().toString(36).substring(2, 12)}`,
     };
 
+    memoryAdminSession = updated;
     if (typeof window !== "undefined") {
       localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(updated));
     }
